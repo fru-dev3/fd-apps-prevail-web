@@ -7,6 +7,6 @@ This site publishes a structured summary for LLMs and agents at:
 Prevail is an AI harness for life's hard questions: one question fans out to
 every AI CLI you have installed (Claude, Codex, Antigravity, Ollama), they
 answer in parallel, and a chair model writes one verdict. Local-first,
-markdown-native, free and open source (MIT). Mac app + CLI.
+markdown-native, free and open source (GPL-3.0). macOS and Windows apps + CLI.
 
 See /llms.txt for install commands, source repositories, and core concepts.

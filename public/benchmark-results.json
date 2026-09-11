@@ -1,7 +1,7 @@
 {
   "schema": "prevail.benchmark/v1",
   "synthetic": true,
-  "generated_at": "2026-06-12T00:00:00.000Z",
+  "generated_at": "2026-09-11T00:00:00.000Z",
   "seed": true,
   "domains": [
     "calendar",
@@ -21,31 +21,31 @@
       "key": "claude:opus",
       "cli": "claude",
       "model": "opus",
-      "label": "Claude Opus 4.8"
+      "label": "Claude Opus 5"
     },
     {
-      "key": "claude:sonnet",
+      "key": "claude:fable",
       "cli": "claude",
-      "model": "sonnet",
-      "label": "Claude Sonnet 4.6"
+      "model": "fable",
+      "label": "Claude Fable 5.1"
     },
     {
-      "key": "codex:gpt-5.5",
+      "key": "codex:gpt-6-astra",
       "cli": "codex",
-      "model": "gpt-5.5",
-      "label": "GPT-5.5"
+      "model": "gpt-6-astra",
+      "label": "GPT-6 Astra"
     },
     {
       "key": "antigravity:gemini",
       "cli": "antigravity",
       "model": "gemini",
-      "label": "Gemini 3.1 Pro"
+      "label": "Gemini 3.8 Flash"
     },
     {
       "key": "openrouter:deepseek",
       "cli": "openrouter",
       "model": "deepseek",
-      "label": "DeepSeek"
+      "label": "DeepSeek V4 Pro"
     }
   ],
   "matrix": {
@@ -106,7 +106,7 @@
         "n": 3
       }
     },
-    "claude:sonnet": {
+    "claude:fable": {
       "calendar": {
         "judge_avg": 8.0,
         "keyword_avg": 80,
@@ -163,7 +163,7 @@
         "n": 3
       }
     },
-    "codex:gpt-5.5": {
+    "codex:gpt-6-astra": {
       "calendar": {
         "judge_avg": 8.8,
         "keyword_avg": 87,
@@ -338,35 +338,35 @@
   "leaderboard": [
     {
       "key": "claude:opus",
-      "label": "Claude Opus 4.8",
+      "label": "Claude Opus 5",
       "judge_avg": 8.68,
       "keyword_avg": 86,
       "questions": 33
     },
     {
-      "key": "codex:gpt-5.5",
-      "label": "GPT-5.5",
+      "key": "codex:gpt-6-astra",
+      "label": "GPT-6 Astra",
       "judge_avg": 8.36,
       "keyword_avg": 83,
       "questions": 33
     },
     {
-      "key": "claude:sonnet",
-      "label": "Claude Sonnet 4.6",
+      "key": "claude:fable",
+      "label": "Claude Fable 5.1",
       "judge_avg": 8.17,
       "keyword_avg": 82,
       "questions": 33
     },
     {
       "key": "antigravity:gemini",
-      "label": "Gemini 3.1 Pro",
+      "label": "Gemini 3.8 Flash",
       "judge_avg": 7.72,
       "keyword_avg": 77,
       "questions": 33
     },
     {
       "key": "openrouter:deepseek",
-      "label": "DeepSeek",
+      "label": "DeepSeek V4 Pro",
       "judge_avg": 7.38,
       "keyword_avg": 74,
       "questions": 33
