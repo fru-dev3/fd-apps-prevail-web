@@ -2283,6 +2283,38 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 
 const SHIPPED = [
   {
+    date: "Sep 2026",
+    tag: "0.4.0 · Breaking",
+    Icon: Target,
+    title: "A focus release",
+    body: "Prevail does fewer things, and every page works the same way: tabs, a column of items, and the one you pick in full. Spark, Automations, Calendar, Notes and the Work board are removed from the app (your loops keep running and your notes stay in your vault). Settings is down to 11 entries.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
+  },
+  {
+    date: "Sep 2026",
+    tag: "Entities",
+    Icon: Users,
+    title: "Chat with anything",
+    body: "Every person, place, company and thing gets its own conversation that builds over time, with what you know about it in front of the model on every turn. Save any reply to its notes in one click.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
+  },
+  {
+    date: "Sep 2026",
+    tag: "Goals",
+    Icon: Crown,
+    title: "Mission, vision and goals, with history",
+    body: "Your mission and vision sit alongside the goals you add over time. Click any part of your mission to rewrite it; every save keeps the earlier text, and any version can be restored.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
+  },
+  {
+    date: "Sep 2026",
+    tag: "Approvals",
+    Icon: ShieldCheck,
+    title: "Approve right in the conversation",
+    body: "When an agent needs your OK, a card appears under its reply: Allow once, Always for low-risk edits, or Deny. Anything that sends, spends, deletes or touches a password always asks. Schedule a conversation to run on its own.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.3.131`,
+  },
+  {
     date: "Jul 2026",
     tag: "Palette",
     Icon: Terminal,
