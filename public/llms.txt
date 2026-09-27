@@ -66,4 +66,4 @@ Prevail is a fru.dev project (https://fru.dev). Its siblings:
 - [Prevail | Agent Harness](https://prevail.sh): A private AI harness for your life, not your job. Any model, Mac and Windows.
 - [Glyph | Agent Rig](https://glyph.fru.dev): Gives every coding agent session a name you can recognise.
 - [Ibis | Agent Context](https://context.fru.dev): Live data on AI, data and tech; every source kept current by its own agent.
-- [Memosa | Agent Memory](https://memosa.dev): A local-first memory vault.
+- [Memosa | Context Capture](https://memosa.dev): Context capture for agents.

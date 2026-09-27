@@ -1590,7 +1590,7 @@ const FAMILY = [
   { name: "Prevail", role: "Agent Harness", href: "https://prevail.sh", tile: "/brand/prevail-tile.svg", tagline: "A private AI harness for your life, not your job." },
   { name: "Glyph", role: "Agent Rig", href: "https://glyph.fru.dev", tile: "/brand/glyph-tile.svg", tagline: "Gives every coding agent session a name you can recognise." },
   { name: "Ibis", role: "Agent Context", href: "https://context.fru.dev", tile: "/brand/ibis-tile.svg", tagline: "Live data on AI, data and tech, each source kept current by its own agent." },
-  { name: "Memosa", role: "Agent Memory", href: "https://memosa.dev", tile: "/brand/memosa-tile.svg", tagline: "A local-first memory vault." },
+  { name: "Memosa", role: "Context Capture", href: "https://memosa.dev", tile: "/brand/memosa-tile.svg", tagline: "Context capture for agents." },
 ];
 
 function Footer() {
