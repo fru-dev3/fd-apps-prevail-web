@@ -5,88 +5,55 @@
   --font-serif: "Instrument Serif", "Source Serif 4", Georgia, serif;
   --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", "Menlo", monospace;
 
-  /* Prevail brand — dark by default. Light mode overrides below via
-     [data-theme="light"]. Inspired by Linear / Vercel — multiple
-     surface levels so the page never feels flat. */
+  /* Prevail brand, office green (the fru.dev family theme). Dark by default;
+     light mode overrides below via [data-theme="light"]. */
 
-  /* Base background — almost-black, slight warmth */
-  --color-bg: #0a0a0c;
-  /* Surface elevations (gets lighter as you stack cards) */
-  --color-surface-0: #111114;
-  --color-surface-1: #16171b;
-  --color-surface-2: #1c1d22;
-  --color-surface-3: #24262d;
-  /* Borders — barely visible but enough to delineate */
-  --color-border: #2a2c33;
-  --color-border-soft: #1f2127;
-  --color-border-strong: #3a3d46;
+  --color-bg: #0b1210;
+  --color-surface-0: #0f1714;
+  --color-surface-1: #131c18;
+  --color-surface-2: #18231e;
+  --color-surface-3: #1f2b25;
+  --color-border: #26332c;
+  --color-border-soft: #1b2621;
+  --color-border-strong: #34443b;
 
-  /* Text */
-  --color-text: #f5f3ed;
-  --color-text-soft: #b6b1a3;
-  /* Lifted from #6e6a5e — the old value was ~3.3:1 on the page ground and
-     failed WCAG AA for the many small captions set in it. */
-  --color-text-mute: #8b8677;
+  --color-text: #e8ede9;
+  --color-text-soft: #b4beb8;
+  --color-text-mute: #8a968f;
 
-  /* Brand accents */
-  --color-gold: #c4a35a;
-  --color-gold-bright: #d4b675;
-  --color-gold-dim: #8a7440;
-  --color-gold-soft: rgba(196, 163, 90, 0.08);
-  --color-gold-border: rgba(196, 163, 90, 0.22);
+  /* One accent: office green, lifted to #3FA34D for text and strokes on dark */
+  --color-accent: #3fa34d;
+  --color-accent-bright: #52b560;
+  --color-accent-border: rgba(63, 163, 77, 0.25);
 
-  --color-ai: #5fbfff;
-  --color-ai-bright: #88d0ff;
-  --color-ai-soft: rgba(95, 191, 255, 0.08);
-
-  /* Per-CLI accents (used in mockups) */
-  --color-claude: #c4a35a;
-  --color-codex: #5fbfff;
-  --color-antigravity: #6ee787;
-  --color-ollama: #c4a8ff;
-
-  /* Semantic */
-  --color-ok: #6ee787;
-  --color-warn: #f0c674;
+  /* The "ai" in the wordmark and AI highlights share the accent */
+  --color-ai: #3fa34d;
 }
 
-/* Light theme overrides — applied by toggling data-theme="light" on
-   the <html> element. Same brand colors, inverted surfaces. */
 :root[data-theme="light"] {
-  --color-bg: #faf8f1;
+  --color-bg: #f6f7f4;
   --color-surface-0: #ffffff;
-  --color-surface-1: #f5f2e8;
-  --color-surface-2: #eee9d8;
-  --color-surface-3: #e6e0cb;
-  --color-border: #d8d1bd;
-  --color-border-soft: #e8e3d1;
-  --color-border-strong: #b8ad8e;
+  --color-surface-1: #eef1ec;
+  --color-surface-2: #e6eae4;
+  --color-surface-3: #dce2da;
+  --color-border: #d2d9d0;
+  --color-border-soft: #e3e8e1;
+  --color-border-strong: #aeb9b0;
 
-  --color-text: #1a1814;
-  --color-text-soft: #5a544a;
-  --color-text-mute: #8a8270;
+  --color-text: #0b1210;
+  --color-text-soft: #3e4843;
+  --color-text-mute: #5b6660;
 
-  --color-gold: #a8862d;
-  --color-gold-bright: #c4a35a;
-  --color-gold-dim: #7a6020;
-  --color-gold-soft: rgba(168, 134, 45, 0.08);
-  --color-gold-border: rgba(168, 134, 45, 0.28);
+  --color-accent: #008000;
+  --color-accent-bright: #006b00;
+  --color-accent-border: rgba(0, 128, 0, 0.2);
 
-  --color-ai: #1976d2;
-  --color-ai-bright: #1565c0;
-  --color-ai-soft: rgba(25, 118, 210, 0.07);
-
-  --color-claude: #a8862d;
-  --color-codex: #1976d2;
-  --color-antigravity: #2e7d32;
-  --color-ollama: #6a3eb5;
-
-  --color-ok: #2e7d32;
-  --color-warn: #b87f10;
+  --color-ai: #008000;
 }
 
 @layer base {
   html { scroll-behavior: smooth; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   body {
     @apply bg-bg text-text antialiased;
     font-feature-settings: "ss01" 1, "cv11" 1;
@@ -112,22 +79,22 @@
 }
 
 /* Glow halos behind hero / sections — softer in light mode */
-.glow-gold {
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(196, 163, 90, 0.15) 0%, transparent 60%);
+.glow-accent {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(63, 163, 77, 0.14) 0%, transparent 60%);
 }
-:root[data-theme="light"] .glow-gold {
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(196, 163, 90, 0.22) 0%, transparent 60%);
+:root[data-theme="light"] .glow-accent {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 128, 0, 0.1) 0%, transparent 60%);
 }
 .glow-ai {
-  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(95, 191, 255, 0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(63, 163, 77, 0.1) 0%, transparent 70%);
 }
 :root[data-theme="light"] .glow-ai {
-  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(25, 118, 210, 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0, 128, 0, 0.07) 0%, transparent 70%);
 }
 
 /* Frosted glass surface — used on nav, mock window chrome */
 .frost {
-  background: rgba(17, 17, 20, 0.7);
+  background: rgba(11, 18, 16, 0.7);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
@@ -139,12 +106,12 @@
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(110, 106, 94, 0.25);
+  background: rgba(91, 102, 96, 0.25);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(110, 106, 94, 0.5); }
+::-webkit-scrollbar-thumb:hover { background: rgba(91, 102, 96, 0.5); }
 
 /* Animations */
 @keyframes blink {
@@ -166,9 +133,9 @@
 .shimmer {
   background: linear-gradient(
     90deg,
-    rgba(196, 163, 90, 0.0) 0%,
-    rgba(196, 163, 90, 0.5) 50%,
-    rgba(196, 163, 90, 0.0) 100%
+    rgba(63, 163, 77, 0.0) 0%,
+    rgba(63, 163, 77, 0.5) 50%,
+    rgba(63, 163, 77, 0.0) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;

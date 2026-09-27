@@ -1,4 +1,4 @@
-# Prevail — notes for AI agents
+# Prevail: notes for AI agents
 
 This site publishes a structured summary for LLMs and agents at:
 

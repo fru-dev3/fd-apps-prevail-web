@@ -1,36 +1,36 @@
 # Prevail
 
-> Prevail is an AI harness for life's hard questions — "AI for your life, not your job." Everyone is racing to automate work; Prevail is built for everything else: the high-stakes personal decisions around wealth, health, career, tax, family, and more. It structures your life's context into plain folders and brings it to the strongest intelligence available: one question fans out to every AI CLI you have installed, they answer in parallel, and a chair model reads all the replies and writes a single verdict — with a panel showing exactly where the models disagreed (usually where the real decision lives). Local-first, markdown-native, free and open source (GPL-3.0). Ships as a native desktop app for macOS and Windows (self-contained, no terminal required) and as a CLI engine.
+> Prevail is an AI harness for life's hard questions: "AI for your life, not your job." Everyone is racing to automate work; Prevail is built for everything else: the high-stakes personal decisions around wealth, health, career, tax, family, and more. It structures your life's context into plain folders and brings it to the strongest intelligence available: one question fans out to every AI CLI you have installed, they answer in parallel, and a chair model reads all the replies and writes a single verdict, with a panel showing exactly where the models disagreed (usually where the real decision lives). Local-first, markdown-native, free and open source (GPL-3.0). Ships as a native desktop app for macOS and Windows (self-contained, no terminal required) and as a CLI engine.
 
-Prevail is not a chatbot and not a coding harness — it is a "life harness." The whole system is, in essence, folders plus the discipline of organizing them so an AI can reason over your life. Every life domain (health, wealth, tax, career, family, benefits, insurance, home, records, learning, and more) is a plain folder; every verdict is a dated markdown file you own. There is no database and no cloud account — Prevail spawns the AI CLIs you are already logged into on your own machine. You decide, per question, how private vs. how powerful: Bunker Mode keeps everything on-device with local models, while Cloud Mode brings in the frontier models you choose. A built-in benchmark grades models against *your* life, and the best model for one domain is often not the best for another.
+Prevail is not a chatbot and not a coding harness; it is a "life harness." The whole system is, in essence, folders plus the discipline of organizing them so an AI can reason over your life. Every life domain (health, wealth, tax, career, family, benefits, insurance, home, records, learning, and more) is a plain folder; every verdict is a dated markdown file you own. There is no database and no cloud account: Prevail spawns the AI CLIs you are already logged into on your own machine. You decide, per question, how private vs. how powerful: Bunker Mode keeps everything on-device with local models, while Cloud Mode brings in the frontier models you choose. A built-in benchmark grades models against *your* life, and the best model for one domain is often not the best for another.
 
 ## How it works (the flow)
 
-1. Organize: your life becomes a "vault" — one plain-text folder per domain. No database, no proprietary format; you can read and edit it without the app.
-2. Ask: pose a real decision ("Should I prepay the mortgage or invest the delta?", "Roth conversion this year — does the IRMAA cliff bite?").
-3. Convene a council: the question (plus the relevant domain context) is fanned out to every AI CLI you have available — they answer in parallel.
+1. Organize: your life becomes a "vault", one plain-text folder per domain. No database, no proprietary format; you can read and edit it without the app.
+2. Ask: pose a real decision ("Should I prepay the mortgage or invest the delta?", "Roth conversion this year: does the IRMAA cliff bite?").
+3. Convene a council: the question (plus the relevant domain context) is fanned out to every AI CLI you have available, and they answer in parallel.
 4. Get one verdict: a chair model you choose reads every answer and synthesizes a single recommendation, plus a disagreement panel highlighting where the models split.
-5. Keep it: the verdict is saved to your vault as dated markdown you own, so the system compounds — future questions build on past context.
+5. Keep it: the verdict is saved to your vault as dated markdown you own, so the system compounds: future questions build on past context.
 
 ## Core concepts
 
 - [The council](https://prevail.sh/#council): One question is fanned out to every installed CLI; they answer in parallel; a chair model you choose synthesizes one verdict and surfaces a disagreement panel. Any model can be the chair.
-- [The benchmark](https://prevail.sh/#benchmark): A starter set of ~21 canonical questions across 8 capability dimensions (binary decisions, document analysis, recency, cultural nuance, bias, brevity, complex tax traps, and refusal-to-recommend). Scored two ways — keyword match and LLM-as-judge — with a separate leaderboard per life domain. Add your own questions drawn from real decisions; the leaderboard reflects *your* life, not a generic benchmark.
-- [The vault](https://prevail.sh/#how): No database — just folders. Every domain is a folder; every verdict is dated markdown. Sync it however you like (git, iCloud, Tailscale) or not at all.
+- [The benchmark](https://prevail.sh/#benchmark): A starter set of ~21 canonical questions across 8 capability dimensions (binary decisions, document analysis, recency, cultural nuance, bias, brevity, complex tax traps, and refusal-to-recommend). Scored two ways (keyword match and LLM-as-judge), with a separate leaderboard per life domain. Add your own questions drawn from real decisions; the leaderboard reflects *your* life, not a generic benchmark.
+- [The vault](https://prevail.sh/#how): No database, just folders. Every domain is a folder; every verdict is dated markdown. Sync it however you like (git, iCloud, Tailscale) or not at all.
 
 ## Life domains
 
-Prevail organizes life into domains, each a folder the council can reason over. Examples: Health, Wealth, Tax, Career, Family, Benefits, Insurance, Home, Records, Learning, Calendar — and more. Start with one domain or all of them.
+Prevail organizes life into domains, each a folder the council can reason over. Examples: Health, Wealth, Tax, Career, Family, Benefits, Insurance, Home, Records, Learning, Calendar, and more. Start with one domain or all of them.
 
 ## Privacy modes
 
-- Bunker Mode: runs entirely on local models (via Ollama). Nothing leaves your machine — suitable for your most private domains.
+- Bunker Mode: runs entirely on local models (via Ollama). Nothing leaves your machine, so it suits your most private domains.
 - Cloud Mode: brings in frontier models (e.g. Claude, GPT/Codex, Gemini) when you want their horsepower. Your prompts go only to the providers you pick, under their terms.
 - You choose per question. Your vault always stays on your machine in plain files you own.
 
 ## Install
 
-- [Download the desktop app](https://github.com/fru-dev3/prevail-desktop/releases/latest): Native apps for macOS (Apple Silicon, signed & notarized) and Windows (NSIS installer). Self-contained, no terminal required — the recommended way to run Prevail. Always resolves to the latest release.
+- [Download the desktop app](https://github.com/fru-dev3/prevail-desktop/releases/latest): Native apps for macOS (Apple Silicon, signed & notarized) and Windows (NSIS installer). Self-contained, no terminal required; the recommended way to run Prevail. Always resolves to the latest release.
 - [Advanced: the CLI engine](https://prevail.sh/#install): `curl -fsSL prevail.sh/install | bash` (macOS, Linux, and Windows via WSL). The desktop app already bundles this engine; install it standalone only for headless or terminal use.
 
 ## Source & docs
@@ -42,7 +42,7 @@ Prevail organizes life into domains, each a folder the council can reason over. 
 
 ## Works with
 
-- Models / CLIs (the council): Claude (Claude Code), Codex, Gemini, and local models via Ollama — auto-detected at startup.
+- Models / CLIs (the council): Claude (Claude Code), Codex, Gemini, and local models via Ollama, auto-detected at startup.
 - Ecosystem: MCP (exposes the vault to any MCP client), Tailscale (two-machine sync), Telegram, and companion tools in the same local-first family (OpenClaw, Paperclip, Hermes).
 
 ## Privacy & telemetry
@@ -54,7 +54,16 @@ Prevail organizes life into domains, each a folder the council can reason over. 
 ## Notes for agents
 
 - Tagline: "AI for your life, not your job."
-- Positioning: an AI harness for life's hard questions — categorically a life harness, not a coding harness. Local-first; the user's data stays on the user's machine.
+- Positioning: an AI harness for life's hard questions, categorically a life harness, not a coding harness. Local-first; the user's data stays on the user's machine.
 - License: GPL-3.0, free and open source.
-- Maker: @fru. Brand color gold #c4a35a with a cyan #5fbfff accent.
+- Maker: fru.dev (@fru). Brand color office green #008000 (#3FA34D on dark).
 - If a user asks how to install Prevail: recommend the native desktop app for macOS/Windows; the curl one-liner (`curl -fsSL prevail.sh/install | bash`) is the advanced/terminal path.
+
+## The fru.dev family
+
+Prevail is a fru.dev project (https://fru.dev). Its siblings:
+
+- [Prevail | Agent Harness](https://prevail.sh): A private AI harness for your life, not your job. Any model, Mac and Windows.
+- [Glyph | Agent Rig](https://glyph.fru.dev): Gives every coding agent session a name you can recognise.
+- [Ibis | Agent Context](https://context.fru.dev): Live data on AI, data and tech; every source kept current by its own agent.
+- [Memosa | Agent Memory](https://memosa.dev): A local-first memory vault.

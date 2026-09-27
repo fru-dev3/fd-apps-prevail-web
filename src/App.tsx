@@ -270,7 +270,7 @@ const ECOSYSTEM = [
   { name: "OpenClaw", color: "#ff4d4d", blurb: "Chat gateway on Telegram & WhatsApp", render: (c: string) => <OpenClawMark className={c} /> },
   { name: "Paperclip", color: "#0092b7", blurb: "A team of agents for your work", render: (c: string) => <Paperclip className={c} /> },
   { name: "Hermes", color: "#c4a8ff", blurb: "An agent harness for autonomous tasks", render: (c: string) => <HermesBrand className={c} /> },
-  { name: "MCP", color: "#6ee787", blurb: "Your vault, readable by any MCP client", render: (c: string) => <Plug className={c} /> },
+  { name: "MCP", color: "#3FA34D", blurb: "Your vault, readable by any MCP client", render: (c: string) => <Plug className={c} /> },
 ];
 
 // Reusable model-logo row — actual brand logos in their official colors.
@@ -380,28 +380,28 @@ function DownloadCounter({ value }: { value: number }) {
       <div
         role="img"
         aria-label={`${formatted} downloads, counted live from GitHub releases`}
-        className="flex items-center gap-4 rounded-2xl border border-gold-border bg-surface-1 py-3 pl-5 pr-6"
-        style={{ boxShadow: "0 10px 48px rgba(196, 163, 90, 0.22)" }}
+        className="flex items-center gap-4 rounded-2xl border border-accent-border bg-surface-1 py-3 pl-5 pr-6"
+        style={{ boxShadow: "0 10px 48px rgba(63, 163, 77, 0.22)" }}
       >
         <span className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
             <motion.span
-              className="absolute inset-0 rounded-full bg-gold"
+              className="absolute inset-0 rounded-full bg-accent"
               animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
             />
-            <span className="relative h-2 w-2 rounded-full bg-gold" />
+            <span className="relative h-2 w-2 rounded-full bg-accent" />
           </span>
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gold">Live</span>
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">Live</span>
         </span>
-        <span aria-hidden className="flex items-center gap-[3px] font-mono text-3xl font-semibold tabular-nums text-gold md:text-4xl">
+        <span aria-hidden className="flex items-center gap-[3px] font-mono text-3xl font-semibold tabular-nums text-accent md:text-4xl">
           {formatted.split("").map((c, i) => {
             if (/\d/.test(c)) {
               digitIndex += 1;
               return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
             }
             return (
-              <span key={i} className="px-0.5 pb-[0.15em] text-gold/60">
+              <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
                 {c}
               </span>
             );
@@ -509,7 +509,7 @@ function LiveStats() {
           key={label}
           className="flex flex-col items-center rounded-xl border border-border-soft bg-surface-0 px-3 py-5 text-center"
         >
-          <Icon className="h-5 w-5 text-gold" />
+          <Icon className="h-5 w-5 text-accent" />
           <span className="mt-2 font-mono text-2xl font-semibold tabular-nums tracking-tight md:text-3xl">
             {value}
           </span>
@@ -541,6 +541,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
           <Logo />
           <span className="text-lg font-semibold tracking-tight">
             <Brand />
+            <span className="hidden font-normal text-text-mute sm:inline"> | Agent Harness</span>
           </span>
         </a>
         <div className="hidden items-center gap-6 text-sm text-text-soft md:flex">
@@ -553,7 +554,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
             >
               <l.Icon className="h-4 w-4" /> {l.label}
               {"badge" in l && l.badge && (
-                <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">{DEMO_SLIDES.length}</span>
+                <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent">{DEMO_SLIDES.length}</span>
               )}
             </a>
           ))}
@@ -572,8 +573,8 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
           <a
             href="#install"
             onClick={() => track("download_click", { location: "nav" })}
-            className="inline-flex items-center gap-1.5 rounded-md bg-gold px-3 py-1.5 text-sm font-medium text-bg transition-all hover:bg-gold-bright hover:-translate-y-0.5 sm:px-4"
-            style={{ boxShadow: "0 4px 24px rgba(196, 163, 90, 0.25)" }}
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5 sm:px-4"
+            style={{ boxShadow: "0 4px 24px rgba(63, 163, 77, 0.25)" }}
           >
             Download
             <ArrowRight className="h-3.5 w-3.5" />
@@ -613,37 +614,39 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
   );
 }
 
-// Official Prevail mark — inline SVG (dark tile + ascending chevrons + a
-// guiding star lifted clear of the apex). Vector, so it stays crisp and the
-// star can animate on its own.
+// Official Prevail mark, the tile from the fru.dev family marks
+// (public/brand/prevail-tile.svg): stacked chevrons and a dot on a dark tile.
+// Inline so it stays crisp and the dot can animate on its own.
 function Logo({ size = 24, animated = false }: { size?: number; animated?: boolean }) {
   const star = animated ? (
     <motion.circle
-      cx="256"
-      r="22"
-      fill="#3CD8FF"
-      animate={{ cy: [106, 90, 106], opacity: [1, 0.75, 1] }}
+      cx="50"
+      r="6"
+      fill="#3FA34D"
+      animate={{ cy: [13.5, 10, 13.5], opacity: [1, 0.75, 1] }}
       transition={{ duration: 1.9, ease: "easeInOut", repeat: Infinity }}
-      style={{ filter: "drop-shadow(0 0 6px rgba(60,216,255,0.55))" }}
+      style={{ filter: "drop-shadow(0 0 3px rgba(63, 163, 77, 0.55))" }}
     />
   ) : (
-    <circle cx="256" cy="106" r="22" fill="#3CD8FF" />
+    <circle cx="50" cy="13.5" r="6" fill="#3FA34D" />
   );
   const svg = (
     <svg
-      viewBox="0 0 512 512"
+      viewBox="0 0 100 100"
       width={size}
       height={size}
       style={{ width: size, height: size, display: "block" }}
       role="img"
       aria-label="Prevail"
     >
-      <rect x="0" y="0" width="512" height="512" rx="116" fill="#141416" />
-      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M116 312 L256 176 L396 312" stroke="#C4A35A" strokeWidth="56" />
-        <path d="M156 392 L256 296 L356 392" stroke="#6E5C32" strokeWidth="34" />
+      <rect width="100" height="100" rx="22" fill="#0B1210" />
+      <g transform="translate(14 14) scale(.72)">
+        <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13.5 67 50 31.5 86.5 67" stroke="#3FA34D" strokeWidth="14.5" />
+          <path d="M24 88 50 63 76 88" stroke="#008000" strokeWidth="9" />
+        </g>
+        {star}
       </g>
-      {star}
     </svg>
   );
   if (!animated) return svg;
@@ -663,9 +666,9 @@ function Logo({ size = 24, animated = false }: { size?: number; animated?: boole
             rotateX: [7, 2, 7],
             rotateY: [-5, 5, -5],
             filter: [
-              "drop-shadow(0 2px 6px rgba(196,163,90,0.35))",
-              "drop-shadow(0 8px 18px rgba(60,216,255,0.45))",
-              "drop-shadow(0 2px 6px rgba(196,163,90,0.35))",
+              "drop-shadow(0 2px 6px rgba(63, 163, 77,0.35))",
+              "drop-shadow(0 8px 18px rgba(63, 163, 77,0.45))",
+              "drop-shadow(0 2px 6px rgba(63, 163, 77,0.35))",
             ],
           }}
           transition={{ duration: T, ease: "easeInOut", repeat: Infinity }}
@@ -685,7 +688,7 @@ function Headline() {
   return (
     <h1 className="whitespace-nowrap text-center font-semibold tracking-[-0.02em] leading-[1.08] text-[clamp(1.55rem,5vw,3.4rem)]">
       <span className="text-text">Don&rsquo;t just keep up with AI.</span>{" "}
-      <span className="font-serif italic text-gold [text-shadow:0_2px_28px_rgba(196,163,90,0.35)]">
+      <span className="font-serif italic text-accent [text-shadow:0_2px_28px_rgba(63, 163, 77,0.35)]">
         Prevail.
       </span>
     </h1>
@@ -695,7 +698,7 @@ function Headline() {
 // ─────────────────────────────────────────────────────────────────────────────
 // HERO
 
-// Ambient hero background — a single slow gold aurora plus a faint cool
+// Ambient hero background: a single slow green aurora plus a faint second
 // counterweight. Deliberately quiet: the download button should be the
 // brightest thing in the viewport, and the layer respects the OS
 // reduced-motion preference like everything else on the page.
@@ -703,12 +706,12 @@ function HeroGlow() {
   const reduce = useReducedMotion();
   const orbs = [
     {
-      className: "left-[8%] top-[-12%] h-[52vw] w-[52vw] bg-[radial-gradient(circle,rgba(196,163,90,0.16),transparent_70%)]",
+      className: "left-[8%] top-[-12%] h-[52vw] w-[52vw] bg-[radial-gradient(circle,rgba(63, 163, 77,0.16),transparent_70%)]",
       anim: { x: [0, 40, -24, 0], y: [0, -24, 18, 0], scale: [1, 1.08, 0.95, 1] },
       dur: 26,
     },
     {
-      className: "right-[-12%] top-[18%] h-[38vw] w-[38vw] bg-[radial-gradient(circle,rgba(95,191,255,0.09),transparent_70%)]",
+      className: "right-[-12%] top-[18%] h-[38vw] w-[38vw] bg-[radial-gradient(circle,rgba(63, 163, 77,0.09),transparent_70%)]",
       anim: { x: [0, -32, 16, 0], y: [0, 24, -16, 0], scale: [1, 0.94, 1.06, 1] },
       dur: 32,
     },
@@ -741,7 +744,7 @@ function Hero() {
   const heroSlide = DEMO_SLIDES[0];
   return (
     <section className="relative isolate overflow-hidden pt-14 pb-16 grain md:pt-20">
-      <div className="glow-gold absolute inset-0 -z-10" />
+      <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
         <FadeIn delay={0}>
@@ -771,7 +774,7 @@ function Hero() {
         <FadeIn delay={0.1}>
           <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
             Your <span className="text-text">adaptive intelligence</span> for everything you
-            manage, build, decide, and <span className="font-medium text-gold">become</span>.
+            manage, build, decide, and <span className="font-medium text-accent">become</span>.
           </p>
         </FadeIn>
 
@@ -782,8 +785,8 @@ function Hero() {
                 href={isWindows ? exe.url : dmg.url}
                 download={isWindows ? exe.name : dmg.name}
                 onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-8 py-3 font-medium text-bg transition-all hover:bg-gold-bright hover:-translate-y-0.5"
-                style={{ boxShadow: "0 6px 32px rgba(196, 163, 90, 0.3)" }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+                style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
               >
                 <Download className="h-4 w-4" />
                 Download for {isWindows ? "Windows" : "macOS"}
@@ -807,7 +810,7 @@ function Hero() {
             muted; the full three-clip carousel lives one section down. */}
         <FadeIn delay={0.22} y={24}>
           <div className="mt-12 w-full max-w-4xl">
-            <div className="overflow-hidden rounded-2xl border border-gold-border bg-black shadow-2xl">
+            <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
               <video
                 src={heroSlide.src}
                 poster={heroSlide.poster}
@@ -883,7 +886,7 @@ function DomainRadial() {
             stroke="currentColor"
             strokeWidth={active === i ? 0.35 : 0.2}
             strokeDasharray="0.9 0.9"
-            className={`transition-all duration-500 ${active === i ? "text-gold/60" : "text-border"}`}
+            className={`transition-all duration-500 ${active === i ? "text-accent/60" : "text-border"}`}
           />
         ))}
         {!reduce &&
@@ -891,7 +894,7 @@ function DomainRadial() {
             <motion.circle
               key={`pulse-${n.label}`}
               r="0.75"
-              className="fill-gold"
+              className="fill-accent"
               initial={{ cx: n.x, cy: n.y, opacity: 0 }}
               animate={{ cx: 50, cy: 50, opacity: [0, 0.9, 0] }}
               transition={{ duration: 2.1, repeat: Infinity, ease: "easeIn", delay: (i / N) * 2.1 }}
@@ -902,16 +905,16 @@ function DomainRadial() {
       {!reduce && (
         <motion.span
           className="absolute left-1/2 top-1/2 -z-0 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{ width: "34%", height: "34%", background: "radial-gradient(circle, rgba(196,163,90,0.28), transparent 70%)" }}
+          style={{ width: "34%", height: "34%", background: "radial-gradient(circle, rgba(63, 163, 77,0.28), transparent 70%)" }}
           animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.25, 0.6] }}
           transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden
         />
       )}
 
-      <div className="absolute left-1/2 top-1/2 z-10 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-gold-border bg-surface-1 shadow-lg md:h-24 md:w-24">
+      <div className="absolute left-1/2 top-1/2 z-10 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-border bg-surface-1 shadow-lg md:h-24 md:w-24">
         <Logo size={26} />
-        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-gold">You</span>
+        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-accent">You</span>
       </div>
 
       {nodes.map((n, i) => {
@@ -927,12 +930,12 @@ function DomainRadial() {
           >
             <div
               className={`flex h-10 w-10 items-center justify-center rounded-full border bg-surface-0 transition-all duration-500 md:h-11 md:w-11 ${
-                on ? "border-gold-border text-gold shadow-[0_0_18px_rgba(196,163,90,0.35)]" : "border-border-soft text-text-soft"
+                on ? "border-accent-border text-accent shadow-[0_0_18px_rgba(63, 163, 77,0.35)]" : "border-border-soft text-text-soft"
               }`}
             >
               <Icon className="h-5 w-5" />
             </div>
-            <span className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors duration-500 md:text-[10px] ${on ? "text-gold" : "text-text-mute"}`}>
+            <span className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors duration-500 md:text-[10px] ${on ? "text-accent" : "text-text-mute"}`}>
               {n.label}
             </span>
           </div>
@@ -964,8 +967,7 @@ function DomainRadial() {
 // isn't the best for another — the winner (row 0) deliberately changes by
 // domain. Rows are [judge score, keyword %, model].
 // Heat color for a 0-10 judge score: emerald green for strong, muted slate for
-// weak. Green reads as "good" at a glance and keeps the board off the gold the
-// rest of the site uses.
+// weak. Green reads as "good" at a glance.
 // The live Prevail Benchmark: model x domain matrix + leaderboard, loaded from
 // the committed results JSON (refreshed by the weekly CI). Synthetic data.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -979,7 +981,7 @@ function Pillars() {
     <section id="how" className="scroll-mt-20 border-t border-border-soft py-24 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-gold">
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             How <Brand /> works
           </p>
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
@@ -992,7 +994,7 @@ function Pillars() {
               icon: Layers,
               title: "For life's biggest decisions",
               text: "Wealth, health, career, tax, estate, and more. Prevail is built for the high-stakes parts of your life, each a plain folder you own. No database, no cloud.",
-              color: "#6ee787",
+              color: "#3FA34D",
               visual: (
                 // The life-domains radial, relocated from the hero — it
                 // explains the "you at the center" model, which is exactly
@@ -1006,7 +1008,7 @@ function Pillars() {
               icon: Scale,
               title: "A council, not just one model",
               text: "Ask every AI model at once, not just one. A chair reads all the answers, writes a single verdict, and flags where they disagree. New: hand a task to an agent (Hermes, Pi, OpenCode) and it runs it end-to-end, not just answers.",
-              color: "#c4a35a",
+              color: "#3FA34D",
               visual: (
                 <div className="flex flex-col items-center">
                   {/* Round table: named models seated around Prevail; one is the chair */}
@@ -1017,7 +1019,7 @@ function Pillars() {
                     <div
                       className="absolute left-1/2 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-border bg-surface-0"
                       title="Prevail"
-                      style={{ boxShadow: "0 0 30px rgba(196, 163, 90, 0.25)" }}
+                      style={{ boxShadow: "0 0 30px rgba(63, 163, 77, 0.25)" }}
                     >
                       <Logo size={26} />
                     </div>
@@ -1033,18 +1035,18 @@ function Pillars() {
                           title={m.name}
                           aria-label={m.chair ? `${m.name} (chair)` : m.name}
                           className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
-                            m.chair ? "ring-2 ring-gold" : "ring-2 ring-surface-0"
+                            m.chair ? "ring-2 ring-accent" : "ring-2 ring-surface-0"
                           }`}
                           style={{ background: m.bg, color: m.fg }}
                         >
                           {m.render("h-4 w-4")}
                           {m.chair && (
-                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-bg">
+                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-bg">
                               <Crown className="h-2.5 w-2.5" />
                             </span>
                           )}
                         </span>
-                        <span className={`text-[10px] font-medium ${m.chair ? "text-gold" : "text-text-mute"}`}>
+                        <span className={`text-[10px] font-medium ${m.chair ? "text-accent" : "text-text-mute"}`}>
                           {m.name}
                         </span>
                       </div>
@@ -1060,30 +1062,30 @@ function Pillars() {
               icon: Sparkles,
               title: "It learns and adapts",
               text: "Every question and verdict stays in your vault, so Prevail learns your life and adapts as things change, working for you, not just answering.",
-              color: "#5fbfff",
+              color: "#3FA34D",
               visual: (
                 <div className="flex flex-col items-center">
                   {/* A mind that keeps thinking: ripples radiate out, memories accrete */}
                   <div className="relative mx-auto flex h-28 w-full items-center justify-center">
-                    <span className="absolute h-24 w-24 rounded-full border border-[#5fbfff]/15" aria-hidden />
-                    <span className="absolute h-16 w-16 rounded-full border border-[#5fbfff]/30" aria-hidden />
+                    <span className="absolute h-24 w-24 rounded-full border border-[#3FA34D]/15" aria-hidden />
+                    <span className="absolute h-16 w-16 rounded-full border border-[#3FA34D]/30" aria-hidden />
                     <motion.span
-                      className="absolute h-12 w-12 rounded-full border border-[#5fbfff]/50"
+                      className="absolute h-12 w-12 rounded-full border border-[#3FA34D]/50"
                       animate={{ scale: [1, 2.1], opacity: [0.5, 0] }}
                       transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
                       aria-hidden
                     />
                     <span
-                      className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-[#5fbfff]/50 bg-surface-0 text-[#5fbfff]"
-                      style={{ boxShadow: "0 0 26px rgba(95,191,255,0.4)" }}
+                      className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-[#3FA34D]/50 bg-surface-0 text-[#3FA34D]"
+                      style={{ boxShadow: "0 0 26px rgba(63, 163, 77,0.4)" }}
                     >
                       <Sparkles className="h-5 w-5" />
                     </span>
                     {/* memories accumulating around the mind */}
-                    <span className="absolute h-2 w-2 rounded-full bg-[#5fbfff]" style={{ left: "78%", top: "24%" }} aria-hidden />
-                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#5fbfff]/70" style={{ left: "20%", top: "64%" }} aria-hidden />
-                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#5fbfff]/60" style={{ left: "70%", top: "76%" }} aria-hidden />
-                    <span className="absolute h-1 w-1 rounded-full bg-[#5fbfff]/50" style={{ left: "28%", top: "26%" }} aria-hidden />
+                    <span className="absolute h-2 w-2 rounded-full bg-[#3FA34D]" style={{ left: "78%", top: "24%" }} aria-hidden />
+                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#3FA34D]/70" style={{ left: "20%", top: "64%" }} aria-hidden />
+                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#3FA34D]/60" style={{ left: "70%", top: "76%" }} aria-hidden />
+                    <span className="absolute h-1 w-1 rounded-full bg-[#3FA34D]/50" style={{ left: "28%", top: "26%" }} aria-hidden />
                   </div>
                   <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-text-mute">learns a little more each time</div>
                 </div>
@@ -1167,7 +1169,7 @@ function Momentum() {
               <FadeIn key={r.title} delay={i * 0.06}>
                 <div className="flex h-full flex-col rounded-xl border border-border-soft bg-surface-0 p-6 transition-all hover:border-border hover:bg-surface-1">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 text-gold">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="font-mono text-xs uppercase tracking-wider text-text-mute">{r.date}</span>
@@ -1205,7 +1207,7 @@ function Ecosystem() {
     <section className="border-t border-border-soft py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-gold">Plays well with your stack</p>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">Plays well with your stack</p>
           <h2 className="mx-auto mt-4 text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl text-balance">
             One knowledge layer, <span className="font-serif italic text-text-soft">shared with your agents.</span>
           </h2>
@@ -1334,7 +1336,7 @@ const INSTALL_TABS = [
     kind: "cmd",
     prompt: true,
     command: "Please install prevail\nhttps://prevail.sh/llms.txt",
-    caption: "Paste into Claude or any coding agent — it reads llms.txt and installs Prevail.",
+    caption: "Paste into Claude or any coding agent: it reads llms.txt and installs Prevail.",
     icon: (c: string) => <SimpleIcon icon={siClaude} className={c} />,
   },
 ] as const;
@@ -1347,7 +1349,7 @@ function AppPane({ platform }: { platform: "mac" | "win" }) {
   const build = isMac ? dmg : exe;
   return (
     <div className="flex flex-col items-center text-center sm:flex-row sm:gap-7 sm:text-left">
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-gold-border bg-surface-1 text-gold">
+      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-accent-border bg-surface-1 text-accent">
         {isMac ? (
           <SimpleIcon icon={siApple} className="h-9 w-9" />
         ) : (
@@ -1355,7 +1357,7 @@ function AppPane({ platform }: { platform: "mac" | "win" }) {
         )}
       </div>
       <div className="mt-5 min-w-0 flex-1 sm:mt-0">
-        <div className="text-xs font-medium uppercase tracking-[0.2em] text-gold">
+        <div className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
           {isMac ? "Desktop · macOS arm64" : "Desktop · Windows x64"}
         </div>
         <h3 className="mt-2 text-2xl font-bold tracking-tight">
@@ -1369,8 +1371,8 @@ function AppPane({ platform }: { platform: "mac" | "win" }) {
           href={build.url}
           download={build.name}
           onClick={() => track("download_click", { location: "install", platform })}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-gold py-3 font-medium text-bg transition-all hover:bg-gold-bright hover:-translate-y-0.5 sm:w-auto sm:px-9"
-          style={{ boxShadow: "0 6px 32px rgba(196, 163, 90, 0.3)" }}
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5 sm:w-auto sm:px-9"
+          style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
         >
           <Download className="h-4 w-4" />
           {isMac ? "Download .dmg" : "Download installer"}
@@ -1408,7 +1410,7 @@ function CmdPane({
             command
           ) : (
             <>
-              <span className="text-gold">$ </span>
+              <span className="text-accent">$ </span>
               {command}
             </>
           )}
@@ -1418,7 +1420,7 @@ function CmdPane({
           aria-label={copied ? "Copied" : "Copy to clipboard"}
           className="shrink-0 rounded-md p-1.5 text-text-mute transition-colors hover:bg-surface-1 hover:text-text"
         >
-          {copied ? <Check className="h-4 w-4 text-gold" /> : <Copy className="h-4 w-4" />}
+          {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
         </button>
       </div>
       <p className="mt-4 text-center text-xs text-text-mute">{caption}</p>
@@ -1433,7 +1435,7 @@ function InstallStudio() {
   );
   const active = INSTALL_TABS.find((t) => t.key === tab)!;
   return (
-    <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border bg-[#0c0c0e] shadow-2xl">
+    <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border bg-[#0b1210] shadow-2xl">
       {/* title bar: traffic lights + icon-forward tab strip */}
       <div className="flex items-center justify-between gap-3 border-b border-border-soft px-4 py-3">
         <div className="hidden gap-1.5 sm:flex">
@@ -1478,10 +1480,10 @@ function InstallStudio() {
 function DownloadSection() {
   return (
     <section id="install" className="border-t border-border-soft py-24 md:py-32 grain">
-      <div className="glow-gold absolute inset-0 -z-10 opacity-50" />
+      <div className="glow-accent absolute inset-0 -z-10 opacity-50" />
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-gold">
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             Ask a council. Prevail.
           </p>
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
@@ -1542,7 +1544,7 @@ function FAQSection() {
     <section className="border-t border-border-soft py-24 md:py-28">
       <div className="mx-auto max-w-3xl px-6">
         <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-gold">FAQ</p>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">FAQ</p>
           <h2 className="mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
 <span className="font-serif italic text-text-soft">Quick</span> answers.
           </h2>
@@ -1559,7 +1561,7 @@ function FAQSection() {
                   <div className="flex items-center justify-between gap-4">
                     <span className="font-medium">{item.q}</span>
                     <span
-                      className={`text-gold transition-transform ${
+                      className={`text-accent transition-transform ${
                         isOpen ? "rotate-45" : ""
                       }`}
                     >
@@ -1584,64 +1586,48 @@ function FAQSection() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Footer
 
+const FAMILY = [
+  { name: "Prevail", role: "Agent Harness", href: "https://prevail.sh", tile: "/brand/prevail-tile.svg", tagline: "A private AI harness for your life, not your job." },
+  { name: "Glyph", role: "Agent Rig", href: "https://glyph.fru.dev", tile: "/brand/glyph-tile.svg", tagline: "Gives every coding agent session a name you can recognise." },
+  { name: "Ibis", role: "Agent Context", href: "https://context.fru.dev", tile: "/brand/ibis-tile.svg", tagline: "Live data on AI, data and tech, each source kept current by its own agent." },
+  { name: "Memosa", role: "Agent Memory", href: "https://memosa.dev", tile: "/brand/memosa-tile.svg", tagline: "A local-first memory vault." },
+];
+
 function Footer() {
   return (
     <footer className="border-t border-border-soft bg-surface-0">
       <div className="mx-auto max-w-6xl px-6 py-16">
+        {/* The fru.dev family: same four projects, same order, on every site. */}
         <div>
-          <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-text-mute">
-            Part of a family of private, local-first tools
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                name: "Memosa",
-                tagline: "Private meeting memory for Mac",
-                href: "https://memosa.dev/",
-                tile: <img src="/memosa-logo.png" alt="Memosa" className="h-full w-full object-cover" />,
-                tileClass: "overflow-hidden bg-[#0c0c0e]",
-              },
-              {
-                name: "Prevail",
-                tagline: "AI for your life, not your job",
-                href: null,
-                tile: <Logo size={22} />,
-                tileClass: "bg-[#0c0c0e]",
-              },
-              {
-                name: "AI Ready U",
-                tagline: "Score and grow your AI readiness",
-                href: "https://aireadyu.dev/",
-                tile: <img src="/aireadyu-logo.svg" alt="AI Ready U" className="h-full w-full" />,
-                tileClass: "overflow-hidden",
-              },
-            ].map((f) => {
+          <h2 className="text-center text-2xl font-semibold tracking-tight">
+            A{" "}
+            <a href="https://fru.dev" className="text-accent hover:underline">
+              fru.dev
+            </a>{" "}
+            project
+          </h2>
+          <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-2">
+            {FAMILY.map((f) => {
+              const here = f.name === "Prevail";
               const inner = (
                 <div
                   className={`flex h-full items-center gap-4 rounded-2xl border p-5 transition-colors ${
-                    f.href ? "border-border-soft hover:border-border hover:bg-surface-1" : "border-gold-border/60 bg-surface-1"
+                    here ? "border-accent-border/60 bg-surface-1" : "border-border-soft hover:border-border hover:bg-surface-1"
                   }`}
                 >
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${f.tileClass}`}>
-                    {f.tile}
-                  </div>
+                  <img src={f.tile} alt="" className="h-12 w-12 shrink-0 rounded-xl" />
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 font-semibold">
-                      {f.name}
-                      {f.href ? (
-                        <ArrowRight className="h-3.5 w-3.5 text-text-mute" />
-                      ) : (
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-gold">you're here</span>
-                      )}
+                    <div className="font-semibold">
+                      {f.name} <span className="font-normal text-text-mute">| {f.role}</span>
                     </div>
                     <div className="mt-0.5 text-sm text-text-soft">{f.tagline}</div>
                   </div>
                 </div>
               );
-              return f.href ? (
-                <a key={f.name} href={f.href} target="_blank" rel="noreferrer">{inner}</a>
+              return here ? (
+                <div key={f.name} aria-current="page">{inner}</div>
               ) : (
-                <div key={f.name}>{inner}</div>
+                <a key={f.name} href={f.href} target="_blank" rel="noreferrer">{inner}</a>
               );
             })}
           </div>
@@ -1651,10 +1637,13 @@ function Footer() {
         <div className="mt-16 flex flex-col items-center gap-6 border-t border-border-soft pt-12 text-center">
           <div className="flex items-center gap-2">
             <Logo size={22} />
-            <Brand className="text-lg font-semibold" />
+            <span className="text-lg font-semibold">
+              <Brand />
+              <span className="font-normal text-text-mute"> | Agent Harness</span>
+            </span>
           </div>
           <p className="font-serif text-2xl italic text-text-soft md:text-3xl text-balance">
-            AI for your <span className="not-italic text-gold">life</span>, not your job.
+            AI for your <span className="not-italic text-accent">life</span>, not your job.
           </p>
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-soft">
             <a href="/changelog" className="hover:text-text">Changelog &amp; roadmap</a>
@@ -1730,10 +1719,10 @@ function DemoVideo() {
   return (
     <section id="demo" className="border-t border-border-soft py-20 md:py-28 grain">
       <div className="relative mx-auto max-w-[1700px] px-4 sm:px-6">
-        <div className="glow-gold absolute inset-0 -z-10 opacity-40" />
+        <div className="glow-accent absolute inset-0 -z-10 opacity-40" />
         <FadeIn>
           <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
               See it in action
             </p>
             <h2 className="mx-auto mt-4 text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
@@ -1746,7 +1735,7 @@ function DemoVideo() {
         </FadeIn>
         <FadeIn delay={0.15}>
           <div className="group relative mt-8">
-            <div className="overflow-hidden rounded-2xl border border-gold-border bg-black shadow-2xl">
+            <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
               <video
                 key={slide.src}
                 src={slide.src}
@@ -1793,7 +1782,7 @@ function DemoVideo() {
               aria-current={i === idx}
               className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-all ${
                 i === idx
-                  ? "border-gold-border bg-gold text-bg"
+                  ? "border-accent-border bg-accent text-bg"
                   : "border-border-soft text-text-mute hover:border-border-strong hover:text-text"
               }`}
             >
@@ -1818,7 +1807,7 @@ function DemoVideo() {
 // Minimal Odysseus mark — no official logo, so a clean monochrome sail-on-wave
 // glyph (currentColor) for the "external alternative" card. Geometric only.
 // Each product is a COLUMN. `blurb` is the short 1–2 sentence description that
-// sits under the logo in the header. `hero` lights Prevail's column gold.
+// sits under the logo in the header. `hero` lights Prevail's column in the accent.
 // Cell value: true = full, "part" = partial/indirect, false = absent.
 // #RRGGBB → rgba(), for the per-brand color bands and glows applied inline.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1852,10 +1841,10 @@ function ThesisPage() {
   return (
     <main className="pt-14">
       <section className="relative overflow-hidden py-24 md:py-32 grain">
-        <div className="glow-gold absolute inset-0 -z-10 opacity-30" />
+        <div className="glow-accent absolute inset-0 -z-10 opacity-30" />
         <div className="mx-auto max-w-3xl px-6 text-center">
           <FadeIn>
-            <p className="text-xs uppercase tracking-[0.2em] text-gold">Why <Brand /> exists</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Why <Brand /> exists</p>
             <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-[-0.02em] md:text-6xl">
               A private intelligence for every person,{" "}
               <span className="font-serif italic text-text-soft">that compounds for a lifetime.</span>
@@ -1877,7 +1866,7 @@ function ThesisPage() {
           {THESES.map((t, i) => (
             <FadeIn key={t.title} delay={i * 0.04}>
               <div className="flex gap-6 border-b border-border-soft py-12 last:border-b-0 md:gap-10">
-                <div className="font-serif text-4xl italic text-gold md:text-5xl">{String(i + 1).padStart(2, "0")}</div>
+                <div className="font-serif text-4xl italic text-accent md:text-5xl">{String(i + 1).padStart(2, "0")}</div>
                 <div>
                   <h2 className="text-2xl font-semibold leading-snug tracking-[-0.01em] md:text-3xl">{t.title}</h2>
                   <p className="mt-4 text-lg leading-relaxed text-text-soft">{t.body}</p>
@@ -1897,8 +1886,8 @@ function ThesisPage() {
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <a
                 href={dmg.url}
-                className="inline-flex items-center gap-2 rounded-md bg-gold px-6 py-3 text-sm font-medium text-bg transition-all hover:bg-gold-bright hover:-translate-y-0.5"
-                style={{ boxShadow: "0 4px 24px rgba(196, 163, 90, 0.25)" }}
+                className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+                style={{ boxShadow: "0 4px 24px rgba(63, 163, 77, 0.25)" }}
               >
                 <Download className="h-4 w-4" /> Download for macOS
               </a>
@@ -1933,13 +1922,13 @@ const LIFE_DOMAINS: { label: string; Icon: typeof Heart }[] = [
 const DIFFERENTIATORS = [
   {
     Icon: Target,
-    color: "#6ee787",
+    color: "#3FA34D",
     title: "It works toward your goals",
     body: "Proactive loops, reminders, and generated tasks pursue what matters in the background. It doesn't just respond, it follows up.",
   },
   {
     Icon: ShieldCheck,
-    color: "#c4a8ff",
+    color: "#3FA34D",
     title: "Bunker or Cloud, your call",
     body: "Bunker Mode runs entirely on local models, nothing leaves your machine. Cloud Mode brings in Claude, GPT, and Gemini for the frontier. Switch per question.",
   },
@@ -1966,7 +1955,7 @@ type LegalSection = {
 
 const LEGAL_SECTIONS: LegalSection[] = [
   {
-    title: "Part I — Terms of Service",
+    title: "Part I: Terms of Service",
     part: true,
   },
   {
@@ -1991,7 +1980,7 @@ const LEGAL_SECTIONS: LegalSection[] = [
   {
     title: "3. Open-Source Software",
     body: [
-      "Prevail is licensed under the GNU General Public License v3.0 (GPL-3.0). Nothing in these Terms of Service restricts, modifies, or supersedes the rights granted to you under that license with respect to the source code itself — including the rights to use, study, modify, and redistribute the software under the terms of the GPL-3.0.",
+      "Prevail is licensed under the GNU General Public License v3.0 (GPL-3.0). Nothing in these Terms of Service restricts, modifies, or supersedes the rights granted to you under that license with respect to the source code itself, including the rights to use, study, modify, and redistribute the software under the terms of the GPL-3.0.",
       "These Terms of Service govern the Services (the website, install script, and any optional telemetry endpoint) and your use of the Prevail name and branding, which are separate from the rights granted under the GPL-3.0.",
     ],
   },
@@ -2018,7 +2007,7 @@ const LEGAL_SECTIONS: LegalSection[] = [
   {
     title: "6. Your Content and Intellectual Property",
     body: [
-      "You own your vault and everything in it. Prevail is local-first: your Content stays in plain files on your machine and never leaves it except where you explicitly direct it — for example, when you use Cloud Mode, which sends your prompts and the context you select to the AI providers you choose.",
+      "You own your vault and everything in it. Prevail is local-first: your Content stays in plain files on your machine and never leaves it except where you explicitly direct it, for example when you use Cloud Mode, which sends your prompts and the context you select to the AI providers you choose.",
       "We claim no license to, and no ownership of, your Content. Because we do not receive it, we cannot use, reproduce, or distribute it.",
       "fru.dev retains all rights, title, and interest in the Prevail name, logo, and branding, and in the prevail.sh website. The source code remains available to you under the GPL-3.0.",
     ],
@@ -2026,14 +2015,14 @@ const LEGAL_SECTIONS: LegalSection[] = [
   {
     title: "7. Third-Party AI Providers and Tools",
     body: [
-      "Prevail orchestrates third-party AI command-line tools and models that you have installed or are logged into — for example Claude, Codex, Gemini, and local models via Ollama. Prevail does not provide these models; it convenes the ones already available on your machine.",
+      "Prevail orchestrates third-party AI command-line tools and models that you have installed or are logged into, for example Claude, Codex, Gemini, and local models via Ollama. Prevail does not provide these models; it convenes the ones already available on your machine.",
       "When you use Cloud Mode, your prompts and the context you select are sent to the third-party providers you choose, under their own terms of service and privacy policies. In Bunker Mode, processing stays on-device with local models. You are responsible for reviewing and complying with the terms of each provider you enable.",
     ],
   },
   {
     title: "8. Telemetry and Analytics",
     body: [
-      "Prevail collects no telemetry by default. It sends nothing unless you explicitly opt in within Settings. If you opt in, telemetry is anonymous — a random local identifier, never your name, email, files, or chats — limited to a small fixed list of events, and you can see exactly what is sent and turn it off at any time.",
+      "Prevail collects no telemetry by default. It sends nothing unless you explicitly opt in within Settings. If you opt in, telemetry is anonymous (a random local identifier, never your name, email, files, or chats), limited to a small fixed list of events, and you can see exactly what is sent and turn it off at any time.",
       "The prevail.sh marketing website uses Google Analytics to understand aggregate traffic. Ratings, user counts, and similar figures shown on the website are illustrative.",
     ],
   },
@@ -2070,7 +2059,7 @@ const LEGAL_SECTIONS: LegalSection[] = [
     title: "13. Termination",
     body: [
       "You may stop using Prevail and the Services at any time. Because Prevail runs locally and requires no account, fru.dev does not control your local use and cannot revoke a copy you already have, subject to the GPL-3.0. fru.dev may suspend or discontinue the Services (such as the website or install script) at any time, with or without notice.",
-      "Sections that by their nature should survive termination — including Sections 6, 8, 9, 10, and 11 — shall survive.",
+      "Sections that by their nature should survive termination, including Sections 6, 8, 9, 10, and 11, shall survive.",
     ],
   },
   {
@@ -2092,14 +2081,14 @@ const LEGAL_SECTIONS: LegalSection[] = [
     ],
   },
   {
-    title: "Part II — Privacy Policy",
+    title: "Part II: Privacy Policy",
     part: true,
     anchor: "privacy",
   },
   {
     title: "1. Our Approach to Privacy",
     body: [
-      "Prevail is built local-first. The software runs on your machine, stores your vault in plain files you own, and sends us nothing by default. This Privacy Policy describes the limited data collected through the Services (the prevail.sh website and any optional, opt-in telemetry) — not data from Prevail itself, which we do not receive.",
+      "Prevail is built local-first. The software runs on your machine, stores your vault in plain files you own, and sends us nothing by default. This Privacy Policy describes the limited data collected through the Services (the prevail.sh website and any optional, opt-in telemetry), not data from Prevail itself, which we do not receive.",
       "This policy does not apply to third-party services or AI providers you use alongside Prevail. We encourage you to review their privacy policies.",
     ],
   },
@@ -2126,7 +2115,7 @@ const LEGAL_SECTIONS: LegalSection[] = [
         "Detect, prevent, and address security or technical issues;",
         "Comply with legal obligations.",
       ],
-      "We do not sell your data. We do not use your vault or Content to train machine-learning models — we do not have it.",
+      "We do not sell your data. We do not use your vault or Content to train machine-learning models; we do not have it.",
     ],
   },
   {
@@ -2134,7 +2123,7 @@ const LEGAL_SECTIONS: LegalSection[] = [
     body: [
       "We do not sell personal data. We may share the limited data we hold in these circumstances:",
       [
-        "Service providers: with the vendors that run our infrastructure — for example Netlify (website hosting), Google Analytics, and GitHub (source, releases, and issues) — subject to their own terms.",
+        "Service providers: with the vendors that run our infrastructure (for example Vercel for website hosting, Google Analytics, and GitHub for source, releases, and issues), subject to their own terms.",
         "Legal requirements: when required by law, regulation, legal process, or governmental request.",
         "Protection of rights: to protect the rights, property, or safety of fru.dev, our users, or the public.",
       ],
@@ -2204,10 +2193,10 @@ function LegalPage() {
   return (
     <main className="pt-14">
       <section className="relative overflow-hidden py-20 md:py-28 grain">
-        <div className="glow-gold absolute inset-0 -z-10 opacity-25" />
+        <div className="glow-accent absolute inset-0 -z-10 opacity-25" />
         <div className="mx-auto max-w-3xl px-6">
           <FadeIn>
-            <p className="text-xs uppercase tracking-[0.2em] text-gold">Legal</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Legal</p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
               Terms of Service{" "}
               <span className="font-serif italic text-text-soft">&amp;</span>{" "}
@@ -2235,7 +2224,7 @@ function LegalPage() {
               <h2
                 key={s.title}
                 id={s.anchor}
-                className="mt-14 scroll-mt-24 border-b border-border-soft pb-4 text-xs font-medium uppercase tracking-[0.2em] text-gold first:mt-0"
+                className="mt-14 scroll-mt-24 border-b border-border-soft pb-4 text-xs font-medium uppercase tracking-[0.2em] text-accent first:mt-0"
               >
                 {s.title}
               </h2>
@@ -2452,10 +2441,10 @@ function ChangelogPage() {
   return (
     <main className="pt-14">
       <section className="relative overflow-hidden py-20 md:py-24 grain">
-        <div className="glow-gold absolute inset-0 -z-10 opacity-25" />
+        <div className="glow-accent absolute inset-0 -z-10 opacity-25" />
         <div className="mx-auto max-w-3xl px-6">
           <FadeIn>
-            <p className="text-xs uppercase tracking-[0.2em] text-gold">Changelog &amp; roadmap</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Changelog &amp; roadmap</p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
               What's shipped,{" "}
               <span className="font-serif italic text-text-soft">what's next.</span>
@@ -2468,7 +2457,7 @@ function ChangelogPage() {
         </div>
       </section>
 
-      {/* On the horizon — roadmap as a timeline (cyan), above the shipped line */}
+      {/* On the horizon: roadmap as a timeline, above the shipped line */}
       <section className="border-t border-border-soft py-14 md:py-16 grain">
         <div className="mx-auto max-w-3xl px-6">
           <FadeIn>
@@ -2497,11 +2486,11 @@ function ChangelogPage() {
         </div>
       </section>
 
-      {/* Shipped — deployed timeline (gold), below the line */}
+      {/* Shipped: deployed timeline (accent), below the line */}
       <section className="border-t border-border-soft py-14 md:py-16">
         <div className="mx-auto max-w-3xl px-6">
           <FadeIn>
-            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-gold">Shipped</h2>
+            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-accent">Shipped</h2>
           </FadeIn>
           <div className="mt-8 border-l border-border-soft pl-6">
             {SHIPPED.map((r, i) => {
@@ -2509,7 +2498,7 @@ function ChangelogPage() {
               return (
                 <FadeIn key={r.title} delay={i * 0.04}>
                   <div className="relative pb-9 last:pb-0">
-                    <span className="absolute -left-[31px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-gold-border bg-surface-0 text-gold ring-4 ring-bg">
+                    <span className="absolute -left-[31px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-accent-border bg-surface-0 text-accent ring-4 ring-bg">
                       <Icon className="h-3.5 w-3.5" />
                     </span>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -2519,7 +2508,7 @@ function ChangelogPage() {
                         target="_blank"
                         rel="noreferrer"
                         title="View on GitHub Releases"
-                        className="rounded-full border border-gold-border/60 bg-gold/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-gold transition-colors hover:bg-gold/20"
+                        className="rounded-full border border-accent-border/60 bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent transition-colors hover:bg-accent/20"
                       >
                         {r.tag} ↗
                       </a>
