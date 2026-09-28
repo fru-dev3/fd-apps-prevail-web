@@ -755,11 +755,11 @@ function Hero() {
           <a
             href="#obsidian"
             onClick={() => track("obsidian_pill_click", { location: "hero" })}
-            className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 rounded-full border border-[#7c3aed]/50 bg-[#7c3aed]/10 px-5 py-2 text-sm font-medium text-text transition-all hover:border-[#a78bfa] hover:-translate-y-0.5"
-            style={{ boxShadow: "0 0 26px rgba(124, 58, 237, 0.3)" }}
+            className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 rounded-full border border-accent/50 bg-accent/10 px-5 py-2 text-sm font-medium text-text transition-all hover:border-accent hover:-translate-y-0.5"
+            style={{ boxShadow: "0 0 26px color-mix(in srgb, var(--color-accent) 30%, transparent)" }}
           >
             <SimpleIcon icon={siObsidian} className="h-5 w-5 shrink-0 text-[#a78bfa]" />
-            <span className="rounded-full bg-[#7c3aed]/30 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#c4b5fd]">
+            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-accent">
               New
             </span>
             Bring your Obsidian vault into Prevail
