@@ -2284,6 +2284,14 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 const SHIPPED = [
   {
     date: "Sep 2026",
+    tag: "0.4.3",
+    Icon: Layers,
+    title: "What you say reaches everywhere it belongs",
+    body: "Mention an insurance claim while chatting in another domain and Prevail notes it in Insurance too, and on the thing it concerns, with a line under the reply showing where it landed. Every domain and every one of your things gets an Across your life section, folded into its state once a day. Your own people, places and things are kept apart from names that only come up in a reply.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.3`,
+  },
+  {
+    date: "Sep 2026",
     tag: "0.4.1",
     Icon: Plug,
     title: "Chat with your apps, and your own data as a source",
