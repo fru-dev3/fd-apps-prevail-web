@@ -34,3 +34,4 @@ public/*.dmg
 
 # Vercel
 .vercel
+.env*

@@ -2284,6 +2284,14 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 const SHIPPED = [
   {
     date: "Sep 2026",
+    tag: "0.4.1",
+    Icon: Plug,
+    title: "Chat with your apps, and your own data as a source",
+    body: "Pick an app like Gmail and chat with it, or type @ in any conversation to bring in an app, a person or a domain. Every call an app gets is logged, with anything sensitive left out. Add your own data sites as trusted sources: an MCP address, a site or links. Named councils, a simpler Arena, entity pictures and duplicate merging, and a much faster app: clicks no longer freeze the window.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.1`,
+  },
+  {
+    date: "Sep 2026",
     tag: "0.4.0 · Breaking",
     Icon: Target,
     title: "A focus release",
