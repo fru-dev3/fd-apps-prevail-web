@@ -1217,13 +1217,13 @@ function Ecosystem() {
         <FadeIn>
           <div
             id="obsidian"
-            className="mx-auto mt-12 flex max-w-4xl scroll-mt-24 flex-col items-center gap-6 rounded-2xl border border-[#7c3aed]/30 bg-surface-0 p-8 md:flex-row md:gap-8 md:p-10"
+            className="mx-auto mt-12 flex max-w-4xl scroll-mt-24 flex-col items-center gap-6 rounded-2xl border border-accent/30 bg-surface-0 p-8 md:flex-row md:gap-8 md:p-10"
           >
             {/* Obsidian -> Prevail import flow */}
             <div className="flex shrink-0 items-center gap-4">
               <span
-                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#7c3aed]/40 bg-[#7c3aed]/10 text-[#7c3aed]"
-                style={{ boxShadow: "0 0 28px rgba(124, 58, 237, 0.35)" }}
+                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-[#7c3aed]"
+                style={{ boxShadow: "0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
               >
                 <SimpleIcon icon={siObsidian} className="h-8 w-8" />
               </span>
@@ -1233,7 +1233,7 @@ function Ecosystem() {
               </span>
             </div>
             <div className="text-center md:text-left">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#a78bfa]">New</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">New</p>
               <h3 className="mt-1 text-xl font-semibold tracking-[-0.01em]">
                 Bring your Obsidian vault
               </h3>
