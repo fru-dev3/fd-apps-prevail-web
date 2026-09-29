@@ -2284,6 +2284,14 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 const SHIPPED = [
   {
     date: "Sep 2026",
+    tag: "0.4.4",
+    Icon: Target,
+    title: "Projects, and a structure that grows with you",
+    body: "Projects are their own thing: status, what done looks like, a target date, their domains and goals, and a chat of their own. When a topic with no home keeps coming up, Prevail offers a new domain and fills it in; you accept, snooze or say never. Apps read reliably inside Claude Code, say plainly when they need you to sign in again, and work across several Google accounts.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.4`,
+  },
+  {
+    date: "Sep 2026",
     tag: "0.4.3",
     Icon: Layers,
     title: "What you say reaches everywhere it belongs",
