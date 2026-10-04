@@ -35,7 +35,7 @@ try {
     }
   }
   if (total < prev || total === 0) throw new Error(`got ${total}, keeping ${prev}`);
-  writeFileSync(OUT, JSON.stringify({ total, at: new Date().toISOString() }, null, 2) + "\n");
+  writeFileSync(OUT, JSON.stringify({ total }, null, 2) + "\n");
   console.log(`download total: ${total}`);
 } catch (e) {
   console.warn(`download total: fetch failed (${e.message}); keeping ${prev}`);
