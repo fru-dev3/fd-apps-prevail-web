@@ -53,11 +53,11 @@ import {
   siApple,
   siClaude,
   siGooglegemini,
-  siObsidian,
   siOllama,
   siProducthunt,
 } from "simple-icons";
 import { APP_VERSION, useLatestVersion, useLiveVersion } from "./version";
+import downloadSnapshot from "./download-total.json";
 
 const GITHUB_DESKTOP = "https://github.com/fru-dev3/prevail-desktop";
 const PRODUCT_HUNT_URL = "https://www.producthunt.com/products/prevail-2?launch=prevail";
@@ -415,6 +415,9 @@ const DOWNLOAD_SOURCES: { repo: string; asset: RegExp }[] = [
   { repo: "fru-dev3/prevail-desktop", asset: /\.(dmg|exe)$/ },
   { repo: "fru-dev3/prevail-cli", asset: /\.tar\.gz$/ },
 ];
+const LS_DOWNLOADS = "prevail-download-total";
+// Written by scripts/fetch-downloads.mjs before every build.
+const BUILD_DOWNLOAD_TOTAL: number = downloadSnapshot.total || 0;
 let _downloadTotal: Promise<number | null> | null = null;
 function fetchDownloadTotal(): Promise<number | null> {
   if (_downloadTotal) return _downloadTotal;
@@ -426,7 +429,7 @@ function fetchDownloadTotal(): Promise<number | null> {
           const r = await fetch(
             `https://api.github.com/repos/${src.repo}/releases?per_page=100&page=${page}`,
           );
-          if (!r.ok) break;
+          if (!r.ok) return null; // partial sums would undercount
           const rels = (await r.json()) as { assets?: { name?: string; download_count?: number }[] }[];
           if (!Array.isArray(rels) || rels.length === 0) break;
           for (const rel of rels)
@@ -436,20 +439,37 @@ function fetchDownloadTotal(): Promise<number | null> {
           if (rels.length < 100) break;
         }
       }
-      // A rate-limited API yields 0; hide the counter rather than show "0 downloads".
-      return total || null;
+      // A rate-limited API yields 0 (or a 403 that breaks early); treat as a miss.
+      if (!total) return null;
+      try {
+        localStorage.setItem(LS_DOWNLOADS, String(total));
+      } catch {
+        /* storage blocked */
+      }
+      return total;
     } catch {
       return null;
     }
   })();
   return _downloadTotal;
 }
+// Best known total before the live fetch answers: the larger of the
+// build-time snapshot and this browser's last successful live count.
+function cachedDownloadTotal(): number | null {
+  let saved = 0;
+  try {
+    saved = Number(localStorage.getItem(LS_DOWNLOADS)) || 0;
+  } catch {
+    /* storage blocked */
+  }
+  return Math.max(BUILD_DOWNLOAD_TOTAL, saved) || null;
+}
 function useDownloadTotal(): number | null {
-  const [n, setN] = useState<number | null>(null);
+  const [n, setN] = useState<number | null>(cachedDownloadTotal);
   useEffect(() => {
     let cancelled = false;
     fetchDownloadTotal().then((v) => {
-      if (!cancelled) setN(v);
+      if (!cancelled && v) setN((prev) => Math.max(prev ?? 0, v));
     });
     return () => {
       cancelled = true;
@@ -661,28 +681,9 @@ function Hero() {
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
-        <FadeIn delay={0}>
-          {/* The Obsidian on-ramp owns the sole top slot (Product Hunt keeps
-              its footer badge): the Obsidian community is a primary audience,
-              and one loud pill beats two quiet ones. Anchors to the featured
-              banner below. */}
-          <a
-            href="#obsidian"
-            onClick={() => track("obsidian_pill_click", { location: "hero" })}
-            className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 rounded-full border border-accent/50 bg-accent/10 px-5 py-2 text-sm font-medium text-text transition-all hover:border-accent hover:-translate-y-0.5"
-            style={{ boxShadow: "0 0 26px color-mix(in srgb, var(--color-accent) 30%, transparent)" }}
-          >
-            <SimpleIcon icon={siObsidian} className="h-5 w-5 shrink-0 text-[#a78bfa]" />
-            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-accent">
-              New
-            </span>
-            Bring your Obsidian vault into Prevail
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </FadeIn>
 
         <FadeIn delay={0.1}>
-          <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
             Your <span className="text-text">adaptive intelligence</span> for everything you
             manage, build, decide, and <span className="font-medium text-accent">become</span>.
           </p>
@@ -1389,51 +1390,6 @@ function InstallStudio() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DOWNLOAD / INSTALL section — one tabbed card for every platform & method
-
-// Obsidian on-ramp: the hero pill anchors here.
-function ObsidianSection() {
-  return (
-    <section className="border-t border-border-soft py-16 md:py-20">
-      <div className="mx-auto max-w-6xl px-6">
-        <FadeIn>
-          <div
-            id="obsidian"
-            className="mx-auto flex max-w-4xl scroll-mt-24 flex-col items-center gap-6 rounded-2xl border border-accent/30 bg-surface-0 p-8 md:flex-row md:gap-8 md:p-10"
-          >
-            {/* Obsidian -> Prevail import flow */}
-            <div className="flex shrink-0 items-center gap-4">
-              <span
-                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-[#7c3aed]"
-                style={{ boxShadow: "0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
-              >
-                <SimpleIcon icon={siObsidian} className="h-8 w-8" />
-              </span>
-              <ArrowRight className="h-5 w-5 text-text-mute" aria-hidden />
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-surface-1">
-                <Logo size={32} />
-              </span>
-            </div>
-            <div className="text-center md:text-left">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">New</p>
-              <h3 className="mt-1 text-xl font-semibold tracking-[-0.01em]">
-                Bring your Obsidian vault
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-soft">
-                Years of notes in Obsidian? Import them in one step. Wikilinks, tags, and folders
-                arrive as plain markdown in your Prevail vault, so every model on the council can
-                read what you already know. One click in the app, or{" "}
-                <code className="rounded bg-surface-1 px-1.5 py-0.5 font-mono text-[12px] text-text">
-                  prevail obsidian import
-                </code>{" "}
-                in the CLI.
-              </p>
-            </div>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
 
 function DownloadSection() {
   return (
@@ -2681,7 +2637,6 @@ function LandingMain() {
       <Hero />
       <Pillars />
       <Momentum />
-      <ObsidianSection />
       <DownloadSection />
       <FAQSection />
     </main>
