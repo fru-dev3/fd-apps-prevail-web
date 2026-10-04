@@ -36,6 +36,7 @@ import {
   Star,
   Sun,
   Target,
+  Compass,
   Terminal,
   TrendingUp,
   Users,
@@ -45,7 +46,6 @@ import {
   siApple,
   siClaude,
   siGooglegemini,
-  siObsidian,
   siOllama,
   siProducthunt,
 } from "simple-icons";
@@ -207,72 +207,7 @@ function WindowsMark({ className = "" }: { className?: string }) {
     </svg>
   );
 }
-
-// Custom MCP server logo — Model Context Protocol uses a stylized
-// 'M' or hexagon-grid mark. The official protocol mark isn't on
-// simple-icons yet, so we render a small stylized version that reads
 // as "connected nodes" — the spirit of MCP.
-// Hermes AI brand mark — winged caduceus. References the Greek
-// messenger god Hermes (caduceus = the winged staff with two snakes).
-// Stylized + simplified for icon-scale rendering. No canonical public
-// SVG exists for any product called "Hermes AI" so this is bespoke.
-function HermesBrand({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      {/* Central staff */}
-      <line x1="12" y1="3" x2="12" y2="22" strokeWidth="2" />
-      {/* Ball on top */}
-      <circle cx="12" cy="3.2" r="1.2" fill="currentColor" stroke="none" />
-      {/* Wings — two angled strokes off each side near the top */}
-      <path d="M12 6 Q 7 5.5 4 7.5 Q 7.5 7 9 8.5" />
-      <path d="M12 6 Q 17 5.5 20 7.5 Q 16.5 7 15 8.5" />
-      {/* Two snakes — single S-curves crossing the staff */}
-      <path d="M12 9 C 9 11 15 12 12 14" strokeWidth="1.4" />
-      <path d="M12 14 C 9 16 15 17 12 19" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-// OpenClaw brand mark — Fru's Telegram gateway. Its canonical logo is a
-// lobster (openclaw.ai/favicon.svg). This is that mark as a monochrome
-// silhouette (currentColor) so it tints consistently with the rest of the
-// "works with" strip; the full-color brand-red version is OpenClawBrand below.
-function OpenClawMark({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 120 120" className={className} fill="currentColor" stroke="currentColor" aria-label="OpenClaw">
-      {/* body */}
-      <path d="M60 10 C30 10 15 35 15 55 C15 75 30 95 45 100 L45 110 L55 110 L55 100 C55 100 60 102 65 100 L65 110 L75 110 L75 100 C90 95 105 75 105 55 C105 35 90 10 60 10Z" />
-      {/* left claw */}
-      <path d="M20 45 C5 40 0 50 5 60 C10 70 20 65 25 55 C28 48 25 45 20 45Z" />
-      {/* right claw */}
-      <path d="M100 45 C115 40 120 50 115 60 C110 70 100 65 95 55 C92 48 95 45 100 45Z" />
-      {/* antennae */}
-      <path d="M45 15 Q35 5 30 8" fill="none" strokeWidth="3" strokeLinecap="round" />
-      <path d="M75 15 Q85 5 90 8" fill="none" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-// Hero model strip — recognizable model brands ONLY, in their official
-// colors, so a cold visitor borrows credibility from names they already
-// trust. Our own ecosystem tools (OpenClaw, Paperclip, Hermes) live in the
-// dedicated Ecosystem section instead — mixing unknown marks in here dilutes
-// the effect.
-const MODEL_STRIP = [
-  { name: "Claude", color: "#cc785c", render: (c: string) => <SimpleIcon icon={siClaude} className={c} /> },
-  { name: "OpenAI", color: "#ededed", render: (c: string) => <OpenAIMark className={c} /> },
-  { name: "Gemini", color: "#4285F4", render: (c: string) => <SimpleIcon icon={siGooglegemini} className={c} /> },
-  { name: "Ollama", color: "#ededed", render: (c: string) => <SimpleIcon icon={siOllama} className={c} /> },
-];
-
-// Ecosystem strip — the agent stack Prevail shares a knowledge layer with.
-const ECOSYSTEM = [
-  { name: "OpenClaw", color: "#ff4d4d", blurb: "Chat gateway on Telegram & WhatsApp", render: (c: string) => <OpenClawMark className={c} /> },
-  { name: "Paperclip", color: "#0092b7", blurb: "A team of agents for your work", render: (c: string) => <Paperclip className={c} /> },
-  { name: "Hermes", color: "#c4a8ff", blurb: "An agent harness for autonomous tasks", render: (c: string) => <HermesBrand className={c} /> },
-  { name: "MCP", color: "#3FA34D", blurb: "Your vault, readable by any MCP client", render: (c: string) => <Plug className={c} /> },
-];
-
 // Reusable model-logo row — actual brand logos in their official colors.
 // Used to anchor "the best reasoning models" claims visually.
 // OpenAI starburst — simple-icons doesn't ship one due to trademark
@@ -481,45 +416,6 @@ function useDownloadTotal(): number | null {
 
 // Live, verifiable social proof: real installer downloads + the live star count.
 // Both fail silently to "-" so the strip never breaks the page.
-function LiveStats() {
-  const downloads = useDownloadTotal();
-  const [stars, setStars] = useState<number | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    fetch("https://api.github.com/repos/fru-dev3/prevail-desktop")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (cancelled || !j || typeof j.stargazers_count !== "number") return;
-        setStars(j.stargazers_count);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  const items = [
-    { label: "Downloads", value: downloads !== null ? downloads.toLocaleString() : "-", Icon: Download },
-    { label: "Milestones shipped", value: String(SHIPPED.length), Icon: Rocket },
-    { label: "GitHub stars", value: stars !== null ? formatStars(stars) : "-", Icon: Star },
-  ];
-  return (
-    <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-3 sm:gap-4">
-      {items.map(({ label, value, Icon }) => (
-        <div
-          key={label}
-          className="flex flex-col items-center rounded-xl border border-border-soft bg-surface-0 px-3 py-5 text-center"
-        >
-          <Icon className="h-5 w-5 text-accent" />
-          <span className="mt-2 font-mono text-2xl font-semibold tabular-nums tracking-tight md:text-3xl">
-            {value}
-          </span>
-          <span className="mt-1 text-[11px] uppercase tracking-wider text-text-mute">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Nav — frosted, minimal
 
@@ -739,106 +635,41 @@ function Hero() {
   const exe = useExeDownload();
   const isWindows = useIsWindows();
   const downloads = useDownloadTotal();
-  // Primary download follows the detected OS; every other build lives in
-  // the Install section below.
-  const heroSlide = HERO_SHOT;
   return (
-    <section className="relative isolate overflow-hidden pt-14 pb-16 grain md:pt-20">
+    <section id="demo" className="relative isolate overflow-hidden pt-8 pb-10 grain md:pt-10">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
       <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
         <FadeIn delay={0}>
-          {/* The Obsidian on-ramp owns the sole top slot (Product Hunt keeps
-              its footer badge): the Obsidian community is a primary audience,
-              and one loud pill beats two quiet ones. Anchors to the featured
-              banner below. */}
-          <a
-            href="#obsidian"
-            onClick={() => track("obsidian_pill_click", { location: "hero" })}
-            className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 rounded-full border border-accent/50 bg-accent/10 px-5 py-2 text-sm font-medium text-text transition-all hover:border-accent hover:-translate-y-0.5"
-            style={{ boxShadow: "0 0 26px color-mix(in srgb, var(--color-accent) 30%, transparent)" }}
-          >
-            <SimpleIcon icon={siObsidian} className="h-5 w-5 shrink-0 text-[#a78bfa]" />
-            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-accent">
-              New
-            </span>
-            Bring your Obsidian vault into Prevail
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </FadeIn>
-
-        <FadeIn delay={0.05}>
           <Headline />
         </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
+        <FadeIn delay={0.08}>
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
             Your <span className="text-text">adaptive intelligence</span> for everything you
             manage, build, decide, and <span className="font-medium text-accent">become</span>.
           </p>
         </FadeIn>
-
-        <FadeIn delay={0.16}>
-          <div className="mt-8 flex flex-col items-center gap-3">
-            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href={isWindows ? exe.url : dmg.url}
-                download={isWindows ? exe.name : dmg.name}
-                onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
-                style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
-              >
-                <Download className="h-4 w-4" />
-                Download for {isWindows ? "Windows" : "macOS"}
-              </a>
-              <a
-                href="#demo"
-                onClick={() => track("watch_demo_click", { location: "hero" })}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-3 font-medium text-text-soft transition-all hover:border-border-strong hover:text-text"
-              >
-                <Play className="h-4 w-4" />
-                Watch the demo
-              </a>
-            </div>
-            {/* Live download total, promoted from a trust-line footnote to
-                an odometer of its own — it's the strongest proof we have. */}
+        <FadeIn delay={0.14}>
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row">
+            <a
+              href={isWindows ? exe.url : dmg.url}
+              download={isWindows ? exe.name : dmg.name}
+              onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+              style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
+            >
+              <Download className="h-4 w-4" />
+              Download for {isWindows ? "Windows" : "macOS"}
+            </a>
             {downloads !== null && <DownloadCounter value={downloads} />}
           </div>
         </FadeIn>
-
-        {/* The product itself, above the fold: the current app, in the
-            page's theme. The full tour lives one section down. */}
-        <FadeIn delay={0.22} y={24}>
-          <div className="mt-12 w-full max-w-4xl">
-            <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
-              <ThemedShot shot={heroSlide.shot} alt={heroSlide.alt} />
-            </div>
-            <p className="mt-3 text-sm text-text-mute">
-              <span className="font-medium text-text-soft">{heroSlide.title}.</span> {heroSlide.blurb}
-            </p>
-          </div>
-        </FadeIn>
-
-        {/* Model strip — recognizable brands only. Our own ecosystem tools
-            (OpenClaw, Paperclip, Hermes) get their own section further down. */}
-        <FadeIn delay={0.28}>
-          <div className="mt-12 flex max-w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 text-text-mute">
-            <span className="shrink-0 text-[11px] uppercase tracking-[0.18em]">Convenes the models you already use</span>
-            {MODEL_STRIP.map((w) => (
-              <div
-                key={w.name}
-                title={w.name}
-                className="flex shrink-0 items-center gap-1.5 text-text-soft transition-colors hover:text-text"
-              >
-                <span style={{ color: w.color }} className="inline-flex">
-                  {w.render("h-[1.4rem] w-[1.4rem]")}
-                </span>
-                <span className="text-xs">{w.name}</span>
-              </div>
-            ))}
-          </div>
-        </FadeIn>
       </div>
+      {/* The product itself fills the screen: one autoplaying carousel of
+          the current app, in the page's theme. */}
+      <FadeIn delay={0.2} y={24}>
+        <ShotCarousel />
+      </FadeIn>
     </section>
   );
 }
@@ -968,7 +799,7 @@ function DomainRadial() {
 
 function Pillars() {
   return (
-    <section id="how" className="scroll-mt-20 border-t border-border-soft py-24 md:py-28">
+    <section id="how" className="scroll-mt-20 border-t border-border-soft py-16 md:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
@@ -978,12 +809,11 @@ function Pillars() {
             Three ideas. <span className="font-serif italic text-text-soft">That's the whole app.</span>
           </h2>
         </FadeIn>
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
           {[
             {
               icon: Layers,
               title: "For life's biggest decisions",
-              text: "Wealth, health, career, tax, estate, and more. Prevail is built for the high-stakes parts of your life, each a plain folder you own. No database, no cloud.",
               color: "#3FA34D",
               visual: (
                 // The life-domains radial, relocated from the hero — it
@@ -996,8 +826,7 @@ function Pillars() {
             },
             {
               icon: Scale,
-              title: "A council, not just one model",
-              text: "Ask every AI model at once, not just one. A chair reads all the answers, writes a single verdict, and flags where they disagree. New: hand a task to an agent (Hermes, Pi, OpenCode) and it runs it end-to-end, not just answers.",
+              title: "A council of models",
               color: "#3FA34D",
               visual: (
                 <div className="flex flex-col items-center">
@@ -1042,16 +871,12 @@ function Pillars() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-text-mute">
-                    any model can chair · one verdict
-                  </div>
                 </div>
               ),
             },
             {
               icon: Sparkles,
               title: "It learns and adapts",
-              text: "Every question and verdict stays in your vault, so Prevail learns your life and adapts as things change, working for you, not just answering.",
               color: "#3FA34D",
               visual: (
                 <div className="flex flex-col items-center">
@@ -1077,7 +902,6 @@ function Pillars() {
                     <span className="absolute h-1.5 w-1.5 rounded-full bg-[#3FA34D]/60" style={{ left: "70%", top: "76%" }} aria-hidden />
                     <span className="absolute h-1 w-1 rounded-full bg-[#3FA34D]/50" style={{ left: "28%", top: "26%" }} aria-hidden />
                   </div>
-                  <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-text-mute">learns a little more each time</div>
                 </div>
               ),
             },
@@ -1092,8 +916,7 @@ function Pillars() {
                   >
                     <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mt-5 text-xl font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-soft">{p.text}</p>
+                  <h3 className="mt-5 text-2xl font-semibold tracking-[-0.01em]">{p.title}</h3>
                   <div className="mt-6 pt-1">{p.visual}</div>
                 </div>
               </FadeIn>
@@ -1101,29 +924,6 @@ function Pillars() {
           })}
         </div>
 
-        {/* The two differentiators that aren't already covered above (the
-            council and self-learning cards used to repeat here — merged). */}
-        <div className="mx-auto mt-6 grid max-w-5xl gap-6 md:grid-cols-2">
-          {DIFFERENTIATORS.map((it, i) => {
-            const Icon = it.Icon;
-            return (
-              <FadeIn key={it.title} delay={0.18 + i * 0.06}>
-                <div className="flex h-full gap-5 rounded-xl border border-border-soft bg-surface-0 p-7 transition-all hover:-translate-y-0.5 hover:border-border hover:bg-surface-1">
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: `${it.color}18`, color: it.color }}
-                  >
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold leading-snug">{it.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-text-soft">{it.body}</p>
-                  </div>
-                </div>
-              </FadeIn>
-            );
-          })}
-        </div>
       </div>
     </section>
   );
@@ -1137,121 +937,16 @@ function Pillars() {
 // more trust than they bought.)
 
 function Momentum() {
-  const latest = SHIPPED.slice(0, 3);
   return (
-    <section className="relative border-t border-border-soft py-24 md:py-28">
-      <div className="glow-ai absolute inset-0 -z-10 opacity-20" />
-      <div className="mx-auto max-w-6xl px-6">
-        <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-ai">Shipping weekly</p>
-          <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-            Built in the open. <span className="font-serif italic text-text-soft">Moving fast.</span>
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-center text-lg text-text-soft">
-            {SHIPPED.length} major milestones since May 2026, every line of it GPL-3.0 on GitHub.
-          </p>
-          <LiveStats />
-        </FadeIn>
-        <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
-          {latest.map((r, i) => {
-            const Icon = r.Icon;
-            return (
-              <FadeIn key={r.title} delay={i * 0.06}>
-                <div className="flex h-full flex-col rounded-xl border border-border-soft bg-surface-0 p-6 transition-all hover:border-border hover:bg-surface-1">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="font-mono text-xs uppercase tracking-wider text-text-mute">{r.date}</span>
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold leading-snug">{r.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-soft">{r.body}</p>
-                </div>
-              </FadeIn>
-            );
-          })}
-        </div>
-        <FadeIn delay={0.2}>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <GitHubStarButton size="lg" />
-            <a
-              href="/changelog"
-              className="inline-flex items-center gap-1.5 text-sm text-text-soft underline-offset-2 hover:text-text hover:underline"
-            >
-              Full changelog &amp; roadmap <ArrowRight className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ECOSYSTEM — Prevail's own agent-stack neighbors, with one line each. Kept
-// deliberately separate from the hero's model strip: these marks are for
-// people who already live in the agent world, not for borrowed credibility.
-
-function Ecosystem() {
-  return (
-    <section className="border-t border-border-soft py-20 md:py-24">
-      <div className="mx-auto max-w-6xl px-6">
-        <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">Plays well with your stack</p>
-          <h2 className="mx-auto mt-4 text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl text-balance">
-            One knowledge layer, <span className="font-serif italic text-text-soft">shared with your agents.</span>
-          </h2>
-        </FadeIn>
-        {/* Featured: Obsidian import. Bigger than the strip cards because it's
-            an on-ramp for a whole existing vault, not just an integration. */}
-        <FadeIn>
-          <div
-            id="obsidian"
-            className="mx-auto mt-12 flex max-w-4xl scroll-mt-24 flex-col items-center gap-6 rounded-2xl border border-accent/30 bg-surface-0 p-8 md:flex-row md:gap-8 md:p-10"
-          >
-            {/* Obsidian -> Prevail import flow */}
-            <div className="flex shrink-0 items-center gap-4">
-              <span
-                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-[#7c3aed]"
-                style={{ boxShadow: "0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
-              >
-                <SimpleIcon icon={siObsidian} className="h-8 w-8" />
-              </span>
-              <ArrowRight className="h-5 w-5 text-text-mute" aria-hidden />
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-surface-1">
-                <Logo size={32} />
-              </span>
-            </div>
-            <div className="text-center md:text-left">
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">New</p>
-              <h3 className="mt-1 text-xl font-semibold tracking-[-0.01em]">
-                Bring your Obsidian vault
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-soft">
-                Years of notes in Obsidian? Import them in one step. Wikilinks, tags, and folders
-                arrive as plain markdown in your Prevail vault, so every model on the council can
-                read what you already know. One click in the app, or{" "}
-                <code className="rounded bg-surface-1 px-1.5 py-0.5 font-mono text-[12px] text-text">
-                  prevail obsidian import
-                </code>{" "}
-                in the CLI.
-              </p>
-            </div>
-          </div>
-        </FadeIn>
-        <div className="mx-auto mt-6 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ECOSYSTEM.map((e, i) => (
-            <FadeIn key={e.name} delay={i * 0.05}>
-              <div className="flex h-full flex-col items-center gap-3 rounded-xl border border-border-soft bg-surface-0 p-6 text-center transition-colors hover:border-border hover:bg-surface-1">
-                <span style={{ color: e.color }} className="inline-flex">
-                  {e.render("h-8 w-8")}
-                </span>
-                <span className="font-semibold">{e.name}</span>
-                <span className="text-xs leading-relaxed text-text-mute">{e.blurb}</span>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
+    <section className="border-t border-border-soft py-10">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-6 sm:flex-row sm:gap-6">
+        <GitHubStarButton size="lg" />
+        <a
+          href="/changelog"
+          className="inline-flex items-center gap-1.5 text-sm text-text-soft underline-offset-2 hover:text-text hover:underline"
+        >
+          Full changelog &amp; roadmap <ArrowRight className="h-3.5 w-3.5" />
+        </a>
       </div>
     </section>
   );
@@ -1469,7 +1164,7 @@ function InstallStudio() {
 
 function DownloadSection() {
   return (
-    <section id="install" className="border-t border-border-soft py-24 md:py-32 grain">
+    <section id="install" className="border-t border-border-soft py-16 md:py-20 grain">
       <div className="glow-accent absolute inset-0 -z-10 opacity-50" />
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
@@ -1485,7 +1180,7 @@ function DownloadSection() {
         </FadeIn>
 
         <FadeIn delay={0.08}>
-          <div id="desktop" className="mt-14 scroll-mt-24">
+          <div id="desktop" className="mt-10 scroll-mt-24">
             <InstallStudio />
           </div>
         </FadeIn>
@@ -1531,7 +1226,7 @@ const FAQ = [
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="border-t border-border-soft py-24 md:py-28">
+    <section className="border-t border-border-soft py-16 md:py-20">
       <div className="mx-auto max-w-3xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">FAQ</p>
@@ -1539,7 +1234,7 @@ function FAQSection() {
 <span className="font-serif italic text-text-soft">Quick</span> answers.
           </h2>
         </FadeIn>
-        <div className="mt-12 space-y-2">
+        <div className="mt-8 space-y-2">
           {FAQ.map((item, i) => {
             const isOpen = open === i;
             return (
@@ -1586,7 +1281,7 @@ const FAMILY = [
 function Footer() {
   return (
     <footer className="border-t border-border-soft bg-surface-0">
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-6 py-12">
         {/* The fru.dev family: same four projects, same order, on every site. */}
         <div>
           <h2 className="text-center text-2xl font-semibold tracking-tight">
@@ -1624,7 +1319,7 @@ function Footer() {
         </div>
         {/* One minimal closing section — brand, tagline, the two links that
             matter, copyright. Everything else lives in the downloads above. */}
-        <div className="mt-16 flex flex-col items-center gap-6 border-t border-border-soft pt-12 text-center">
+        <div className="mt-10 flex flex-col items-center gap-4 border-t border-border-soft pt-8 text-center">
           <div className="flex items-center gap-2">
             <Logo size={22} />
             <span className="text-lg font-semibold">
@@ -1675,11 +1370,9 @@ function Footer() {
 // Product stills, captured from the current app against an invented demo
 // vault (no real person's data), light and dark at 2880x1620 WebP. The page
 // theme picks the variant in CSS; both load lazily, so a hidden one never downloads.
-type Shot = { shot: string; title: string; blurb: string; alt: string };
-type Clip = { src: string; poster: string; title: string; blurb: string };
-type Slide = Shot | Clip;
+type Shot = { shot: string; title: string; alt: string };
 
-function ThemedShot({ shot, alt }: { shot: string; alt: string }) {
+function ThemedShot({ shot, alt, eager = false }: { shot: string; alt: string; eager?: boolean }) {
   return (
     <>
       {(["dark", "light"] as const).map((t) => (
@@ -1689,7 +1382,7 @@ function ThemedShot({ shot, alt }: { shot: string; alt: string }) {
           alt={alt}
           width={2880}
           height={1620}
-          loading="lazy"
+          loading={eager ? "eager" : "lazy"}
           decoding="async"
           className={`shot-${t} block aspect-video w-full object-cover`}
         />
@@ -1698,179 +1391,106 @@ function ThemedShot({ shot, alt }: { shot: string; alt: string }) {
   );
 }
 
-const HERO_SHOT: Shot = {
-  shot: "group",
-  title: "Your chief of staff brings in specialists",
-  blurb: "Ask once. Your chief of staff answers, pulls in an Analyst and a Skeptic when it helps, and each replies as themselves.",
-  alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
-};
-
-// Demo carousel: stills of each part of the app, then the widescreen videos.
-// A still advances after a few seconds, a clip when it ends, looping the set.
-// Users can also jump with the arrows or dots. Caption updates per slide.
-const DEMO_SLIDES: Slide[] = [
+// Hero carousel: one still per part of the app, advancing on a timer and
+// looping. Arrows and dots jump; the caption is the slide title only.
+const DEMO_SLIDES: Shot[] = [
+  {
+    shot: "group",
+    title: "Your chief of staff brings in specialists",
+    alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
+  },
   {
     shot: "council",
     title: "Convene a council",
-    blurb: "One question, several models deliberating, and a single verdict that says where they disagree.",
     alt: "A council verdict in the Wealth domain from Opus, GPT and Gemini on paying down a mortgage or investing",
   },
   {
     shot: "compass",
     title: "Your Compass",
-    blurb: "What you live by, in your own words: purpose, values, vision, goals and roles. Every chat carries it.",
     alt: "The Compass page with a purpose, four ranked values, a mission statement and a vision",
   },
   {
     shot: "specialists",
     title: "A team of specialists",
-    blurb: "Name your chief of staff, set what a job may spend, and let them staff it with specialists inside those limits.",
     alt: "The Specialists page with the chief of staff, spending and time limits, and specialists grouped by what they do",
   },
   {
     shot: "entities",
     title: "Entities",
-    blurb: "People, places, products and things, each with its details, its history and a chat of its own.",
     alt: "An entity page for a heat pump with purchase date, warranty, maker, location, service history and the chats that mention it",
   },
   {
     shot: "activities",
     title: "Activities",
-    blurb: "Events and project milestones on one calendar, each linked to the people, places and projects it involves.",
     alt: "The Activities page with upcoming events and milestones, and an install day linked to a place, a person and a project",
   },
   {
     shot: "projects",
     title: "Projects",
-    blurb: "Start a project by describing it. Milestones, tasks, a budget and a chat, tied to the domains it touches.",
     alt: "A project page for replacing a heating system with its owner domain, a specialist, and milestones with dates",
   },
   {
     shot: "inbox",
     title: "Your morning briefing",
-    blurb: "The Inbox picks the three things that matter today, each traced back to the goal it serves.",
     alt: "The Inbox briefing for today listing three priorities with their due dates and the goals behind them",
   },
   {
     shot: "knowledge",
     title: "Knowledge sources",
-    blurb: "Sites, feeds, folders and databases Prevail reads when it briefs you. Read-only, and you choose each one.",
     alt: "Knowledge sources settings listing two websites and a local folder that Prevail reads",
-  },
-  {
-    src: "/prevail-benchmark.mp4",
-    poster: "/prevail-benchmark-poster.jpg",
-    title: "Benchmark against your life",
-    blurb: "Grade every model per domain on your real questions, not generic tests.",
-  },
-  {
-    src: "/prevail-connectivity.mp4",
-    poster: "/prevail-connectivity-poster.jpg",
-    title: "Connect every model you have",
-    blurb: "Prevail auto-detects the AI CLIs you're already logged into and convenes them.",
-  },
-  {
-    src: "/prevail-demo2.mp4",
-    poster: "/prevail-demo2-poster.jpg",
-    title: "A council in motion",
-    blurb: "Watch one question go out to every model and come back as one verdict.",
   },
 ];
 
 const SHOT_SECONDS = 6;
 
-function DemoVideo() {
+function ShotCarousel() {
+  const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
-  // A still has no end event, so it advances on a timer.
   useEffect(() => {
-    if (!("shot" in slide)) return;
+    if (reduce) return;
     const t = window.setTimeout(() => go(1), SHOT_SECONDS * 1000);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx]);
+  }, [idx, reduce]);
   return (
-    <section id="demo" className="border-t border-border-soft py-20 md:py-28 grain">
-      <div className="relative mx-auto max-w-[1700px] px-4 sm:px-6">
-        <div className="glow-accent absolute inset-0 -z-10 opacity-40" />
-        <FadeIn>
-          <div className="text-center">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
-              See it in action
-            </p>
-            <h2 className="mx-auto mt-4 text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-              See it <span className="font-serif italic text-text-soft">work.</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm text-text-soft md:text-base">
-              <span className="font-medium text-text">{slide.title}.</span> {slide.blurb}
-            </p>
-          </div>
-        </FadeIn>
-        <FadeIn delay={0.15}>
-          <div className="group relative mt-8">
-            <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
-              {"shot" in slide ? (
-                <ThemedShot key={slide.shot} shot={slide.shot} alt={slide.alt} />
-              ) : (
-              <video
-                key={slide.src}
-                src={slide.src}
-                poster={slide.poster}
-                autoPlay
-                muted
-                playsInline
-                preload="metadata"
-                controls
-                onPlay={() => track("demo_play", { location: "carousel", title: slide.title })}
-                onEnded={() => {
-                  track("demo_complete", { title: slide.title });
-                  go(1);
-                }}
-                className="block aspect-video w-full bg-black"
-              />
-              )}
-            </div>
-
-            {/* Prev / next arrows */}
-            <button
-              onClick={() => go(-1)}
-              aria-label="Previous demo"
-              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => go(1)}
-              aria-label="Next demo"
-              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </FadeIn>
-
-        {/* Numbered indicators */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+    <div className="mx-auto mt-8 max-w-[1600px] px-3 sm:px-6">
+      <div className="group relative">
+        <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
+          <ThemedShot key={slide.shot} shot={slide.shot} alt={slide.alt} eager={idx === 0} />
+        </div>
+        <button
+          onClick={() => go(-1)}
+          aria-label="Previous screenshot"
+          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          onClick={() => go(1)}
+          aria-label="Next screenshot"
+          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="mt-4 flex flex-col items-center gap-3">
+        <p className="text-sm font-medium text-text-soft md:text-base" aria-live="polite">{slide.title}</p>
+        <div className="flex items-center gap-2">
           {DEMO_SLIDES.map((s, i) => (
             <button
-              key={s.title}
+              key={s.shot}
               onClick={() => setIdx(i)}
-              aria-label={`Show demo ${i + 1}: ${s.title}`}
+              aria-label={`Show ${s.title}`}
               aria-current={i === idx}
-              className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition-all ${
-                i === idx
-                  ? "border-accent-border bg-accent text-bg"
-                  : "border-border-soft text-text-mute hover:border-border-strong hover:text-text"
-              }`}
-            >
-              {i + 1}
-            </button>
+              className={`h-2 rounded-full transition-all ${i === idx ? "w-6 bg-accent" : "w-2 bg-border hover:bg-border-strong"}`}
+            />
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -1991,26 +1611,6 @@ const LIFE_DOMAINS: { label: string; Icon: typeof Heart }[] = [
   { label: "Career", Icon: Briefcase },
   { label: "Family", Icon: Users },
   { label: "Learning", Icon: GraduationCap },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DIFFERENTIATORS — rendered inside the How-it-works section. Only the two
-// ideas the three pillar cards don't already cover: proactive loops and the
-// Bunker/Cloud control. (Council and self-learning used to repeat here.)
-
-const DIFFERENTIATORS = [
-  {
-    Icon: Target,
-    color: "#3FA34D",
-    title: "It works toward your goals",
-    body: "Proactive loops, reminders, and generated tasks pursue what matters in the background. It doesn't just respond, it follows up.",
-  },
-  {
-    Icon: ShieldCheck,
-    color: "#3FA34D",
-    title: "Bunker or Cloud, your call",
-    body: "Bunker Mode runs entirely on local models, nothing leaves your machine. Cloud Mode brings in Claude, GPT, and Gemini for the frontier. Switch per question.",
-  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2362,6 +1962,14 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 
 const SHIPPED = [
   {
+    date: "Oct 2026",
+    tag: "0.4.7 · Breaking",
+    Icon: Compass,
+    title: "Your Compass, a team of specialists, and two clear groups",
+    body: "One page for what you live by, in your own words, from Purpose down to the tasks it serves. A chief of staff you name staffs specialists who answer in your chats as themselves, inside limits enforced in code. Everything sits in Entities (people, places, products, things) and Activities (events, projects), each with a chat of its own. Start a project by describing it, and add Knowledge sources (sites, feeds, folders) Prevail reads when it briefs you. Breaking: loops are now playbooks, missions are called projects, and household and packs were removed.",
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.7`,
+  },
+  {
     date: "Sep 2026",
     tag: "0.4.4",
     Icon: Target,
@@ -2678,10 +2286,8 @@ function LandingMain() {
   return (
     <main className="pt-14">
       <Hero />
-      <DemoVideo />
       <Pillars />
       <Momentum />
-      <Ecosystem />
       <DownloadSection />
       <FAQSection />
     </main>
