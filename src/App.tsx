@@ -498,10 +498,30 @@ function HeroGlow() {
 }
 
 function Hero() {
+  const dmg = useDmgDownload();
+  const exe = useExeDownload();
+  const isWindows = useIsWindows();
   return (
     <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain md:pt-5">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
+      {/* One compact row: what Prevail is, and the download. */}
+      <FadeIn delay={0}>
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-3 px-6 text-center sm:flex-row sm:gap-5">
+          <p className="text-base text-text-soft md:text-lg">
+            Your AI that <span className="text-text">learns</span> and <span className="font-medium text-accent">grows</span> with you.
+          </p>
+          <a
+            href={isWindows ? exe.url : dmg.url}
+            download={isWindows ? exe.name : dmg.name}
+            onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+          >
+            <Download className="h-4 w-4" />
+            Download for {isWindows ? "Windows" : "macOS"}
+          </a>
+        </div>
+      </FadeIn>
       {/* The product itself fills the screen: one autoplaying carousel of
           the current app, in the page's theme. */}
       <FadeIn delay={0.2} y={24}>
