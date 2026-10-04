@@ -692,9 +692,12 @@ function Hero() {
           line, then every action and proof point on one row. */}
       <div className="mx-auto flex max-w-6xl flex-col items-center px-6 text-center">
         <FadeIn delay={0.1}>
-          <p className="mx-auto max-w-3xl text-base leading-snug text-text-soft md:text-lg">
+          <p className="mx-auto hidden max-w-3xl text-base leading-snug text-text-soft sm:block md:text-lg">
             Your <span className="text-text">adaptive intelligence</span> for everything you
             manage, build, decide, and <span className="font-medium text-accent">become</span>.
+          </p>
+          <p className="mx-auto whitespace-nowrap text-base text-text-soft sm:hidden">
+            <span className="text-text">Adaptive intelligence</span> for your whole <span className="font-medium text-accent">life</span>.
           </p>
         </FadeIn>
 
@@ -1166,9 +1169,9 @@ function PillarCard({
           <div aria-hidden>{header}</div>
           <ul className="mt-4 flex flex-1 flex-col justify-center gap-5 px-1">
             {details.map((d) => (
-              <li key={d} className="flex gap-3 text-base leading-snug text-text-soft">
+              <li key={d} className="flex min-w-0 gap-3 text-base leading-snug text-text-soft">
                 <Check className="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden />
-                <span>{d}</span>
+                <span title={d} className="min-w-0 truncate">{d}</span>
               </li>
             ))}
           </ul>
@@ -1187,7 +1190,7 @@ function Pillars() {
             How <Brand /> works
           </p>
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-            Three ideas. <span className="font-serif italic text-text-soft">That's the whole app.</span>
+            <span className="whitespace-nowrap">Three ideas.</span> <br className="sm:hidden" /><span className="whitespace-nowrap font-serif italic text-text-soft">That's the whole app.</span>
           </h2>
         </FadeIn>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -1205,8 +1208,8 @@ function Pillars() {
                 </div>
               ),
               details: [
-                "Money, health, home, work and family each get a domain with its own memory.",
-                "Ask once. Prevail pulls context from every domain the question touches.",
+                "Each area of life has a memory.",
+                "One question reaches every domain.",
               ],
             },
             {
@@ -1259,9 +1262,9 @@ function Pillars() {
                 </div>
               ),
               details: [
-                "Several models answer the same question.",
-                "One verdict shows where they agree and where they differ.",
-                "You pick the models. Local ones stay on your Mac.",
+                "Several models answer at once.",
+                "A verdict shows where they split.",
+                "Local models stay on your Mac.",
               ],
             },
             {
@@ -1274,9 +1277,9 @@ function Pillars() {
                 </div>
               ),
               details: [
-                "Every chat files what matters into the right domain.",
-                "Decisions, people and habits are remembered.",
-                "So tomorrow's answer knows today's.",
+                "Each chat is filed where it fits.",
+                "It remembers people and habits.",
+                "Tomorrow's answer knows today's.",
               ],
             },
           ].map((p, i) => (
@@ -1410,9 +1413,9 @@ function AppPane({ platform }: { platform: "mac" | "win" }) {
         <h3 className="mt-2 text-2xl font-bold tracking-tight">
           {isMac ? "Prevail.app" : "Prevail for Windows"}
         </h3>
-        <p className="mt-1.5 text-sm text-text-mute">
-          v{version} · {isMac ? "Apple Silicon · macOS 13+" : "Windows 10/11 · x64"} ·
-          self-contained, no terminal
+        <p className="mt-1.5 whitespace-nowrap text-sm text-text-mute">
+          v{version} · {isMac ? "Apple Silicon · macOS 13+" : "Windows 10/11 · x64"}
+          <span className="hidden sm:inline"> · self-contained, no terminal</span>
         </p>
         <a
           href={build.url}
@@ -1536,8 +1539,8 @@ function DownloadSection() {
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
             Get it <span className="font-serif italic text-text-soft">in a click.</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-center text-lg text-text-soft">
-            Mac, Windows, terminal, or your agent. Pick a tab and go.
+          <p className="mx-auto mt-5 max-w-xl truncate text-center text-base text-text-soft sm:text-lg">
+            Mac, Windows, terminal or your agent.<span className="hidden sm:inline"> Pick a tab and go.</span>
           </p>
         </FadeIn>
 
@@ -1606,7 +1609,7 @@ function FAQSection() {
                   className="w-full rounded-lg border border-border-soft bg-surface-0 px-6 py-5 text-left transition-colors hover:bg-surface-1 lg:py-3.5"
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className="font-medium">{item.q}</span>
+                    <span title={item.q} className="min-w-0 truncate text-sm font-medium sm:text-base">{item.q}</span>
                     <span
                       className={`text-accent transition-transform ${
                         isOpen ? "rotate-45" : ""
@@ -1744,8 +1747,8 @@ function DemoVideo() {
         <Play className="h-6 w-6 text-accent" />
         See it in action
       </h2>
-      <p className="mx-auto mt-3 max-w-2xl text-base text-text-soft">
-        One minute: a question to your chief of staff and two specialists, then the Compass, a project, the morning briefing and an entity.
+      <p className="mx-auto mt-3 max-w-2xl truncate text-base text-text-soft">
+        One minute, from a question to your briefing.
       </p>
       <div className="video-fit mx-auto mt-6 overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
         <video
@@ -1801,63 +1804,63 @@ const DEMO_SLIDES: Shot[] = [
     shot: "group",
     title: "A chief of staff with specialists",
     icon: MessagesSquare,
-    line: "The chief of staff answers, then an Analyst and a Skeptic add the numbers and the catch.",
+    line: "Answers first, then an Analyst and a Skeptic weigh in.",
     alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
   },
   {
     shot: "council",
     title: "Convene a council",
     icon: Scale,
-    line: "Three models weigh one decision and a chair writes the verdict, so you see where they split.",
+    line: "Three models weigh a decision; a chair writes the verdict.",
     alt: "A council verdict in the Wealth domain from Opus, GPT and Gemini on paying down a mortgage or investing",
   },
   {
     shot: "compass",
     title: "Your Compass",
     icon: Compass,
-    line: "Your purpose, values and vision. Every suggestion is checked against them.",
+    line: "Purpose and values that every suggestion is checked against.",
     alt: "The Compass page with a purpose, four ranked values, a mission statement and a vision",
   },
   {
     shot: "specialists",
     title: "A team of specialists",
     icon: Users,
-    line: "Pick who helps you and set how far each one may go before it asks.",
+    line: "Pick who helps and how far each may go before it asks.",
     alt: "The Specialists page with the chief of staff, spending and time limits, and specialists grouped by what they do",
   },
   {
     shot: "entities",
     title: "Entities",
     icon: Boxes,
-    line: "People, places and things keep their own memory, so you never repeat yourself.",
+    line: "People, places and things keep their own memory.",
     alt: "An entity page for a heat pump with purchase date, warranty, maker, location, service history and the chats that mention it",
   },
   {
     shot: "activities",
     title: "Activities",
     icon: CalendarDays,
-    line: "Events and milestones, each linked to the place, person and project it belongs to.",
+    line: "Events and milestones, linked to who and where.",
     alt: "The Activities page with upcoming events and milestones, and an install day linked to a place, a person and a project",
   },
   {
     shot: "projects",
     title: "Projects",
     icon: FolderKanban,
-    line: "A goal becomes dated milestones, with a specialist on the case.",
+    line: "A goal becomes dated milestones, with a specialist on it.",
     alt: "A project page for replacing a heating system with its owner domain, a specialist, and milestones with dates",
   },
   {
     shot: "inbox",
     title: "Your morning briefing",
     icon: Inbox,
-    line: "Today's three priorities and the goals behind them, ready when you start.",
+    line: "Today's three priorities and the goals behind them.",
     alt: "The Inbox briefing for today listing three priorities with their due dates and the goals behind them",
   },
   {
     shot: "knowledge",
     title: "Knowledge sources",
     icon: BookOpen,
-    line: "The websites and folders Prevail reads when it answers, chosen by you.",
+    line: "The websites and folders Prevail reads, chosen by you.",
     alt: "Knowledge sources settings listing two websites and a local folder that Prevail reads",
   },
 ];
@@ -1927,13 +1930,13 @@ function ShotCarousel() {
                 className={`col-start-1 row-start-1 transition duration-300 ease-out motion-reduce:transition-none ${on ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"}`}
               >
                 <div className="lg:flex lg:items-center lg:gap-3">
-                  <h3 className="flex items-center gap-3 text-2xl font-semibold text-text lg:shrink-0 lg:gap-2.5 lg:text-base">
+                  <h3 className="flex min-w-0 items-center gap-3 whitespace-nowrap text-xl font-semibold text-text lg:shrink-0 lg:gap-2.5 lg:text-base">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
                       <I className="h-6 w-6 lg:h-4 lg:w-4" />
                     </span>
-                    {s.title}
+                    <span className="truncate">{s.title}</span>
                   </h3>
-                  <p className="mt-2 text-base leading-relaxed text-text-soft lg:mt-0 lg:min-w-0 lg:text-sm lg:leading-snug">{s.line}</p>
+                  <p title={s.line} className="mt-2 truncate text-sm text-text-soft lg:mt-0 lg:min-w-0 lg:leading-snug">{s.line}</p>
                 </div>
               </div>
             );
@@ -2682,12 +2685,11 @@ function ChangelogPage() {
           <FadeIn>
             <p className="text-xs uppercase tracking-[0.2em] text-accent">Changelog &amp; roadmap</p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
-              What's shipped,{" "}
-              <span className="font-serif italic text-text-soft">what's next.</span>
+              <span className="whitespace-nowrap">What's shipped,</span>{" "}<br className="sm:hidden" />
+              <span className="whitespace-nowrap font-serif italic text-text-soft">what's next.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-text-soft">
-              Prevail moves fast. The major milestones so far, and a look at where
-              it's heading.
+            <p className="mt-5 max-w-xl truncate text-base text-text-soft sm:text-lg">
+              Milestones so far, and where it's heading.
             </p>
           </FadeIn>
         </div>
@@ -2712,7 +2714,7 @@ function ChangelogPage() {
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="rounded-full border border-ai/40 bg-ai/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-ai">Planned</span>
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em]">{r.title}</h3>
+                    <h3 title={r.title} className="mt-2 truncate text-base font-semibold tracking-[-0.01em] sm:text-lg">{r.title}</h3>
                     <p className="mt-1.5 leading-relaxed text-text-soft">{r.body}</p>
                   </div>
                 </FadeIn>
@@ -2749,7 +2751,7 @@ function ChangelogPage() {
                         {r.tag} ↗
                       </a>
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold tracking-[-0.01em]">{r.title}</h3>
+                    <h3 title={r.title} className="mt-2 truncate text-base font-semibold tracking-[-0.01em] sm:text-lg">{r.title}</h3>
                     <p className="mt-1.5 leading-relaxed text-text-soft">{r.body}</p>
                   </div>
                 </FadeIn>
