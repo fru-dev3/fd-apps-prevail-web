@@ -329,62 +329,21 @@ const MODEL_STRIP = [
   { name: "Ollama", color: "currentColor", render: (c: string) => <SimpleIcon icon={siOllama} className={c} /> },
 ];
 
-function OdometerDigit({ digit, index }: { digit: number; index: number }) {
-  const reduce = useReducedMotion();
-  const spins = index + 1;
-  const strip: number[] = [];
-  for (let k = 0; k <= spins * 10 + digit; k++) strip.push(k % 10);
-  return (
-    <span className="relative inline-block h-[1.3em] w-[0.78em] overflow-hidden rounded-md border border-border-soft bg-bg">
-      {reduce ? (
-        <span className="flex h-[1.3em] items-center justify-center leading-none">{digit}</span>
-      ) : (
-        <motion.span
-          className="block"
-          initial={{ y: 0 }}
-          animate={{ y: `-${((strip.length - 1) * 1.3).toFixed(2)}em` }}
-          transition={{ duration: 1 + index * 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
-        >
-          {strip.map((d, k) => (
-            <span key={k} className="flex h-[1.3em] items-center justify-center leading-none">
-              {d}
-            </span>
-          ))}
-        </motion.span>
-      )}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-md bg-gradient-to-b from-bg/70 via-transparent to-bg/70"
-      />
-    </span>
-  );
-}
-
-// The count inside the download button: a live dot and the odometer, on an
-// inset segment so button and number read as one object.
+// The count inside the download button: a live dot and the number in the
+// button's own type and color, past a hairline, so it reads as one label.
 function DownloadCount({ value }: { value: number }) {
-  const formatted = value.toLocaleString("en-US");
-  let digitIndex = -1;
   return (
-    <span className="flex items-center gap-2 border-l border-black/20 bg-black/20 py-2 pl-3 pr-3.5" aria-hidden>
+    <span className="flex items-center gap-2 border-l border-bg/25 py-2.5 pl-4 pr-5" aria-hidden>
       <span className="relative flex h-2 w-2">
         <motion.span
-          className="absolute inset-0 rounded-full bg-white"
-          animate={{ scale: [1, 2.4], opacity: [0.6, 0] }}
+          className="absolute inset-0 rounded-full bg-bg"
+          animate={{ scale: [1, 2.4], opacity: [0.5, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
         />
-        <span className="relative h-2 w-2 rounded-full bg-white" />
+        <span className="relative h-2 w-2 rounded-full bg-bg" />
       </span>
-      <span className="flex items-center gap-[2px] font-mono text-base font-semibold tabular-nums text-accent">
-        {formatted.split("").map((c, i) => {
-          if (/\d/.test(c)) {
-            digitIndex += 1;
-            return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
-          }
-          return <span key={i} className="px-0.5 pb-[0.15em] text-white/70">{c}</span>;
-        })}
-      </span>
-      <span className="text-xs font-medium text-white/90">downloads</span>
+      <span className="font-semibold tabular-nums">{value.toLocaleString("en-US")}</span>
+      <span className="text-bg/75">downloads</span>
     </span>
   );
 }
