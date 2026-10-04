@@ -2030,8 +2030,7 @@ const SHIPPED = [
     Icon: Compass,
     title: "Your Compass, a Team of Specialists, and Two Clear Groups",
     body: "One page for what you live by, in your own words, from Purpose down to the tasks it serves. A chief of staff you name staffs specialists who answer in your chats as themselves, inside limits enforced in code. Everything sits in Entities (people, places, products, things) and Activities (events, projects), each with a chat of its own. Start a project by describing it, and add Knowledge sources (sites, feeds, folders) Prevail reads when it briefs you. Breaking: loops are now playbooks, missions are called projects, and household and packs were removed.",
-    // Points at the tag once v0.4.8 is published (blocked on notarization).
-    href: RELEASES_URL,
+    href: `${GITHUB_DESKTOP}/releases/tag/v0.4.8`,
   },
   {
     date: "Sep 2026",

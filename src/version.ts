@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 // longer has to be kept exactly in sync; bumping it just keeps the no-JS /
 // first-paint value sensible. The DMG itself is always served from
 // releases/latest/download/Prevail-mac-arm64.dmg regardless of this value.
-export const APP_VERSION = "0.4.4";
+export const APP_VERSION = "0.4.8";
 
 // Live latest version, fetched from GitHub Releases so the site never drifts
 // stale the way a hand-stamped constant does. Null until the fetch resolves
