@@ -1482,9 +1482,6 @@ function Footer() {
               <span className="font-normal text-text-mute"> | Agent Harness</span>
             </span>
           </div>
-          <p className="font-serif text-2xl italic text-text-soft md:text-3xl text-balance">
-            AI for your <span className="not-italic text-accent">life</span>, not your job.
-          </p>
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-soft">
             <a href="/changelog" className="hover:text-text">Changelog &amp; roadmap</a>
             <a
