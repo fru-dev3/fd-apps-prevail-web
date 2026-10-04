@@ -23,6 +23,7 @@ import {
   Send,
   Wallet,
   Check,
+  Minus,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -2607,11 +2608,173 @@ function Pillars() {
   );
 }
 
+// How Prevail compares with the personal agents and harnesses people ask
+// about. Facts from each product's public pages as of October 2026; a cell
+// is only "yes" when the product clearly offers it.
+type Rival = { name: string; maker: string; mark: ReactNode; color?: string };
+const RIVAL_GROUPS: { label: string; items: Rival[] }[] = [
+  {
+    label: "Big-lab cloud agents",
+    items: [
+      { name: "Grok Bot", maker: "xAI", mark: "G" },
+      { name: "Muse", maker: "Meta", color: "#0467DF", mark: <SimpleIcon icon={siMeta} className="h-5 w-5" /> },
+      { name: "Dots", maker: "OpenAI", mark: <OpenAIMark className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: "Open-source agents",
+    items: [
+      { name: "OpenClaw", maker: "community", mark: <img src="/logo-openclaw.svg" alt="" className="h-5 w-5" /> },
+      { name: "Hermes", maker: "Nous Research", mark: "H" },
+    ],
+  },
+  {
+    label: "Developer tools",
+    items: [
+      { name: "Pi", maker: "coding harness", mark: "Pi" },
+      { name: "Paperclip", maker: "agent companies", mark: <Paperclip className="h-5 w-5" /> },
+    ],
+  },
+];
+const RIVALS = RIVAL_GROUPS.flatMap((g) => g.items);
+
+// One row per difference; `has` lists the rivals that offer it. Prevail has every one.
+const COMPARE_ROWS: { label: string; has: string[] }[] = [
+  { label: "Runs on your Mac, not their cloud", has: ["OpenClaw", "Hermes", "Pi", "Paperclip"] },
+  { label: "Any model, switch anytime", has: ["OpenClaw", "Hermes", "Pi", "Paperclip"] },
+  { label: "Free and open source", has: ["OpenClaw", "Hermes", "Pi", "Paperclip"] },
+  { label: "A ready app, no setup", has: ["Grok Bot", "Muse", "Dots"] },
+  { label: "Several models weigh one decision", has: [] },
+  { label: "Checked against your values", has: [] },
+];
+
+const WHY_IT_MATTERS = [
+  { title: "Your life stays yours", line: "Files on your Mac, not in their account.", Icon: FolderLock },
+  { title: "No lock-in", line: "Switch models; your memory stays put.", Icon: Shuffle },
+  { title: "Judgment, not errands", line: "Models debate; your Compass checks.", Icon: Scale },
+];
+
+function CompareMark({ on }: { on: boolean }) {
+  return on ? (
+    <Check className="mx-auto h-4 w-4 text-accent" aria-label="Yes" />
+  ) : (
+    <Minus className="mx-auto h-4 w-4 text-border-strong" aria-label="No" />
+  );
+}
+
+function CompareSection() {
+  return (
+    <section className="border-t border-border-soft py-16 md:py-20">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+        <FadeIn>
+          <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
+            How <Brand /> <span className="text-accent">compares</span>
+          </h2>
+          <p className="mx-auto mt-3 hidden whitespace-nowrap text-center text-base text-text-soft md:block">
+            The new agents run errands in someone else's cloud, or ask you to build one. Prevail is ready on your Mac.
+          </p>
+          <p className="mx-auto mt-3 whitespace-nowrap text-center text-sm text-text-soft md:hidden">
+            Others run in their cloud. Prevail runs on your Mac.
+          </p>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          {/* Phones scroll the table sideways; the row labels stay pinned. */}
+          <div className="mt-10 overflow-x-auto rounded-2xl border border-border-soft bg-surface-0">
+            <table className="w-full min-w-[860px] table-fixed border-collapse text-sm">
+              <colgroup>
+                <col className="w-[250px]" />
+                <col />
+                {RIVALS.map((r) => <col key={r.name} />)}
+              </colgroup>
+              <thead>
+                <tr className="text-[11px] uppercase tracking-[0.12em] text-text-mute">
+                  <th className="sticky left-0 bg-surface-0" />
+                  <th className="bg-accent/10" />
+                  {RIVAL_GROUPS.map((g) => (
+                    <th key={g.label} colSpan={g.items.length} className="whitespace-nowrap border-l border-border-soft px-2 pt-4 font-medium">
+                      {g.label}
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  <th className="sticky left-0 bg-surface-0" />
+                  <th className="bg-accent/10 px-3 pb-4 pt-3">
+                    <span className="flex flex-col items-center gap-1.5">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/60 bg-surface-0">
+                        <Logo size={22} />
+                      </span>
+                      <span className="text-sm font-semibold text-text">Prevail</span>
+                    </span>
+                  </th>
+                  {RIVALS.map((r, i) => {
+                    const first = RIVAL_GROUPS.some((g) => g.items[0] === r) && i > 0;
+                    return (
+                      <th key={r.name} className={`px-2 pb-4 pt-3 font-normal ${first || i === 0 ? "border-l border-border-soft" : ""}`}>
+                        <span className="flex flex-col items-center gap-1.5">
+                          <span
+                            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-1 text-sm font-semibold text-text-soft"
+                            style={r.color ? { color: r.color } : undefined}
+                          >
+                            {r.mark}
+                          </span>
+                          <span className="whitespace-nowrap text-sm font-medium text-text">{r.name}</span>
+                          <span className="whitespace-nowrap text-[11px] text-text-mute">{r.maker}</span>
+                        </span>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE_ROWS.map((row) => (
+                  <tr key={row.label} className="border-t border-border-soft">
+                    <th scope="row" className="sticky left-0 whitespace-nowrap bg-surface-0 px-4 py-3 text-left font-normal text-text">
+                      {row.label}
+                    </th>
+                    <td className="bg-accent/10 px-3 py-3"><CompareMark on /></td>
+                    {RIVALS.map((r, i) => {
+                      const first = RIVAL_GROUPS.some((g) => g.items[0] === r);
+                      return (
+                        <td key={r.name} className={`px-2 py-3 ${first || i === 0 ? "border-l border-border-soft" : ""}`}>
+                          <CompareMark on={row.has.includes(r.name)} />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-center text-xs text-text-mute">From each product's public pages, October 2026.</p>
+        </FadeIn>
+
+        <FadeIn delay={0.15}>
+          <ul className="mt-10 grid gap-4 md:grid-cols-3">
+            {WHY_IT_MATTERS.map(({ title, line, Icon }) => (
+              <li key={title} className="flex items-center gap-3 rounded-xl border border-border-soft bg-surface-0 px-4 py-3.5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+                  <Icon className="h-5 w-5" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block whitespace-nowrap font-semibold text-text">{title}</span>
+                  <span className="block truncate text-sm text-text-soft" title={line}>{line}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
 // /how-it-works: the three ideas behind the app, linked from the footer.
 function HowItWorksPage() {
   return (
     <main className="pt-14">
       <Pillars />
+      <CompareSection />
     </main>
   );
 }
