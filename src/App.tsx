@@ -48,11 +48,16 @@ import {
   FolderKanban,
   Inbox,
   BookOpen,
+  Laptop,
+  FolderLock,
+  UserRound,
 } from "lucide-react";
 import {
   siApple,
   siClaude,
   siGooglegemini,
+  siCursor,
+  siMeta,
   siOllama,
   siProducthunt,
 } from "simple-icons";
@@ -742,8 +747,115 @@ function Hero() {
       <FadeIn delay={0.2} y={24}>
         <ShotCarousel />
       </FadeIn>
+      <OwnLayer />
       <DemoVideo />
     </section>
+  );
+}
+
+// "Every AI. One you own." Assistants and agent harnesses along the bottom,
+// lines flowing up into one Prevail node that lives on your Mac, in your
+// files. Brand marks illustrate what Prevail sits on top of; no partnership
+// is implied. Brands without a simple-icons mark get a neutral initial tile.
+const AI_LAYER: { name: string; color?: string; mark: (c: string) => ReactNode }[] = [
+  { name: "ChatGPT", mark: (c) => <OpenAIMark className={c} /> },
+  { name: "Claude", color: "#D97757", mark: (c) => <SimpleIcon icon={siClaude} className={c} /> },
+  { name: "Gemini", color: "#4285F4", mark: (c) => <SimpleIcon icon={siGooglegemini} className={c} /> },
+  { name: "Grok", mark: () => "G" },
+  { name: "Meta AI", color: "#0467DF", mark: (c) => <SimpleIcon icon={siMeta} className={c} /> },
+  { name: "Pi", mark: () => "Pi" },
+  { name: "Hermes", mark: () => "H" },
+  { name: "OpenClaw", mark: (c) => <img src="/logo-openclaw.svg" alt="" className={c} /> },
+  { name: "Codex", mark: () => "Cx" },
+  { name: "Cursor", mark: (c) => <SimpleIcon icon={siCursor} className={c} /> },
+];
+
+// Lines from evenly spaced sources (bottom) to the node (top). The viewBox
+// matches the rendered size (w x h px) so stretching stays negligible, and
+// pathLength normalizes the dash so one pulse travels each line.
+function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; className: string }) {
+  const reduce = useReducedMotion();
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden className={className}>
+      {Array.from({ length: n }, (_, i) => {
+        const x = ((i + 0.5) / n) * w;
+        const d = `M ${x} ${h} C ${x} ${h / 2}, ${w / 2} ${h * 0.55}, ${w / 2} 0`;
+        return (
+          <g key={i}>
+            <path d={d} fill="none" stroke="var(--color-border)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            {!reduce && (
+              <path
+                d={d}
+                pathLength={100}
+                fill="none"
+                stroke="var(--color-accent)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray="10 90"
+                className="own-pulse"
+                style={{ animationDelay: `${(i * 0.37) % 2.4}s` }}
+              />
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function OwnLayer() {
+  return (
+    <div className="mx-auto mt-16 max-w-5xl px-4 md:mt-24 md:px-6">
+      <FadeIn>
+        <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
+          Every AI. <span className="text-accent">One you own.</span>
+        </h2>
+      </FadeIn>
+      <FadeIn delay={0.1}>
+        <div className="mt-10 flex flex-col-reverse items-center md:flex-col">
+          {/* Yours: your Mac + your files around one Prevail node */}
+          <div className="relative flex items-center gap-4 rounded-3xl border border-dashed border-accent/50 bg-accent/5 px-5 py-4 md:gap-8 md:px-8">
+            <span className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border border-accent/50 bg-surface-0 text-accent shadow">
+              <UserRound className="h-5 w-5" aria-label="You" />
+            </span>
+            <div className="flex flex-col items-center gap-1.5 text-text-soft">
+              <Laptop className="h-7 w-7" aria-hidden />
+              <span className="text-xs">Your Mac</span>
+            </div>
+            <span
+              className="flex h-20 w-20 items-center justify-center rounded-2xl border border-accent/60 bg-surface-0"
+              style={{ boxShadow: "0 0 36px color-mix(in srgb, var(--color-accent) 40%, transparent)" }}
+            >
+              <Logo size={44} animated />
+            </span>
+            <div className="flex flex-col items-center gap-1.5 text-text-soft">
+              <FolderLock className="h-7 w-7" aria-hidden />
+              <span className="text-xs">Your files</span>
+            </div>
+          </div>
+
+          <OwnLines n={AI_LAYER.length} w={960} h={96} className="hidden h-24 w-full md:block" />
+          <OwnLines n={4} w={360} h={64} className="mt-2 block h-16 w-full -scale-y-100 md:hidden" />
+
+          <div className="w-full">
+            <ul className="grid grid-cols-4 gap-x-2 gap-y-4 md:grid-cols-10">
+              {AI_LAYER.map((a) => (
+                <li key={a.name} title={a.name} className="flex flex-col items-center gap-1.5">
+                  <span
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface-1 text-sm font-semibold text-text-soft"
+                    style={a.color ? { color: a.color } : undefined}
+                  >
+                    {a.mark("h-6 w-6")}
+                  </span>
+                  <span className="text-[11px] text-text-mute">{a.name}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 hidden text-center text-xs uppercase tracking-[0.16em] text-text-mute md:block">Every model</p>
+          </div>
+        </div>
+      </FadeIn>
+    </div>
   );
 }
 

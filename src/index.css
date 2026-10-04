@@ -180,3 +180,7 @@
 /* Showcase: the active slide's timer bar. */
 @keyframes shot-progress { from { width: 0; } to { width: 100%; } }
 .shot-progress { animation-name: shot-progress; animation-timing-function: linear; animation-fill-mode: forwards; }
+
+/* OwnLayer: a pulse travels each connector from the AI logo to the Prevail node. */
+@keyframes own-pulse { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.own-pulse { animation: own-pulse 2.4s linear infinite; }
