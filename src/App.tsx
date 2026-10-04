@@ -1659,6 +1659,7 @@ function Footer() {
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-text-soft">
             <a href="/changelog" className="hover:text-text">Changelog</a>
+            <a href="/faq" className="hover:text-text">FAQ</a>
             <a
               href={PRODUCT_HUNT_URL}
               target="_blank"
@@ -2747,6 +2748,33 @@ function ChangelogPage() {
   );
 }
 
+// /faq: the accordion on its own page, with the FAQPage structured data built
+// from the same list so the markup always matches what is on screen.
+function FAQPage() {
+  useEffect(() => {
+    const el = document.createElement("script");
+    el.type = "application/ld+json";
+    el.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "https://prevail.sh/faq#faq",
+      url: "https://prevail.sh/faq",
+      mainEntity: FAQ.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+    document.head.appendChild(el);
+    return () => el.remove();
+  }, []);
+  return (
+    <main className="pt-14">
+      <FAQSection />
+    </main>
+  );
+}
+
 function LandingMain() {
   return (
     <main className="snap-page pt-14">
@@ -2755,7 +2783,6 @@ function LandingMain() {
       <DemoVideo />
       <Pillars />
       <DownloadSection />
-      <FAQSection />
     </main>
   );
 }
@@ -2765,6 +2792,7 @@ export default function App() {
   const path = typeof window !== "undefined" ? window.location.pathname.replace(/\/+$/, "") : "";
   const isThesis = path === "/thesis";
   const isChangelog = path === "/changelog" || path === "/roadmap";
+  const isFaq = path === "/faq";
   const isLegal =
     path === "/tos" ||
     path === "/terms" ||
@@ -2789,7 +2817,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isLegal ? <LegalPage /> : <LandingMain />}
+      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isFaq ? <FAQPage /> : isLegal ? <LegalPage /> : <LandingMain />}
       <Footer />
     </div>
   );

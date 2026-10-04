@@ -48,7 +48,7 @@
     <meta name="twitter:image" content="https://prevail.sh/og-image.png?v=5" />
     <meta name="twitter:image:alt" content="Prevail | Agent Harness: the green Prevail chevron mark beside the name, on a dark background." />
 
-    <!-- JSON-LD: the fru.dev family organization, this site, the product, the FAQ -->
+    <!-- JSON-LD: the fru.dev family organization, this site, the product (the FAQPage lives on /faq) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -98,44 +98,6 @@
             "publisher": {
               "@id": "https://fru.dev/#org"
             }
-          },
-          {
-            "@type": "FAQPage",
-            "@id": "https://prevail.sh/#faq",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "What is a council?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "A council is Prevail's core mechanic: one question fanned out to every CLI you have installed, answered in parallel, then a chair model reads all replies and writes one decisive verdict with a panel surfacing where the panelists disagreed."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Does my data leave my Mac?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Your vault never leaves your machine. Prevail spawns the CLIs you are already logged into. For local-private domains, set the council to Ollama-only and nothing crosses your network."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Which CLIs are supported?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Claude Code, Codex, Antigravity (Google's agy CLI), and Ollama. Prevail auto-detects whichever you have installed and probes them on boot."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "How is this different from just running Claude Code?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Claude Code is one model in one terminal. Prevail is a cockpit: 20 life domains, four CLIs deliberating in parallel, a chair-synthesized verdict, scheduled briefings, an MCP bridge to your vault, and a canonical benchmark that grades every new model against your real decisions."
-                }
-              }
-            ]
           }
         ]
       }
