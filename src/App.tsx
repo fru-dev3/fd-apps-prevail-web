@@ -2664,7 +2664,7 @@ function CompareMark({ on }: { on: boolean }) {
 
 function CompareSection() {
   return (
-    <section className="border-t border-border-soft py-16 md:py-20">
+    <section id="compare" className="panel panel-tint border-t border-border-soft py-8 md:py-10">
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
         <FadeIn>
           <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
@@ -2680,7 +2680,7 @@ function CompareSection() {
 
         <FadeIn delay={0.1}>
           {/* Phones scroll the table sideways; the row labels stay pinned. */}
-          <div className="mt-10 overflow-x-auto rounded-2xl border border-border-soft bg-surface-0">
+          <div className="mt-7 overflow-x-auto rounded-2xl border border-border-soft bg-surface-0">
             <table className="w-full min-w-[860px] table-fixed border-collapse text-sm">
               <colgroup>
                 <col className="w-[250px]" />
@@ -2750,10 +2750,10 @@ function CompareSection() {
         </FadeIn>
 
         <FadeIn delay={0.15}>
-          <ul className="mt-10 grid gap-4 md:grid-cols-3">
+          <ul className="mt-7 grid gap-4 md:grid-cols-3">
             {WHY_IT_MATTERS.map(({ title, line, Icon }) => (
-              <li key={title} className="flex items-center gap-3 rounded-xl border border-border-soft bg-surface-0 px-4 py-3.5">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+              <li key={title} className="flex items-center gap-3 rounded-xl border border-border-soft bg-surface-0 px-3 py-3 xl:px-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent md:max-xl:hidden">
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <span className="min-w-0">
@@ -2774,7 +2774,6 @@ function HowItWorksPage() {
   return (
     <main className="pt-14">
       <Pillars />
-      <CompareSection />
     </main>
   );
 }
@@ -2809,6 +2808,7 @@ function LandingMain() {
     <main className="snap-page pt-14">
       <Hero />
       <OwnLayer />
+      <CompareSection />
     </main>
   );
 }
