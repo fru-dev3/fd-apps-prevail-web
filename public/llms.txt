@@ -31,7 +31,7 @@ Prevail organizes life into domains, each a folder the council can reason over. 
 ## Install
 
 - [Download the desktop app](https://github.com/fru-dev3/prevail-desktop/releases/latest): Native apps for macOS (Apple Silicon, signed & notarized) and Windows (NSIS installer). Self-contained, no terminal required; the recommended way to run Prevail. Always resolves to the latest release.
-- [Advanced: the CLI engine](https://prevail.sh/#install): `curl -fsSL prevail.sh/install | bash` (macOS, Linux, and Windows via WSL). The desktop app already bundles this engine; install it standalone only for headless or terminal use.
+- [Advanced: the CLI engine](https://prevail.sh/download): `curl -fsSL prevail.sh/install | bash` (macOS, Linux, and Windows via WSL). The desktop app already bundles this engine; install it standalone only for headless or terminal use.
 
 ## Source & docs
 

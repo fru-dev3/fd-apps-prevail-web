@@ -321,7 +321,7 @@ const NAV_LINKS = [
   { href: "/#demo", label: "Demo", Icon: Play, badge: true },
   { href: "/#how", label: "How it works", Icon: Layers },
   { href: "/thesis", label: "Thesis", Icon: Sparkles },
-  { href: "/#install", label: "Install", Icon: Download },
+  { href: "/download", label: "Install", Icon: Download },
   { href: "/changelog", label: "Releases", Icon: Rocket },
   { href: "https://docs.prevail.sh", label: "Docs", Icon: FileText, external: true },
 ] as const;
@@ -527,7 +527,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
             <GitHubStarButton />
           </span>
           <a
-            href="#install"
+            href="/download"
             onClick={() => track("download_click", { location: "nav" })}
             className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5 sm:px-4"
             style={{ boxShadow: "0 4px 24px rgba(63, 163, 77, 0.25)" }}
@@ -795,6 +795,30 @@ function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; cla
   );
 }
 
+// One OS-detected download button; every other way to install lives on /download.
+function QuickDownload() {
+  const isWindows = useIsWindows();
+  const dmg = useDmgDownload();
+  const exe = useExeDownload();
+  const build = isWindows ? exe : dmg;
+  return (
+    <div className="mt-8 flex flex-col items-center gap-2.5">
+      <a
+        href={build.url}
+        download={build.name}
+        onClick={() => track("download_click", { location: "own", platform: isWindows ? "win" : "mac" })}
+        className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-colors hover:bg-accent-bright"
+      >
+        <Download className="h-4 w-4" />
+        {isWindows ? "Download for Windows" : "Download for macOS"}
+      </a>
+      <a href="/download" className="text-xs text-text-mute hover:text-text-soft">
+        Other ways to install
+      </a>
+    </div>
+  );
+}
+
 function OwnLayer() {
   return (
     <section className="panel border-t border-border-soft bg-surface-0 py-16 md:py-20">
@@ -847,6 +871,9 @@ function OwnLayer() {
             <p className="mt-4 hidden text-center text-xs uppercase tracking-[0.16em] text-text-mute md:block">Every model</p>
           </div>
         </div>
+      </FadeIn>
+      <FadeIn delay={0.15}>
+        <QuickDownload />
       </FadeIn>
     </div>
     </section>
@@ -2750,6 +2777,14 @@ function ChangelogPage() {
 
 // /faq: the accordion on its own page, with the FAQPage structured data built
 // from the same list so the markup always matches what is on screen.
+function DownloadPage() {
+  return (
+    <main className="pt-14">
+      <DownloadSection />
+    </main>
+  );
+}
+
 function FAQPage() {
   useEffect(() => {
     const el = document.createElement("script");
@@ -2782,7 +2817,6 @@ function LandingMain() {
       <OwnLayer />
       <DemoVideo />
       <Pillars />
-      <DownloadSection />
     </main>
   );
 }
@@ -2793,6 +2827,7 @@ export default function App() {
   const isThesis = path === "/thesis";
   const isChangelog = path === "/changelog" || path === "/roadmap";
   const isFaq = path === "/faq";
+  const isDownload = path === "/download";
   const isLegal =
     path === "/tos" ||
     path === "/terms" ||
@@ -2817,7 +2852,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isFaq ? <FAQPage /> : isLegal ? <LegalPage /> : <LandingMain />}
+      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isFaq ? <FAQPage /> : isDownload ? <DownloadPage /> : isLegal ? <LegalPage /> : <LandingMain />}
       <Footer />
     </div>
   );
