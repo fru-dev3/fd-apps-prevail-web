@@ -185,9 +185,31 @@
 @keyframes own-pulse { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
 .own-pulse { animation: own-pulse 2.4s linear infinite; }
 
-/* Hero screenshot sized by viewport height on desktop: 14rem covers the nav,
-   the two hero rows, the window title bar and a small bottom margin, and the
-   16:9 still sets the width from what is left. */
+/* Hero screenshot sized by viewport height on desktop: 17.5rem covers the
+   nav, the two hero rows, the window title bar, the caption bar under the
+   frame and a small bottom margin, and the 16:9 still sets the width from
+   what is left. */
 @media (min-width: 1024px) {
-  .shot-fit { width: min(100%, calc((100svh - 14rem) * 16 / 9)); }
+  .shot-fit { width: min(100%, calc((100svh - 17.5rem) * 16 / 9)); }
+}
+
+/* Home page as full-screen panels: on desktop each section fills the screen
+   below the sticky nav (3.5rem) and the page snaps gently (proximity, so long
+   content and keyboard scrolling still work) to section tops. Phones scroll
+   freely; reduced motion gets no snap. */
+html:has(.snap-page) { scroll-padding-top: 3.5rem; }
+.panel-tint { background: color-mix(in srgb, var(--color-accent) 5%, var(--color-bg)); }
+@media (min-width: 1024px) {
+  .panel {
+    min-height: calc(100svh - 3.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    scroll-snap-align: start;
+  }
+  /* The demo video, sized like the hero still so it fits under its heading. */
+  .video-fit { width: min(100%, calc((100svh - 15.5rem) * 16 / 10)); }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  html:has(.snap-page) { scroll-snap-type: y proximity; }
 }

@@ -1,4 +1,4 @@
-// Build-time fallback for the hero download counter. Sums installer downloads
+// Build-time fallback for the hero download counter and the Star count. Sums installer downloads
 // from GitHub Releases the same way the page does (src/App.tsx DOWNLOAD_SOURCES)
 // and writes src/download-total.json. On any failure, or a 0/limited answer,
 // the previous committed value is kept so the page never shows "0 downloads".
@@ -16,8 +16,10 @@ let token = process.env.GITHUB_TOKEN;
 if (!token) try { token = execSync("gh auth token", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch {}
 if (token) headers.Authorization = `Bearer ${token}`;
 
-let prev = 0;
-try { prev = JSON.parse(readFileSync(OUT, "utf8")).total || 0; } catch {}
+let snap = {};
+try { snap = JSON.parse(readFileSync(OUT, "utf8")); } catch {}
+const before = JSON.stringify(snap);
+const prev = snap.total || 0;
 
 try {
   let total = 0;
@@ -35,8 +37,23 @@ try {
     }
   }
   if (total < prev || total === 0) throw new Error(`got ${total}, keeping ${prev}`);
-  writeFileSync(OUT, JSON.stringify({ total }, null, 2) + "\n");
+  snap.total = total;
   console.log(`download total: ${total}`);
 } catch (e) {
   console.warn(`download total: fetch failed (${e.message}); keeping ${prev}`);
 }
+
+// Star count fallback for the Star button, kept the same way.
+try {
+  const r = await fetch("https://api.github.com/repos/fru-dev3/prevail-desktop", { headers });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const n = (await r.json()).stargazers_count;
+  if (typeof n !== "number" || n < (snap.stars || 0)) throw new Error(`got ${n}`);
+  snap.stars = n;
+  console.log(`stars: ${n}`);
+} catch (e) {
+  console.warn(`stars: fetch failed (${e.message}); keeping ${snap.stars ?? "none"}`);
+}
+
+// Rewrite only when a number moved, so a build leaves the tree clean otherwise.
+if (JSON.stringify(snap) !== before) writeFileSync(OUT, JSON.stringify(snap, null, 2) + "\n");

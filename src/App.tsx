@@ -237,6 +237,7 @@ function OpenAIMark({ className = "" }: { className?: string }) {
 // "Star on GitHub" pill — single rounded shape, no internal divider.
 // Modeled after the Linear / Vercel / shadcn-ui pattern: cream pill on
 // dark, dark pill on light. Star icon → "Star" → live count.
+const LS_STARS = "prevail-github-stars";
 function GitHubStarButton({
   size = "sm",
   className = "",
@@ -244,14 +245,29 @@ function GitHubStarButton({
   size?: "sm" | "lg";
   className?: string;
 }) {
-  const [stars, setStars] = useState<number | null>(null);
+  // Last known count first (build snapshot or this browser's last live
+  // answer); the number is hidden rather than shown as "-" if neither exists.
+  const [stars, setStars] = useState<number | null>(() => {
+    let saved = 0;
+    try {
+      saved = Number(localStorage.getItem(LS_STARS)) || 0;
+    } catch {
+      /* storage blocked */
+    }
+    return Math.max(downloadSnapshot.stars || 0, saved) || null;
+  });
   useEffect(() => {
     let cancelled = false;
     fetch("https://api.github.com/repos/fru-dev3/prevail-desktop")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        if (cancelled || !j) return;
-        if (typeof j.stargazers_count === "number") setStars(j.stargazers_count);
+        if (cancelled || !j || typeof j.stargazers_count !== "number") return;
+        setStars(j.stargazers_count);
+        try {
+          localStorage.setItem(LS_STARS, String(j.stargazers_count));
+        } catch {
+          /* storage blocked */
+        }
       })
       .catch(() => {});
     return () => {
@@ -272,9 +288,7 @@ function GitHubStarButton({
     >
       <Star className={isLg ? "h-4 w-4" : "h-3.5 w-3.5"} />
       <span className="font-semibold">Star</span>
-      <span className="font-semibold opacity-70">
-        {stars !== null ? formatStars(stars) : "-"}
-      </span>
+      {stars !== null && <span className="font-semibold opacity-70">{formatStars(stars)}</span>}
     </a>
   );
 }
@@ -486,7 +500,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
             <span className="hidden font-normal text-text-mute sm:inline"> | Agent Harness</span>
           </span>
         </a>
-        <div className="hidden items-center gap-6 text-sm text-text-soft md:flex">
+        <div className="hidden items-center gap-6 text-sm text-text-soft lg:flex">
           {NAV_LINKS.map((l) => (
             <a
               key={l.label}
@@ -525,7 +539,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-border-soft text-text-soft hover:bg-surface-1 hover:text-text md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-border-soft text-text-soft hover:bg-surface-1 hover:text-text lg:hidden"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -533,7 +547,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
       </div>
       {/* Mobile menu sheet — links were previously unreachable below md */}
       {open && (
-        <div className="frost border-t border-border-soft md:hidden">
+        <div className="frost border-t border-border-soft lg:hidden">
           <div className="mx-auto grid max-w-6xl gap-1 px-6 py-4">
             {NAV_LINKS.map((l) => (
               <a
@@ -671,7 +685,7 @@ function Hero() {
   const isWindows = useIsWindows();
   const downloads = useDownloadTotal();
   return (
-    <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain lg:pt-5">
+    <section id="demo" className="panel relative isolate overflow-hidden pt-4 pb-10 grain lg:pb-4 lg:pt-5">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
       {/* Two short rows so the whole screenshot below fits on screen: the
@@ -727,8 +741,6 @@ function Hero() {
       <FadeIn delay={0.2} y={24}>
         <ShotCarousel />
       </FadeIn>
-      <OwnLayer />
-      <DemoVideo />
     </section>
   );
 }
@@ -785,7 +797,8 @@ function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; cla
 
 function OwnLayer() {
   return (
-    <div className="mx-auto mt-16 max-w-5xl px-4 md:mt-24 md:px-6">
+    <section className="panel border-t border-border-soft bg-surface-0 py-16 md:py-20">
+    <div className="mx-auto w-full max-w-5xl px-4 md:px-6">
       <FadeIn>
         <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
           Every AI. <span className="text-accent">One you own.</span>
@@ -836,6 +849,7 @@ function OwnLayer() {
         </div>
       </FadeIn>
     </div>
+    </section>
   );
 }
 
@@ -1139,8 +1153,8 @@ function PillarCard({
 
 function Pillars() {
   return (
-    <section id="how" className="scroll-mt-20 border-t border-border-soft py-16 md:py-20">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="how" className="panel panel-tint border-t border-border-soft py-16 md:py-20 lg:py-8">
+      <div className="mx-auto w-full max-w-6xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             How <Brand /> works
@@ -1149,7 +1163,7 @@ function Pillars() {
             Three ideas. <span className="font-serif italic text-text-soft">That's the whole app.</span>
           </h2>
         </FadeIn>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {[
             {
               icon: Layers,
@@ -1244,7 +1258,7 @@ function Pillars() {
             </FadeIn>
           ))}
         </div>
-
+        <Momentum />
       </div>
     </section>
   );
@@ -1259,7 +1273,7 @@ function Pillars() {
 
 function Momentum() {
   return (
-    <section className="border-t border-border-soft py-10">
+    <div className="mt-10 lg:mt-8">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-6 sm:flex-row sm:gap-6">
         <GitHubStarButton size="lg" />
         <a
@@ -1269,7 +1283,7 @@ function Momentum() {
           Full changelog &amp; roadmap <ArrowRight className="h-3.5 w-3.5" />
         </a>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -1485,9 +1499,9 @@ function InstallStudio() {
 
 function DownloadSection() {
   return (
-    <section id="install" className="border-t border-border-soft py-16 md:py-20 grain">
+    <section id="install" className="panel border-t border-border-soft py-16 md:py-20 grain lg:py-8">
       <div className="glow-accent absolute inset-0 -z-10 opacity-50" />
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto w-full max-w-6xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             Ask a council. Prevail.
@@ -1547,22 +1561,22 @@ const FAQ = [
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="border-t border-border-soft py-16 md:py-20">
-      <div className="mx-auto max-w-3xl px-6">
+    <section className="panel border-t border-border-soft bg-surface-0 py-16 md:py-20 lg:py-8">
+      <div className="mx-auto w-full max-w-3xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">FAQ</p>
           <h2 className="mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
 <span className="font-serif italic text-text-soft">Quick</span> answers.
           </h2>
         </FadeIn>
-        <div className="mt-8 space-y-2">
+        <div className="mt-8 space-y-2 lg:mt-6">
           {FAQ.map((item, i) => {
             const isOpen = open === i;
             return (
               <FadeIn key={item.q} delay={i * 0.04}>
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
-                  className="w-full rounded-lg border border-border-soft bg-surface-0 px-6 py-5 text-left transition-colors hover:bg-surface-1"
+                  className="w-full rounded-lg border border-border-soft bg-surface-0 px-6 py-5 text-left transition-colors hover:bg-surface-1 lg:py-3.5"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <span className="font-medium">{item.q}</span>
@@ -1575,7 +1589,7 @@ function FAQSection() {
                     </span>
                   </div>
                   {isOpen && (
-                    <p className="mt-4 border-t border-border-soft pt-4 text-text-soft">
+                    <p className="mt-4 border-t border-border-soft pt-4 text-text-soft lg:mt-3 lg:pt-3">
                       {item.a}
                     </p>
                   )}
@@ -1602,7 +1616,7 @@ const FAMILY = [
 function Footer() {
   return (
     <footer className="border-t border-border-soft bg-surface-0">
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 pb-5 pt-10">
         {/* The fru.dev family: same four projects, same order, on every site. */}
         <div>
           <h2 className="text-center text-2xl font-semibold tracking-tight">
@@ -1636,18 +1650,15 @@ function Footer() {
             })}
           </div>
         </div>
-        {/* One minimal closing section — brand, tagline, the two links that
-            matter, copyright. Everything else lives in the downloads above. */}
-        <div className="mt-10 flex flex-col items-center gap-4 border-t border-border-soft pt-8 text-center">
+        {/* One closing row on desktop: mark + name, the links, Star, (c).
+            Wraps to two short rows on phones. */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-border-soft pt-5 text-xs lg:flex-nowrap lg:justify-between">
           <div className="flex items-center gap-2">
-            <Logo size={22} />
-            <span className="text-lg font-semibold">
-              <Brand />
-              <span className="font-normal text-text-mute"> | Agent Harness</span>
-            </span>
+            <Logo size={18} />
+            <span className="text-sm font-semibold"><Brand /></span>
           </div>
-          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-soft">
-            <a href="/changelog" className="hover:text-text">Changelog &amp; roadmap</a>
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-text-soft">
+            <a href="/changelog" className="hover:text-text">Changelog</a>
             <a
               href={PRODUCT_HUNT_URL}
               target="_blank"
@@ -1655,14 +1666,16 @@ function Footer() {
               onClick={() => track("product_hunt_click", { location: "footer" })}
               className="inline-flex items-center gap-1.5 hover:text-text"
             >
-              <SimpleIcon icon={siProducthunt} className="h-3.5 w-3.5 shrink-0 text-[#DA552F]" />
+              <SimpleIcon icon={siProducthunt} className="h-3 w-3 shrink-0 text-[#DA552F]" />
               Product Hunt
             </a>
-            <a href="/tos" className="hover:text-text">Terms of Service</a>
-            <a href="/privacy" className="hover:text-text">Privacy Policy</a>
+            <a href="/tos" className="hover:text-text">Terms</a>
+            <a href="/privacy" className="hover:text-text">Privacy</a>
           </nav>
-          <GitHubStarButton size="lg" />
-          <p className="text-xs text-text-mute">© 2026 Prevail.sh · built local, shipped open</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <GitHubStarButton />
+            <p className="whitespace-nowrap text-text-mute">© 2026 Prevail.sh · built local, shipped open</p>
+          </div>
         </div>
       </div>
     </footer>
@@ -1697,7 +1710,8 @@ function DemoVideo() {
     if (!reduce) v.play().catch(() => {});
   }, [seen, reduce]);
   return (
-    <div id="watch" className="mx-auto mt-16 max-w-6xl scroll-mt-20 px-4 text-center sm:px-6">
+    <section id="watch" className="panel border-t border-border-soft py-16 text-center lg:py-8">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
       <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold text-text md:text-3xl">
         <Play className="h-6 w-6 text-accent" />
         See it in action
@@ -1705,7 +1719,7 @@ function DemoVideo() {
       <p className="mx-auto mt-3 max-w-2xl text-base text-text-soft">
         One minute: a question to your chief of staff and two specialists, then the Compass, a project, the morning briefing and an entity.
       </p>
-      <div className="mt-6 overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
+      <div className="video-fit mx-auto mt-6 overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
         <video
           ref={ref}
           poster="/prevail-tour-poster.jpg"
@@ -1724,6 +1738,7 @@ function DemoVideo() {
         </video>
       </div>
     </div>
+    </section>
   );
 }
 
@@ -1836,8 +1851,8 @@ function ShotCarousel() {
   return (
     <div className="mx-auto mt-4 max-w-[1600px] px-4 text-left sm:px-6 lg:px-8">
       {/* The still, in a quiet window frame, sized by viewport height on
-          desktop (.shot-fit) so the whole frame shows without scrolling.
-          Hovering it, or the caption card on it, holds the timer. */}
+          desktop (.shot-fit) so the whole frame and the caption bar under it
+          show without scrolling. Hovering either holds the timer. */}
       <div
         className="shot-fit group relative mx-auto min-w-0"
         onMouseEnter={() => setHover(true)}
@@ -1868,11 +1883,13 @@ function ShotCarousel() {
         </button>
 
       {/* Only the current slide: what you see and why it matters. Below the
-          image on phones; a small glass card on its bottom right on desktop. */}
-      <div className="mt-6 min-w-0 lg:absolute lg:bottom-10 lg:right-4 lg:z-10 lg:mt-0 lg:w-[22rem] lg:rounded-xl lg:border lg:border-border-soft lg:bg-bg/85 lg:p-3.5 lg:shadow-2xl lg:backdrop-blur-md">
+          image, never on it: a stacked block on phones, one slim bar the
+          width of the frame on desktop (title and line left, controls right,
+          the timer along its bottom edge). */}
+      <div className="relative mt-6 min-w-0 lg:mt-2 lg:flex lg:items-center lg:gap-4 lg:pb-2">
         {/* Every slide sits in the same grid cell, so the block is as tall as
             the longest one and the controls never jump; only the current one shows. */}
-        <div className="grid" aria-hidden>
+        <div className="grid lg:min-w-0 lg:flex-1" aria-hidden>
           {DEMO_SLIDES.map((s, i) => {
             const I = s.icon;
             const on = i === idx;
@@ -1881,13 +1898,15 @@ function ShotCarousel() {
                 key={s.shot}
                 className={`col-start-1 row-start-1 transition duration-300 ease-out motion-reduce:transition-none ${on ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"}`}
               >
-                <h3 className="flex items-center gap-3 text-2xl font-semibold text-text lg:gap-2.5 lg:text-base">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
-                    <I className="h-6 w-6 lg:h-4 lg:w-4" />
-                  </span>
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-base leading-relaxed text-text-soft lg:text-sm lg:leading-snug">{s.line}</p>
+                <div className="lg:flex lg:items-center lg:gap-3">
+                  <h3 className="flex items-center gap-3 text-2xl font-semibold text-text lg:shrink-0 lg:gap-2.5 lg:text-base">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
+                      <I className="h-6 w-6 lg:h-4 lg:w-4" />
+                    </span>
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 text-base leading-relaxed text-text-soft lg:mt-0 lg:min-w-0 lg:text-sm lg:leading-snug">{s.line}</p>
+                </div>
               </div>
             );
           })}
@@ -1900,7 +1919,7 @@ function ShotCarousel() {
         <div
           role="group"
           aria-label="Screenshot tour controls"
-          className="mt-5 flex items-center gap-2 lg:mt-3"
+          className="mt-5 flex items-center gap-2 lg:mt-0 lg:shrink-0"
           onKeyDown={(e) => {
             if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
             if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
@@ -1926,7 +1945,7 @@ function ShotCarousel() {
         </div>
         {/* The bar is the timer: when its fill finishes, the next slide shows.
             Pausing freezes it in place, so resuming picks up where it stopped. */}
-        <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft lg:max-w-none" aria-hidden>
+        <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft lg:absolute lg:inset-x-0 lg:bottom-0 lg:mt-0 lg:max-w-none" aria-hidden>
           <div
             key={idx}
             className="shot-progress h-full bg-accent"
@@ -2730,10 +2749,11 @@ function ChangelogPage() {
 
 function LandingMain() {
   return (
-    <main className="pt-14">
+    <main className="snap-page pt-14">
       <Hero />
+      <OwnLayer />
+      <DemoVideo />
       <Pillars />
-      <Momentum />
       <DownloadSection />
       <FAQSection />
     </main>
