@@ -909,15 +909,20 @@ function Pillars() {
             const Icon = p.icon;
             return (
               <FadeIn key={p.title} delay={i * 0.06}>
-                <div className="group flex h-full flex-col rounded-xl border border-border-soft bg-surface-0 p-7 transition-all hover:border-border hover:bg-surface-1">
-                  <div
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: `${p.color}15`, color: p.color }}
-                  >
-                    <Icon className="h-6 w-6" />
+                <div className="group flex h-full flex-col rounded-xl border border-border-soft bg-surface-0 p-5 transition-all hover:border-border hover:bg-surface-1">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                      style={{ backgroundColor: `${p.color}15`, color: p.color }}
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                    </div>
+                    <h3 className="whitespace-nowrap text-lg font-semibold tracking-[-0.01em]">{p.title}</h3>
                   </div>
-                  <h3 className="mt-5 text-2xl font-semibold tracking-[-0.01em]">{p.title}</h3>
-                  <div className="mt-6 pt-1">{p.visual}</div>
+                  {/* The picture, scaled down so the three cards stay short and even. */}
+                  <div className="mt-4 flex h-60 items-center justify-center overflow-hidden">
+                    <div className="w-full origin-center scale-[0.68]">{p.visual}</div>
+                  </div>
                 </div>
               </FadeIn>
             );
@@ -1291,21 +1296,19 @@ function Footer() {
             </a>{" "}
             project
           </h2>
-          <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-2">
+          <div className="mx-auto mt-6 grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-4">
             {FAMILY.map((f) => {
               const here = f.name === "Prevail";
               const inner = (
                 <div
-                  className={`flex h-full items-center gap-4 rounded-2xl border p-5 transition-colors ${
+                  className={`flex h-full items-start gap-3 rounded-xl border p-3.5 transition-colors ${
                     here ? "border-accent-border/60 bg-surface-1" : "border-border-soft hover:border-border hover:bg-surface-1"
                   }`}
                 >
-                  <img src={f.tile} alt="" className="h-12 w-12 shrink-0 rounded-xl" />
+                  <img src={f.tile} alt="" className="h-9 w-9 shrink-0 rounded-lg" />
                   <div className="min-w-0">
-                    <div className="font-semibold">
-                      {f.name} <span className="font-normal text-text-mute">| {f.role}</span>
-                    </div>
-                    <div className="mt-0.5 text-sm text-text-soft">{f.tagline}</div>
+                    <div className="truncate text-sm font-semibold">{f.name} <span className="font-normal text-text-mute">{f.role}</span></div>
+                    <div className="mt-0.5 line-clamp-2 text-xs leading-snug text-text-soft" title={f.tagline}>{f.tagline}</div>
                   </div>
                 </div>
               );
