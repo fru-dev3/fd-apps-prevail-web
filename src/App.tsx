@@ -330,7 +330,7 @@ function OdometerDigit({ digit, index }: { digit: number; index: number }) {
   const strip: number[] = [];
   for (let k = 0; k <= spins * 10 + digit; k++) strip.push(k % 10);
   return (
-    <span className="relative inline-block h-[1.3em] w-[0.78em] overflow-hidden rounded-lg border border-border-soft bg-bg">
+    <span className="relative inline-block h-[1.3em] w-[0.78em] overflow-hidden rounded-md border border-border-soft bg-bg">
       {reduce ? (
         <span className="flex h-[1.3em] items-center justify-center leading-none">{digit}</span>
       ) : (
@@ -349,61 +349,50 @@ function OdometerDigit({ digit, index }: { digit: number; index: number }) {
       )}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-b from-bg/70 via-transparent to-bg/70"
+        className="pointer-events-none absolute inset-0 rounded-md bg-gradient-to-b from-bg/70 via-transparent to-bg/70"
       />
     </span>
   );
 }
 
+// Compact pill so the hero stays one row: live dot, odometer, label. The
+// whole pill links to the GitHub releases the number is counted from.
 function DownloadCounter({ value }: { value: number }) {
   const formatted = value.toLocaleString("en-US");
   let digitIndex = -1;
   return (
-    <div className="mt-2 flex flex-col items-center gap-2">
-      <div
-        role="img"
-        aria-label={`${formatted} downloads, counted live from GitHub releases`}
-        className="flex items-center gap-4 rounded-2xl border border-accent-border bg-surface-1 py-3 pl-5 pr-6"
-        style={{ boxShadow: "0 10px 48px rgba(63, 163, 77, 0.22)" }}
-      >
-        <span className="flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2">
-            <motion.span
-              className="absolute inset-0 rounded-full bg-accent"
-              animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-            />
-            <span className="relative h-2 w-2 rounded-full bg-accent" />
-          </span>
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">Live</span>
-        </span>
-        <span aria-hidden className="flex items-center gap-[3px] font-mono text-3xl font-semibold tabular-nums text-accent md:text-4xl">
-          {formatted.split("").map((c, i) => {
-            if (/\d/.test(c)) {
-              digitIndex += 1;
-              return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
-            }
-            return (
-              <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
-                {c}
-              </span>
-            );
-          })}
-        </span>
-        <span className="flex flex-col items-start text-left leading-tight">
-          <span className="text-sm font-medium text-text">downloads</span>
-          <span className="text-[11px] text-text-mute">and counting</span>
-        </span>
-      </div>
-      <a
-        href={`${GITHUB_DESKTOP}/releases`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-[10px] uppercase tracking-[0.18em] text-text-mute underline-offset-2 transition-colors hover:text-text-soft hover:underline"
-      >
-        Counted live from GitHub releases
-      </a>
-    </div>
+    <a
+      href={`${GITHUB_DESKTOP}/releases`}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`${formatted} downloads, counted live from GitHub releases`}
+      title="Counted live from GitHub releases"
+      className="inline-flex items-center gap-2.5 rounded-xl border border-accent-border bg-surface-1 py-2 pl-3.5 pr-4 transition-colors hover:border-accent"
+      style={{ boxShadow: "0 6px 28px rgba(63, 163, 77, 0.18)" }}
+    >
+      <span className="relative flex h-2 w-2" aria-hidden>
+        <motion.span
+          className="absolute inset-0 rounded-full bg-accent"
+          animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+        />
+        <span className="relative h-2 w-2 rounded-full bg-accent" />
+      </span>
+      <span aria-hidden className="flex items-center gap-[2px] font-mono text-lg font-semibold tabular-nums text-accent">
+        {formatted.split("").map((c, i) => {
+          if (/\d/.test(c)) {
+            digitIndex += 1;
+            return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
+          }
+          return (
+            <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
+              {c}
+            </span>
+          );
+        })}
+      </span>
+      <span aria-hidden className="text-sm font-medium text-text">downloads</span>
+    </a>
   );
 }
 
@@ -682,63 +671,54 @@ function Hero() {
   const isWindows = useIsWindows();
   const downloads = useDownloadTotal();
   return (
-    <section id="demo" className="relative isolate overflow-hidden pt-14 pb-10 grain md:pt-20">
+    <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain lg:pt-5">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
-
+      {/* Two short rows so the whole screenshot below fits on screen: the
+          line, then every action and proof point on one row. */}
+      <div className="mx-auto flex max-w-6xl flex-col items-center px-6 text-center">
         <FadeIn delay={0.1}>
-          <p className="mx-auto max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
+          <p className="mx-auto max-w-3xl text-base leading-snug text-text-soft md:text-lg">
             Your <span className="text-text">adaptive intelligence</span> for everything you
             manage, build, decide, and <span className="font-medium text-accent">become</span>.
           </p>
         </FadeIn>
 
         <FadeIn delay={0.16}>
-          <div className="mt-8 flex flex-col items-center gap-3">
-            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href={isWindows ? exe.url : dmg.url}
-                download={isWindows ? exe.name : dmg.name}
-                onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
-                style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
-              >
-                <Download className="h-4 w-4" />
-                Download for {isWindows ? "Windows" : "macOS"}
-              </a>
-              <a
-                href="#watch"
-                onClick={() => track("watch_demo_click", { location: "hero" })}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-3 font-medium text-text-soft transition-all hover:border-border-strong hover:text-text"
-              >
-                <Play className="h-4 w-4" />
-                Watch the demo
-              </a>
-            </div>
-            {/* Live download total, promoted from a trust-line footnote to
-                an odometer of its own — it's the strongest proof we have. */}
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2.5">
+            <a
+              href={isWindows ? exe.url : dmg.url}
+              download={isWindows ? exe.name : dmg.name}
+              onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-2.5 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+              style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
+            >
+              <Download className="h-4 w-4" />
+              Download for {isWindows ? "Windows" : "macOS"}
+            </a>
+            <a
+              href="#watch"
+              onClick={() => track("watch_demo_click", { location: "hero" })}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-2.5 font-medium text-text-soft transition-all hover:border-border-strong hover:text-text"
+            >
+              <Play className="h-4 w-4" />
+              Watch the demo
+            </a>
             {downloads !== null && <DownloadCounter value={downloads} />}
-          </div>
-        </FadeIn>
-
-        {/* Model strip — recognizable brands only. Our own ecosystem tools
-            (OpenClaw, Paperclip, Hermes) get their own section further down. */}
-        <FadeIn delay={0.28}>
-          <div className="mt-12 flex max-w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 text-text-mute">
-            <span className="shrink-0 text-[11px] uppercase tracking-[0.18em]">Convenes the models you already use</span>
-            {MODEL_STRIP.map((w) => (
-              <div
-                key={w.name}
-                title={w.name}
-                className="flex shrink-0 items-center gap-1.5 text-text-soft transition-colors hover:text-text"
-              >
-                <span style={{ color: w.color }} className="inline-flex">
-                  {w.render("h-[1.4rem] w-[1.4rem]")}
+            {/* Model strip, icons only (names in tooltips). Our own ecosystem
+                tools get their own section further down. */}
+            <div
+              className="flex items-center gap-3 rounded-xl border border-border-soft px-3.5 py-2.5"
+              aria-label="Works with Claude, OpenAI, Gemini and Ollama"
+              role="img"
+            >
+              <span className="text-xs text-text-mute">Works with</span>
+              {MODEL_STRIP.map((w) => (
+                <span key={w.name} title={w.name} style={{ color: w.color }} className="inline-flex text-text-soft">
+                  {w.render("h-[1.1rem] w-[1.1rem]")}
                 </span>
-                <span className="text-xs">{w.name}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </FadeIn>
       </div>
@@ -1852,12 +1832,14 @@ function ShotCarousel() {
   const slide = DEMO_SLIDES[idx];
   const running = !paused && !hover;
   const btn =
-    "flex h-8 w-8 items-center justify-center rounded-full border border-border-soft text-text-soft transition hover:bg-surface-1 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
+    "flex h-8 w-8 lg:h-7 lg:w-7 items-center justify-center rounded-full border border-border-soft text-text-soft transition hover:bg-surface-1 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
   return (
-    <div className="mx-auto mt-10 grid max-w-[1600px] items-start gap-6 px-4 text-left sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] lg:items-center lg:gap-8 lg:px-8">
-      {/* The still, in a quiet window frame. Hovering it holds the timer. */}
+    <div className="mx-auto mt-4 max-w-[1600px] px-4 text-left sm:px-6 lg:px-8">
+      {/* The still, in a quiet window frame, sized by viewport height on
+          desktop (.shot-fit) so the whole frame shows without scrolling.
+          Hovering it, or the caption card on it, holds the timer. */}
       <div
-        className="group relative min-w-0"
+        className="shot-fit group relative mx-auto min-w-0"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
@@ -1884,10 +1866,10 @@ function ShotCarousel() {
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-      </div>
 
-      {/* Only the current slide: what you see and why it matters. */}
-      <div className="min-w-0">
+      {/* Only the current slide: what you see and why it matters. Below the
+          image on phones; a small glass card on its bottom right on desktop. */}
+      <div className="mt-6 min-w-0 lg:absolute lg:bottom-10 lg:right-4 lg:z-10 lg:mt-0 lg:w-[22rem] lg:rounded-xl lg:border lg:border-border-soft lg:bg-bg/85 lg:p-3.5 lg:shadow-2xl lg:backdrop-blur-md">
         {/* Every slide sits in the same grid cell, so the block is as tall as
             the longest one and the controls never jump; only the current one shows. */}
         <div className="grid" aria-hidden>
@@ -1899,11 +1881,13 @@ function ShotCarousel() {
                 key={s.shot}
                 className={`col-start-1 row-start-1 transition duration-300 ease-out motion-reduce:transition-none ${on ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"}`}
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                  <I className="h-6 w-6" />
-                </span>
-                <h3 className="mt-4 text-2xl font-semibold text-text">{s.title}</h3>
-                <p className="mt-2 text-base leading-relaxed text-text-soft">{s.line}</p>
+                <h3 className="flex items-center gap-3 text-2xl font-semibold text-text lg:gap-2.5 lg:text-base">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
+                    <I className="h-6 w-6 lg:h-4 lg:w-4" />
+                  </span>
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-base leading-relaxed text-text-soft lg:text-sm lg:leading-snug">{s.line}</p>
               </div>
             );
           })}
@@ -1916,7 +1900,7 @@ function ShotCarousel() {
         <div
           role="group"
           aria-label="Screenshot tour controls"
-          className="mt-5 flex items-center gap-2"
+          className="mt-5 flex items-center gap-2 lg:mt-3"
           onKeyDown={(e) => {
             if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
             if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
@@ -1942,7 +1926,7 @@ function ShotCarousel() {
         </div>
         {/* The bar is the timer: when its fill finishes, the next slide shows.
             Pausing freezes it in place, so resuming picks up where it stopped. */}
-        <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft" aria-hidden>
+        <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft lg:max-w-none" aria-hidden>
           <div
             key={idx}
             className="shot-progress h-full bg-accent"
@@ -1950,6 +1934,7 @@ function ShotCarousel() {
             onAnimationEnd={() => go(1)}
           />
         </div>
+      </div>
       </div>
     </div>
   );

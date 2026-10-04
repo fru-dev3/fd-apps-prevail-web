@@ -184,3 +184,10 @@
 /* OwnLayer: a pulse travels each connector from the AI logo to the Prevail node. */
 @keyframes own-pulse { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
 .own-pulse { animation: own-pulse 2.4s linear infinite; }
+
+/* Hero screenshot sized by viewport height on desktop: 14rem covers the nav,
+   the two hero rows, the window title bar and a small bottom margin, and the
+   16:9 still sets the width from what is left. */
+@media (min-width: 1024px) {
+  .shot-fit { width: min(100%, calc((100svh - 14rem) * 16 / 9)); }
+}
