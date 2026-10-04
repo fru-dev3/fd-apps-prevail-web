@@ -28,6 +28,7 @@ import {
   Menu,
   Moon,
   Paperclip,
+  Pause,
   Play,
   Receipt,
   Rocket,
@@ -1666,28 +1667,23 @@ const SHOT_SECONDS = 7;
 function ShotCarousel() {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
+  // Reduced motion starts paused; the play button still lets people opt in.
+  const [paused, setPaused] = useState(!!reduce);
+  const [hover, setHover] = useState(false);
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
-  const Icon = slide.icon;
-  const auto = !reduce && !paused;
-  useEffect(() => {
-    if (!auto) return;
-    const t = window.setTimeout(() => go(1), SHOT_SECONDS * 1000);
-    return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, auto]);
+  const running = !paused && !hover;
+  const btn =
+    "flex h-8 w-8 items-center justify-center rounded-full border border-border-soft text-text-soft transition hover:bg-surface-1 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
   return (
-    <div
-      className="mx-auto mt-10 grid max-w-[1600px] items-start gap-6 px-4 text-left sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] lg:items-center lg:gap-8 lg:px-8"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
-    >
-      {/* The still, in a quiet window frame. */}
-      <div className="group relative min-w-0">
+    <div className="mx-auto mt-10 grid max-w-[1600px] items-start gap-6 px-4 text-left sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] lg:items-center lg:gap-8 lg:px-8">
+      {/* The still, in a quiet window frame. Hovering it holds the timer. */}
+      <div
+        className="group relative min-w-0"
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
         <div className="overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
           <div className="flex items-center gap-1.5 border-b border-border-soft px-3 py-2" aria-hidden>
             <span className="h-2.5 w-2.5 rounded-full bg-border" />
@@ -1713,52 +1709,69 @@ function ShotCarousel() {
         </button>
       </div>
 
-      {/* What you see and why it matters, then the list to jump around. */}
+      {/* Only the current slide: what you see and why it matters. */}
       <div className="min-w-0">
-        <div aria-live="polite">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
-              <Icon className="h-5 w-5" />
-            </span>
-            <h3 className="text-xl font-semibold text-text">{slide.title}</h3>
-          </div>
-          <p className="mt-3 text-base leading-relaxed text-text-soft">{slide.line}</p>
-        </div>
-        <ol className="mt-5 hidden gap-0.5 lg:grid">
+        {/* Every slide sits in the same grid cell, so the block is as tall as
+            the longest one and the controls never jump; only the current one shows. */}
+        <div className="grid" aria-hidden>
           {DEMO_SLIDES.map((s, i) => {
             const I = s.icon;
             const on = i === idx;
             return (
-              <li key={s.shot}>
-                <button
-                  onClick={() => setIdx(i)}
-                  aria-current={on}
-                  className={`relative flex w-full items-center gap-2.5 overflow-hidden rounded-md px-2.5 py-1.5 text-left text-[13px] transition ${on ? "bg-accent/10 font-medium text-text" : "text-text-soft hover:bg-surface-1 hover:text-text"}`}
-                >
-                  <I className={`h-3.5 w-3.5 shrink-0 ${on ? "text-accent" : ""}`} />
-                  {s.title}
-                  {on && auto && (
-                    <span
-                      key={idx}
-                      className="shot-progress absolute bottom-0 left-0 h-0.5 bg-accent"
-                      style={{ animationDuration: `${SHOT_SECONDS}s` }}
-                    />
-                  )}
-                </button>
-              </li>
+              <div
+                key={s.shot}
+                className={`col-start-1 row-start-1 transition duration-300 ease-out motion-reduce:transition-none ${on ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"}`}
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-accent">
+                  <I className="h-6 w-6" />
+                </span>
+                <h3 className="mt-4 text-2xl font-semibold text-text">{s.title}</h3>
+                <p className="mt-2 text-base leading-relaxed text-text-soft">{s.line}</p>
+              </div>
             );
           })}
-        </ol>
-        <div className="mt-5 flex items-center gap-2 lg:hidden">
-          {DEMO_SLIDES.map((s, i) => (
-            <button
-              key={s.shot}
-              onClick={() => setIdx(i)}
-              aria-label={`Show ${s.title}`}
-              aria-current={i === idx}
-              className={`h-2 rounded-full transition-all ${i === idx ? "w-6 bg-accent" : "w-2 bg-border hover:bg-border-strong"}`}
-            />
-          ))}
+        </div>
+        <p aria-live="polite" className="sr-only">
+          Slide {idx + 1} of {n}: {slide.title}. {slide.line}
+        </p>
+
+        {/* Compact controls; arrow keys work while any of them has focus. */}
+        <div
+          role="group"
+          aria-label="Screenshot tour controls"
+          className="mt-5 flex items-center gap-2"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+            if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+          }}
+        >
+          <button onClick={() => go(-1)} aria-label="Previous slide" className={btn}>
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setPaused((p) => !p)}
+            aria-label={paused ? "Play slideshow" : "Pause slideshow"}
+            aria-pressed={paused}
+            className={btn}
+          >
+            {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+          </button>
+          <button onClick={() => go(1)} aria-label="Next slide" className={btn}>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <span className="ml-2 text-sm tabular-nums text-text-mute">
+            {idx + 1} / {n}
+          </span>
+        </div>
+        {/* The bar is the timer: when its fill finishes, the next slide shows.
+            Pausing freezes it in place, so resuming picks up where it stopped. */}
+        <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft" aria-hidden>
+          <div
+            key={idx}
+            className="shot-progress h-full bg-accent"
+            style={{ animationDuration: `${SHOT_SECONDS}s`, animationPlayState: running ? "running" : "paused" }}
+            onAnimationEnd={() => go(1)}
+          />
         </div>
       </div>
     </div>
