@@ -5,6 +5,12 @@ import {
   Activity,
   BarChart3,
   Boxes,
+  TrendingUp,
+  Receipt,
+  Heart,
+  GraduationCap,
+  Briefcase,
+  RotateCw,
   Brain,
   FolderKanban,
   Shuffle,
@@ -1321,7 +1327,7 @@ function Footer() {
             <a href="https://fru.dev" className="text-accent hover:underline">
               fru.dev
             </a>{" "}
-            project
+            Project
           </h2>
           <div className="mx-auto mt-6 grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-4">
             {FAMILY.map((f) => {
@@ -1355,6 +1361,7 @@ function Footer() {
             <span className="text-sm font-semibold"><Brand /></span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-text-soft">
+            <a href="/how-it-works" className="hover:text-text">How it works</a>
             <a href="https://docs.prevail.sh" target="_blank" rel="noreferrer" className="hover:text-text">Docs</a>
             <a href="/changelog" className="hover:text-text">Changelog</a>
             <a href="/faq" className="hover:text-text">FAQ</a>
@@ -2308,6 +2315,307 @@ function DownloadPage() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LIFE DOMAINS — radial constellation of the life areas Prevail covers.
+
+const LIFE_DOMAINS: { label: string; Icon: typeof Heart }[] = [
+  { label: "Health", Icon: Heart },
+  { label: "Wealth", Icon: TrendingUp },
+  { label: "Tax", Icon: Receipt },
+  { label: "Career", Icon: Briefcase },
+  { label: "Family", Icon: Users },
+  { label: "Learning", Icon: GraduationCap },
+];
+
+function DomainRadial() {
+  const reduce = useReducedMotion();
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    if (reduce) return;
+    const t = setInterval(
+      () => setActive((a) => (a + 1) % LIFE_DOMAINS.length),
+      2800,
+    );
+    return () => clearInterval(t);
+  }, [reduce]);
+  const N = LIFE_DOMAINS.length;
+  const R = 40;
+  const nodes = LIFE_DOMAINS.map((d, i) => {
+    const ang = ((-90 + i * (360 / N)) * Math.PI) / 180;
+    return { ...d, x: 50 + R * Math.cos(ang), y: 50 + R * Math.sin(ang) };
+  });
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-[680px]">
+      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
+        {nodes.map((n, i) => (
+          <line
+            key={n.label}
+            x1="50"
+            y1="50"
+            x2={n.x}
+            y2={n.y}
+            stroke="currentColor"
+            strokeWidth={active === i ? 0.35 : 0.2}
+            strokeDasharray="0.9 0.9"
+            className={`transition-all duration-500 ${active === i ? "text-accent/60" : "text-border"}`}
+          />
+        ))}
+        {!reduce &&
+          nodes.map((n, i) => (
+            <motion.circle
+              key={`pulse-${n.label}`}
+              r="0.75"
+              className="fill-accent"
+              initial={{ cx: n.x, cy: n.y, opacity: 0 }}
+              animate={{ cx: 50, cy: 50, opacity: [0, 0.9, 0] }}
+              transition={{ duration: 2.1, repeat: Infinity, ease: "easeIn", delay: (i / N) * 2.1 }}
+            />
+          ))}
+      </svg>
+
+      {!reduce && (
+        <motion.span
+          className="absolute left-1/2 top-1/2 -z-0 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ width: "34%", height: "34%", background: "radial-gradient(circle, rgba(63, 163, 77,0.28), transparent 70%)" }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.25, 0.6] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden
+        />
+      )}
+
+      <div className="absolute left-1/2 top-1/2 z-10 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-border bg-surface-1 shadow-lg md:h-24 md:w-24">
+        <Logo size={26} />
+        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-accent">You</span>
+      </div>
+
+      {nodes.map((n, i) => {
+        const Icon = n.Icon;
+        const on = active === i;
+        return (
+          <div
+            key={n.label}
+            className={`absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 ${
+              n.y < 50 ? "flex-col-reverse" : "flex-col"
+            }`}
+            style={{ left: `${n.x}%`, top: `${n.y}%` }}
+          >
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-full border bg-surface-0 transition-all duration-500 md:h-11 md:w-11 ${
+                on ? "border-accent-border text-accent shadow-[0_0_18px_rgba(63, 163, 77,0.35)]" : "border-border-soft text-text-soft"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+            </div>
+            <span className={`font-mono text-[9px] uppercase tracking-[0.14em] transition-colors duration-500 md:text-[10px] ${on ? "text-accent" : "text-text-mute"}`}>
+              {n.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// One "Three ideas" card. Front: title + picture. Back: what the idea means.
+// Mouse hover flips it; touch taps toggle; Enter/Space toggle from the keyboard.
+function PillarCard({
+  icon: Icon,
+  title,
+  color,
+  visual,
+  details,
+}: {
+  icon: typeof Layers;
+  title: string;
+  color: string;
+  visual: ReactNode;
+  details: string[];
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const lastPointer = useRef("mouse");
+  const backId = `pillar-${title.replace(/\W+/g, "-").toLowerCase()}`;
+  const header = (
+    <div className="flex items-center gap-3">
+      <div
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ backgroundColor: `${color}15`, color }}
+      >
+        <Icon className="h-[18px] w-[18px]" />
+      </div>
+      <h3 className="whitespace-nowrap text-lg font-semibold tracking-[-0.01em]">{title}</h3>
+      {/* Flip hint, mostly for touch, where there is no hover to discover it */}
+      <RotateCw className="ml-auto h-3.5 w-3.5 shrink-0 text-text-mute opacity-60" aria-hidden />
+    </div>
+  );
+  const face = "flex h-full flex-col rounded-xl border p-5 transition-[border-color,box-shadow,background-color] duration-300";
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={`${title}. Show details`}
+      aria-describedby={backId}
+      data-flipped={flipped}
+      className="flip group h-full cursor-pointer rounded-xl outline-none transition-transform duration-300 ease-out hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+      onPointerDown={(e) => (lastPointer.current = e.pointerType)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setFlipped(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setFlipped(false)}
+      onClick={() => lastPointer.current !== "mouse" && setFlipped((f) => !f)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
+    >
+      <div className="flip-inner">
+        <div className={`flip-front ${face} border-border-soft bg-surface-0 group-hover:border-accent-border group-hover:shadow-[0_12px_40px_-16px_rgba(63,163,77,0.45)]`} aria-hidden>
+          {header}
+          {/* The picture, scaled down so the three cards stay short and even. */}
+          <div className="mt-4 flex h-60 items-center justify-center overflow-hidden">
+            <div className="w-full origin-center scale-[0.68] transition-transform duration-500 group-hover:scale-[0.72]">{visual}</div>
+          </div>
+        </div>
+        <div
+          id={backId}
+          className={`flip-back ${face} border-accent-border bg-surface-1 shadow-[0_12px_40px_-16px_rgba(63,163,77,0.45)]`}
+        >
+          <div aria-hidden>{header}</div>
+          <ul className="mt-4 flex flex-1 flex-col justify-center gap-5 px-1">
+            {details.map((d) => (
+              <li key={d} className="flex min-w-0 gap-3 text-base leading-snug text-text-soft">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden />
+                <span title={d} className="min-w-0 truncate">{d}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Pillars() {
+  return (
+    <section className="py-16 md:py-20">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <FadeIn>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
+            How <Brand /> works
+          </p>
+          <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
+            <span className="whitespace-nowrap">Three ideas.</span> <br className="sm:hidden" /><span className="whitespace-nowrap font-serif italic text-text-soft">That's the whole app.</span>
+          </h2>
+        </FadeIn>
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          {[
+            {
+              icon: Layers,
+              title: "For life's biggest decisions",
+              color: "#3FA34D",
+              visual: (
+                // The life-domains radial, relocated from the hero — it
+                // explains the "you at the center" model, which is exactly
+                // this card's job.
+                <div className="mx-auto w-full max-w-[300px]">
+                  <DomainRadial />
+                </div>
+              ),
+              details: [
+                "Each area of life has a memory.",
+                "One question reaches every domain.",
+              ],
+            },
+            {
+              icon: Scale,
+              title: "A council of models",
+              color: "#3FA34D",
+              visual: (
+                <div className="flex flex-col items-center">
+                  {/* Round table: named models seated around Prevail; one is the chair */}
+                  <div className="relative mx-auto h-52 w-52">
+                    {/* table ring */}
+                    <div className="absolute inset-7 rounded-full border border-dashed border-border-soft" aria-hidden />
+                    {/* center — Prevail */}
+                    <div
+                      className="absolute left-1/2 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-border bg-surface-0"
+                      title="Prevail"
+                      style={{ boxShadow: "0 0 30px rgba(63, 163, 77, 0.25)" }}
+                    >
+                      <Logo size={26} />
+                    </div>
+                    {/* seats — model + name, one marked as chair */}
+                    {[
+                      { name: "Claude", chair: true, pos: "left-1/2 top-0 -translate-x-1/2", bg: "#cc785c", fg: "#ffffff", render: (c: string) => <SimpleIcon icon={siClaude} className={c} /> },
+                      { name: "Gemini", pos: "right-0 top-1/2 -translate-y-1/2", bg: "#4285F4", fg: "#ffffff", render: (c: string) => <SimpleIcon icon={siGooglegemini} className={c} /> },
+                      { name: "Codex", pos: "left-1/2 bottom-0 -translate-x-1/2", bg: "#0d0d0d", fg: "#ffffff", render: (c: string) => <OpenAIMark className={c} /> },
+                      { name: "Ollama", pos: "left-0 top-1/2 -translate-y-1/2", bg: "#ededed", fg: "#181818", render: (c: string) => <SimpleIcon icon={siOllama} className={c} /> },
+                    ].map((m) => (
+                      <div key={m.name} className={`absolute ${m.pos} z-10 flex flex-col items-center gap-1`}>
+                        <span
+                          title={m.name}
+                          aria-label={m.chair ? `${m.name} (chair)` : m.name}
+                          className={`relative flex h-10 w-10 items-center justify-center rounded-full ${
+                            m.chair ? "ring-2 ring-accent" : "ring-2 ring-surface-0"
+                          }`}
+                          style={{ background: m.bg, color: m.fg }}
+                        >
+                          {m.render("h-4 w-4")}
+                          {m.chair && (
+                            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-bg">
+                              <Crown className="h-2.5 w-2.5" />
+                            </span>
+                          )}
+                        </span>
+                        <span className={`text-[10px] font-medium ${m.chair ? "text-accent" : "text-text-mute"}`}>
+                          {m.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ),
+              details: [
+                "Several models answer at once.",
+                "A verdict shows where they split.",
+                "Local models stay on your Mac.",
+              ],
+            },
+            {
+              icon: Sparkles,
+              title: "It learns and adapts",
+              color: "#3FA34D",
+              visual: (
+                <div className="mx-auto w-full max-w-[300px]">
+                  <LearnGraph />
+                </div>
+              ),
+              details: [
+                "Each chat is filed where it fits.",
+                "It remembers people and habits.",
+                "Tomorrow's answer knows today's.",
+              ],
+            },
+          ].map((p, i) => (
+            <FadeIn key={p.title} delay={i * 0.06} className="h-full">
+              <PillarCard {...p} />
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// /how-it-works: the three ideas behind the app, linked from the footer.
+function HowItWorksPage() {
+  return (
+    <main className="pt-14">
+      <Pillars />
+    </main>
+  );
+}
+
 function FAQPage() {
   useEffect(() => {
     const el = document.createElement("script");
@@ -2348,6 +2656,7 @@ export default function App() {
   const isThesis = path === "/thesis";
   const isChangelog = path === "/changelog" || path === "/roadmap";
   const isFaq = path === "/faq";
+  const isHow = path === "/how-it-works";
   const isDownload = path === "/download";
   const isLegal =
     path === "/tos" ||
@@ -2373,7 +2682,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isFaq ? <FAQPage /> : isDownload ? <DownloadPage /> : isLegal ? <LegalPage /> : <LandingMain />}
+      {isThesis ? <ThesisPage /> : isChangelog ? <ChangelogPage /> : isFaq ? <FAQPage /> : isHow ? <HowItWorksPage /> : isDownload ? <DownloadPage /> : isLegal ? <LegalPage /> : <LandingMain />}
       <Footer />
     </div>
   );
