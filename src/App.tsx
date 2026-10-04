@@ -643,35 +643,9 @@ function Hero() {
   const isWindows = useIsWindows();
   const downloads = useDownloadTotal();
   return (
-    <section id="demo" className="relative isolate overflow-hidden pt-8 pb-10 grain md:pt-10">
+    <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain md:pt-5">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
-      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
-        <FadeIn delay={0}>
-          <Headline />
-        </FadeIn>
-        <FadeIn delay={0.08}>
-          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
-            Your <span className="text-text">adaptive intelligence</span> for everything you
-            manage, build, decide, and <span className="font-medium text-accent">become</span>.
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.14}>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row">
-            <a
-              href={isWindows ? exe.url : dmg.url}
-              download={isWindows ? exe.name : dmg.name}
-              onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
-              style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
-            >
-              <Download className="h-4 w-4" />
-              Download for {isWindows ? "Windows" : "macOS"}
-            </a>
-            {downloads !== null && <DownloadCounter value={downloads} />}
-          </div>
-        </FadeIn>
-      </div>
       {/* The product itself fills the screen: one autoplaying carousel of
           the current app, in the page's theme. */}
       <FadeIn delay={0.2} y={24}>
