@@ -5,6 +5,9 @@ import {
   Activity,
   BarChart3,
   Boxes,
+  Brain,
+  FolderKanban,
+  Shuffle,
   EyeOff,
   Landmark,
   LayoutGrid,
@@ -687,10 +690,25 @@ const AI_LAYER: { name: string; color?: string; mark: (c: string) => ReactNode }
   { name: "Cursor", mark: (c) => <SimpleIcon icon={siCursor} className={c} /> },
 ];
 
+// What stays yours: Prevail writes these into your files, whichever model answered.
+const KEEP_LAYER: { name: string; short?: string; Icon: typeof Users }[] = [
+  { name: "Memory", Icon: Brain },
+  { name: "Compass", Icon: Compass },
+  { name: "Projects", Icon: FolderKanban },
+  { name: "People and things", short: "People", Icon: Users },
+  { name: "Decisions", Icon: Scale },
+];
+
+const OWN_POINTS = [
+  { label: "Runs on your Mac", Icon: Laptop },
+  { label: "Plain files you can open", Icon: FileText },
+  { label: "Switch models anytime", Icon: Shuffle },
+];
+
 // Lines from evenly spaced sources (bottom) to the node (top). The viewBox
 // matches the rendered size (w x h px) so stretching stays negligible, and
 // pathLength normalizes the dash so one pulse travels each line.
-function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; className: string }) {
+function OwnLines({ n, w, h, className, outward = false }: { n: number; w: number; h: number; className: string; outward?: boolean }) {
   const reduce = useReducedMotion();
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden className={className}>
@@ -710,7 +728,7 @@ function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; cla
                 strokeLinecap="round"
                 strokeDasharray="10 90"
                 className="own-pulse"
-                style={{ animationDelay: `${(i * 0.37) % 2.4}s` }}
+                style={{ animationDelay: `${(i * 0.37) % 2.4}s`, animationDirection: outward ? "reverse" : undefined }}
               />
             )}
           </g>
@@ -722,15 +740,38 @@ function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; cla
 
 function OwnLayer() {
   return (
-    <section className="panel border-t border-border-soft bg-surface-0 py-16 md:py-20">
+    <section className="panel border-t border-border-soft bg-surface-0 py-12 md:py-14">
     <div className="mx-auto w-full max-w-5xl px-4 md:px-6">
       <FadeIn>
         <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
           Every AI. <span className="text-accent">One you own.</span>
         </h2>
+        <p className="mx-auto mt-3 hidden whitespace-nowrap text-center text-base text-text-soft md:block">
+          Prevail sits on top of the AIs you already use, runs on your Mac, and keeps everything in your own files.
+        </p>
+        <p className="mx-auto mt-3 whitespace-nowrap text-center text-sm text-text-soft md:hidden">
+          On top of every AI. On your Mac. In your files.
+        </p>
       </FadeIn>
       <FadeIn delay={0.1}>
-        <div className="mt-10 flex flex-col-reverse items-center md:flex-col">
+        <div className="mt-8 flex flex-col-reverse items-center md:flex-col">
+          {/* What you keep: lines flow out of Prevail into your own records.
+              Phones reverse the column, so this row lands last, under the node. */}
+          <ul className="grid w-full max-w-3xl grid-cols-5 gap-x-2">
+            {KEEP_LAYER.map(({ name, short, Icon }) => (
+              <li key={name} className="flex flex-col items-center gap-1.5">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-accent/40 bg-accent/10 text-accent">
+                  <Icon className="h-5 w-5" aria-hidden />
+                </span>
+                <span className="whitespace-nowrap text-[11px] text-text-soft">
+                  {short ? <><span className="md:hidden">{short}</span><span className="hidden md:inline">{name}</span></> : name}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <OwnLines n={KEEP_LAYER.length} w={768} h={64} outward className="hidden h-16 w-full max-w-3xl -scale-y-100 md:block" />
+          <OwnLines n={KEEP_LAYER.length} w={360} h={48} outward className="mb-2 block h-12 w-full md:hidden" />
+
           {/* Yours: your Mac + your files around one Prevail node */}
           <div className="relative flex items-center gap-4 rounded-3xl border border-dashed border-accent/50 bg-accent/5 px-5 py-4 md:gap-8 md:px-8">
             <span className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border border-accent/50 bg-surface-0 text-accent shadow">
@@ -769,13 +810,26 @@ function OwnLayer() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 hidden text-center text-xs uppercase tracking-[0.16em] text-text-mute md:block">Every model</p>
           </div>
         </div>
       </FadeIn>
       <FadeIn delay={0.15}>
-        <p className="mt-8 text-center">
-          <a href="/download" className="text-sm text-text-mute underline-offset-2 hover:text-text-soft hover:underline">Ways to install</a>
+        <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {OWN_POINTS.map(({ label, Icon }) => (
+            <li key={label} className="flex items-center gap-2 whitespace-nowrap text-sm text-text">
+              <Icon className="h-4 w-4 text-accent" aria-hidden />
+              {label}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-5 text-center">
+          <a
+            href="/download"
+            className="group inline-flex items-center gap-1.5 rounded-lg border border-border-soft px-3.5 py-1.5 text-sm text-text-soft transition hover:border-border-strong hover:text-text"
+          >
+            Ways to install
+            <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" aria-hidden />
+          </a>
         </p>
       </FadeIn>
     </div>
