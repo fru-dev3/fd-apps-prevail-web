@@ -53,6 +53,7 @@ import {
   siApple,
   siClaude,
   siGooglegemini,
+  siObsidian,
   siOllama,
   siProducthunt,
 } from "simple-icons";
@@ -306,6 +307,159 @@ const NAV_LINKS = [
   { href: "https://docs.prevail.sh", label: "Docs", Icon: FileText, external: true },
 ] as const;
 
+// Hero model strip — recognizable model brands ONLY, in their official
+// colors, so a cold visitor borrows credibility from names they already
+// trust. Our own ecosystem tools (OpenClaw, Paperclip, Hermes) live in the
+// dedicated Ecosystem section instead — mixing unknown marks in here dilutes
+// the effect.
+const MODEL_STRIP = [
+  { name: "Claude", color: "#cc785c", render: (c: string) => <SimpleIcon icon={siClaude} className={c} /> },
+  { name: "OpenAI", color: "currentColor", render: (c: string) => <OpenAIMark className={c} /> },
+  { name: "Gemini", color: "#4285F4", render: (c: string) => <SimpleIcon icon={siGooglegemini} className={c} /> },
+  { name: "Ollama", color: "currentColor", render: (c: string) => <SimpleIcon icon={siOllama} className={c} /> },
+];
+
+function OdometerDigit({ digit, index }: { digit: number; index: number }) {
+  const reduce = useReducedMotion();
+  const spins = index + 1;
+  const strip: number[] = [];
+  for (let k = 0; k <= spins * 10 + digit; k++) strip.push(k % 10);
+  return (
+    <span className="relative inline-block h-[1.3em] w-[0.78em] overflow-hidden rounded-lg border border-border-soft bg-bg">
+      {reduce ? (
+        <span className="flex h-[1.3em] items-center justify-center leading-none">{digit}</span>
+      ) : (
+        <motion.span
+          className="block"
+          initial={{ y: 0 }}
+          animate={{ y: `-${((strip.length - 1) * 1.3).toFixed(2)}em` }}
+          transition={{ duration: 1 + index * 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+        >
+          {strip.map((d, k) => (
+            <span key={k} className="flex h-[1.3em] items-center justify-center leading-none">
+              {d}
+            </span>
+          ))}
+        </motion.span>
+      )}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-b from-bg/70 via-transparent to-bg/70"
+      />
+    </span>
+  );
+}
+
+function DownloadCounter({ value }: { value: number }) {
+  const formatted = value.toLocaleString("en-US");
+  let digitIndex = -1;
+  return (
+    <div className="mt-2 flex flex-col items-center gap-2">
+      <div
+        role="img"
+        aria-label={`${formatted} downloads, counted live from GitHub releases`}
+        className="flex items-center gap-4 rounded-2xl border border-accent-border bg-surface-1 py-3 pl-5 pr-6"
+        style={{ boxShadow: "0 10px 48px rgba(63, 163, 77, 0.22)" }}
+      >
+        <span className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <motion.span
+              className="absolute inset-0 rounded-full bg-accent"
+              animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+            />
+            <span className="relative h-2 w-2 rounded-full bg-accent" />
+          </span>
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">Live</span>
+        </span>
+        <span aria-hidden className="flex items-center gap-[3px] font-mono text-3xl font-semibold tabular-nums text-accent md:text-4xl">
+          {formatted.split("").map((c, i) => {
+            if (/\d/.test(c)) {
+              digitIndex += 1;
+              return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
+            }
+            return (
+              <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
+                {c}
+              </span>
+            );
+          })}
+        </span>
+        <span className="flex flex-col items-start text-left leading-tight">
+          <span className="text-sm font-medium text-text">downloads</span>
+          <span className="text-[11px] text-text-mute">and counting</span>
+        </span>
+      </div>
+      <a
+        href={`${GITHUB_DESKTOP}/releases`}
+        target="_blank"
+        rel="noreferrer"
+        className="text-[10px] uppercase tracking-[0.18em] text-text-mute underline-offset-2 transition-colors hover:text-text-soft hover:underline"
+      >
+        Counted live from GitHub releases
+      </a>
+    </div>
+  );
+}
+
+// Total installer downloads, summed from GitHub's own release data. We use
+// api.github.com (which the site already calls for stars + the latest version)
+// rather than a shields.io badge, because privacy-minded visitors often run
+// ad-blockers that drop img.shields.io, which would silently hide the number.
+// Desktop installers (.dmg/.exe) plus CLI binaries (.tar.gz; their .sha256
+// sidecars don't match) across every release of both repos. The desktop
+// updater tarball lives in the desktop repo, so the cli-only .tar.gz rule
+// never counts auto-updates. Cached at module scope so the hero and the
+// momentum strip share a single fetch (kind to the rate limit).
+const DOWNLOAD_SOURCES: { repo: string; asset: RegExp }[] = [
+  { repo: "fru-dev3/prevail-desktop", asset: /\.(dmg|exe)$/ },
+  { repo: "fru-dev3/prevail-cli", asset: /\.tar\.gz$/ },
+];
+let _downloadTotal: Promise<number | null> | null = null;
+function fetchDownloadTotal(): Promise<number | null> {
+  if (_downloadTotal) return _downloadTotal;
+  _downloadTotal = (async () => {
+    try {
+      let total = 0;
+      for (const src of DOWNLOAD_SOURCES) {
+        for (let page = 1; page <= 3; page++) {
+          const r = await fetch(
+            `https://api.github.com/repos/${src.repo}/releases?per_page=100&page=${page}`,
+          );
+          if (!r.ok) break;
+          const rels = (await r.json()) as { assets?: { name?: string; download_count?: number }[] }[];
+          if (!Array.isArray(rels) || rels.length === 0) break;
+          for (const rel of rels)
+            for (const a of rel.assets ?? [])
+              if (typeof a.name === "string" && src.asset.test(a.name) && typeof a.download_count === "number")
+                total += a.download_count;
+          if (rels.length < 100) break;
+        }
+      }
+      // A rate-limited API yields 0; hide the counter rather than show "0 downloads".
+      return total || null;
+    } catch {
+      return null;
+    }
+  })();
+  return _downloadTotal;
+}
+function useDownloadTotal(): number | null {
+  const [n, setN] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchDownloadTotal().then((v) => {
+      if (!cancelled) setN(v);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return n;
+}
+
+// Live, verifiable social proof: real installer downloads + the live star count.
+
 function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
   const [open, setOpen] = useState(false);
   return (
@@ -501,27 +655,87 @@ function Hero() {
   const dmg = useDmgDownload();
   const exe = useExeDownload();
   const isWindows = useIsWindows();
+  const downloads = useDownloadTotal();
   return (
-    <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain md:pt-5">
+    <section id="demo" className="relative isolate overflow-hidden pt-14 pb-10 grain md:pt-20">
       <div className="glow-accent absolute inset-0 -z-10" />
       <HeroGlow />
-      {/* One compact row: what Prevail is, and the download. */}
-      <FadeIn delay={0}>
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-3 px-6 text-center sm:flex-row sm:gap-5">
-          <p className="text-base text-text-soft md:text-lg">
-            Your AI that <span className="text-text">learns</span> and <span className="font-medium text-accent">grows</span> with you.
-          </p>
+      <div className="mx-auto flex max-w-5xl flex-col items-center px-6 text-center">
+        <FadeIn delay={0}>
+          {/* The Obsidian on-ramp owns the sole top slot (Product Hunt keeps
+              its footer badge): the Obsidian community is a primary audience,
+              and one loud pill beats two quiet ones. Anchors to the featured
+              banner below. */}
           <a
-            href={isWindows ? exe.url : dmg.url}
-            download={isWindows ? exe.name : dmg.name}
-            onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+            href="#obsidian"
+            onClick={() => track("obsidian_pill_click", { location: "hero" })}
+            className="mb-6 inline-flex flex-wrap items-center justify-center gap-2.5 rounded-full border border-accent/50 bg-accent/10 px-5 py-2 text-sm font-medium text-text transition-all hover:border-accent hover:-translate-y-0.5"
+            style={{ boxShadow: "0 0 26px color-mix(in srgb, var(--color-accent) 30%, transparent)" }}
           >
-            <Download className="h-4 w-4" />
-            Download for {isWindows ? "Windows" : "macOS"}
+            <SimpleIcon icon={siObsidian} className="h-5 w-5 shrink-0 text-[#a78bfa]" />
+            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-accent">
+              New
+            </span>
+            Bring your Obsidian vault into Prevail
+            <ArrowRight className="h-4 w-4" />
           </a>
-        </div>
-      </FadeIn>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-text-soft md:text-lg">
+            Your <span className="text-text">adaptive intelligence</span> for everything you
+            manage, build, decide, and <span className="font-medium text-accent">become</span>.
+          </p>
+        </FadeIn>
+
+        <FadeIn delay={0.16}>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <a
+                href={isWindows ? exe.url : dmg.url}
+                download={isWindows ? exe.name : dmg.name}
+                onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+                style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
+              >
+                <Download className="h-4 w-4" />
+                Download for {isWindows ? "Windows" : "macOS"}
+              </a>
+              <a
+                href="#watch"
+                onClick={() => track("watch_demo_click", { location: "hero" })}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-3 font-medium text-text-soft transition-all hover:border-border-strong hover:text-text"
+              >
+                <Play className="h-4 w-4" />
+                Watch the demo
+              </a>
+            </div>
+            {/* Live download total, promoted from a trust-line footnote to
+                an odometer of its own — it's the strongest proof we have. */}
+            {downloads !== null && <DownloadCounter value={downloads} />}
+          </div>
+        </FadeIn>
+
+        {/* Model strip — recognizable brands only. Our own ecosystem tools
+            (OpenClaw, Paperclip, Hermes) get their own section further down. */}
+        <FadeIn delay={0.28}>
+          <div className="mt-12 flex max-w-full flex-wrap items-center justify-center gap-x-6 gap-y-3 text-text-mute">
+            <span className="shrink-0 text-[11px] uppercase tracking-[0.18em]">Convenes the models you already use</span>
+            {MODEL_STRIP.map((w) => (
+              <div
+                key={w.name}
+                title={w.name}
+                className="flex shrink-0 items-center gap-1.5 text-text-soft transition-colors hover:text-text"
+              >
+                <span style={{ color: w.color }} className="inline-flex">
+                  {w.render("h-[1.4rem] w-[1.4rem]")}
+                </span>
+                <span className="text-xs">{w.name}</span>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+      </div>
       {/* The product itself fills the screen: one autoplaying carousel of
           the current app, in the page's theme. */}
       <FadeIn delay={0.2} y={24}>
@@ -1176,6 +1390,51 @@ function InstallStudio() {
 // ─────────────────────────────────────────────────────────────────────────────
 // DOWNLOAD / INSTALL section — one tabbed card for every platform & method
 
+// Obsidian on-ramp: the hero pill anchors here.
+function ObsidianSection() {
+  return (
+    <section className="border-t border-border-soft py-16 md:py-20">
+      <div className="mx-auto max-w-6xl px-6">
+        <FadeIn>
+          <div
+            id="obsidian"
+            className="mx-auto flex max-w-4xl scroll-mt-24 flex-col items-center gap-6 rounded-2xl border border-accent/30 bg-surface-0 p-8 md:flex-row md:gap-8 md:p-10"
+          >
+            {/* Obsidian -> Prevail import flow */}
+            <div className="flex shrink-0 items-center gap-4">
+              <span
+                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-[#7c3aed]"
+                style={{ boxShadow: "0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
+              >
+                <SimpleIcon icon={siObsidian} className="h-8 w-8" />
+              </span>
+              <ArrowRight className="h-5 w-5 text-text-mute" aria-hidden />
+              <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-surface-1">
+                <Logo size={32} />
+              </span>
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">New</p>
+              <h3 className="mt-1 text-xl font-semibold tracking-[-0.01em]">
+                Bring your Obsidian vault
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-text-soft">
+                Years of notes in Obsidian? Import them in one step. Wikilinks, tags, and folders
+                arrive as plain markdown in your Prevail vault, so every model on the council can
+                read what you already know. One click in the app, or{" "}
+                <code className="rounded bg-surface-1 px-1.5 py-0.5 font-mono text-[12px] text-text">
+                  prevail obsidian import
+                </code>{" "}
+                in the CLI.
+              </p>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
 function DownloadSection() {
   return (
     <section id="install" className="border-t border-border-soft py-16 md:py-20 grain">
@@ -1390,7 +1649,7 @@ function DemoVideo() {
     if (!reduce) v.play().catch(() => {});
   }, [seen, reduce]);
   return (
-    <div className="mx-auto mt-16 max-w-6xl px-4 text-center sm:px-6">
+    <div id="watch" className="mx-auto mt-16 max-w-6xl scroll-mt-20 px-4 text-center sm:px-6">
       <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold text-text md:text-3xl">
         <Play className="h-6 w-6 text-accent" />
         See it in action
@@ -2422,6 +2681,7 @@ function LandingMain() {
       <Hero />
       <Pillars />
       <Momentum />
+      <ObsidianSection />
       <DownloadSection />
       <FAQSection />
     </main>
