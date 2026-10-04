@@ -31,8 +31,8 @@ import {
   Pause,
   Play,
   Receipt,
-  Rocket,
   Scale,
+  Swords,
   ShieldCheck,
   Sparkles,
   Star,
@@ -44,10 +44,6 @@ import {
   Users,
   X,
   MessagesSquare,
-  CalendarDays,
-  FolderKanban,
-  Inbox,
-  BookOpen,
   Laptop,
   FolderLock,
   UserRound,
@@ -318,12 +314,7 @@ function formatStars(n: number): string {
 // Nav — frosted, minimal
 
 const NAV_LINKS = [
-  { href: "/#demo", label: "Demo", Icon: Play, badge: true },
-  { href: "/#how", label: "How it works", Icon: Layers },
   { href: "/thesis", label: "Thesis", Icon: Sparkles },
-  { href: "/download", label: "Install", Icon: Download },
-  { href: "/changelog", label: "Releases", Icon: Rocket },
-  { href: "https://docs.prevail.sh", label: "Docs", Icon: FileText, external: true },
 ] as const;
 
 // Hero model strip — recognizable model brands ONLY, in their official
@@ -369,44 +360,32 @@ function OdometerDigit({ digit, index }: { digit: number; index: number }) {
   );
 }
 
-// Compact pill so the hero stays one row: live dot, odometer, label. The
-// whole pill links to the GitHub releases the number is counted from.
-function DownloadCounter({ value }: { value: number }) {
+// The count inside the download button: a live dot and the odometer, on an
+// inset segment so button and number read as one object.
+function DownloadCount({ value }: { value: number }) {
   const formatted = value.toLocaleString("en-US");
   let digitIndex = -1;
   return (
-    <a
-      href={`${GITHUB_DESKTOP}/releases`}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={`${formatted} downloads, counted live from GitHub releases`}
-      title="Counted live from GitHub releases"
-      className="inline-flex items-center gap-2.5 rounded-xl border border-accent-border bg-surface-1 py-2 pl-3.5 pr-4 transition-colors hover:border-accent"
-      style={{ boxShadow: "0 6px 28px rgba(63, 163, 77, 0.18)" }}
-    >
-      <span className="relative flex h-2 w-2" aria-hidden>
+    <span className="flex items-center gap-2 border-l border-black/20 bg-black/20 py-2 pl-3 pr-3.5" aria-hidden>
+      <span className="relative flex h-2 w-2">
         <motion.span
-          className="absolute inset-0 rounded-full bg-accent"
-          animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
+          className="absolute inset-0 rounded-full bg-white"
+          animate={{ scale: [1, 2.4], opacity: [0.6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
         />
-        <span className="relative h-2 w-2 rounded-full bg-accent" />
+        <span className="relative h-2 w-2 rounded-full bg-white" />
       </span>
-      <span aria-hidden className="flex items-center gap-[2px] font-mono text-lg font-semibold tabular-nums text-accent">
+      <span className="flex items-center gap-[2px] font-mono text-base font-semibold tabular-nums text-accent">
         {formatted.split("").map((c, i) => {
           if (/\d/.test(c)) {
             digitIndex += 1;
             return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
           }
-          return (
-            <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
-              {c}
-            </span>
-          );
+          return <span key={i} className="px-0.5 pb-[0.15em] text-white/70">{c}</span>;
         })}
       </span>
-      <span aria-hidden className="text-sm font-medium text-text">downloads</span>
-    </a>
+      <span className="text-xs font-medium text-white/90">downloads</span>
+    </span>
   );
 }
 
@@ -492,7 +471,10 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
   const [open, setOpen] = useState(false);
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 frost border-b border-border-soft">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+      {/* Same box as the hero clip frame (.shot-fit), so the logo and the
+          Star line up with the frame edges at every desktop width. */}
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      <div className="shot-fit mx-auto flex h-14 items-center justify-between">
         <a href="/" className="flex items-center gap-2.5">
           <Logo />
           <span className="text-lg font-semibold tracking-tight">
@@ -500,22 +482,16 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
             <span className="hidden font-normal text-text-mute sm:inline"> | Agent Harness</span>
           </span>
         </a>
-        <div className="hidden items-center gap-6 text-sm text-text-soft lg:flex">
+        <div className="flex items-center gap-2">
           {NAV_LINKS.map((l) => (
             <a
               key={l.label}
               href={l.href}
-              {...("external" in l && l.external ? { target: "_blank", rel: "noreferrer" } : {})}
-              className="inline-flex items-center gap-1.5 hover:text-text"
+              className="mr-3 hidden items-center gap-1.5 whitespace-nowrap text-sm text-text-soft hover:text-text lg:inline-flex"
             >
               <l.Icon className="h-4 w-4" /> {l.label}
-              {"badge" in l && l.badge && (
-                <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent">{DEMO_SLIDES.length}</span>
-              )}
             </a>
           ))}
-        </div>
-        <div className="flex items-center gap-2">
           <button
             onClick={onToggleTheme}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
@@ -526,15 +502,6 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
           <span className="hidden sm:inline-flex">
             <GitHubStarButton />
           </span>
-          <a
-            href="/download"
-            onClick={() => track("download_click", { location: "nav" })}
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5 sm:px-4"
-            style={{ boxShadow: "0 4px 24px rgba(63, 163, 77, 0.25)" }}
-          >
-            Download
-            <ArrowRight className="h-3.5 w-3.5" />
-          </a>
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -545,6 +512,7 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
           </button>
         </div>
       </div>
+      </div>
       {/* Mobile menu sheet — links were previously unreachable below md */}
       {open && (
         <div className="frost border-t border-border-soft lg:hidden">
@@ -553,7 +521,6 @@ function Nav({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void
               <a
                 key={l.label}
                 href={l.href}
-                {...("external" in l && l.external ? { target: "_blank", rel: "noreferrer" } : {})}
                 onClick={() => setOpen(false)}
                 className="inline-flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm text-text-soft hover:bg-surface-1 hover:text-text"
               >
@@ -707,21 +674,17 @@ function Hero() {
               href={isWindows ? exe.url : dmg.url}
               download={isWindows ? exe.name : dmg.name}
               onClick={() => track("download_click", { location: "hero", platform: isWindows ? "windows" : "mac" })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-2.5 font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
+              aria-label={`Download for ${isWindows ? "Windows" : "macOS"}${downloads ? `, ${downloads.toLocaleString("en-US")} downloads so far` : ""}`}
+              title={downloads ? "Downloads counted from GitHub releases" : undefined}
+              className="inline-flex items-stretch overflow-hidden whitespace-nowrap rounded-xl bg-accent font-medium text-bg transition-all hover:bg-accent-bright hover:-translate-y-0.5"
               style={{ boxShadow: "0 6px 32px rgba(63, 163, 77, 0.3)" }}
             >
-              <Download className="h-4 w-4" />
-              Download for {isWindows ? "Windows" : "macOS"}
+              <span className="flex items-center gap-2 py-2.5 pl-5 pr-4">
+                <Download className="h-4 w-4" />
+                Download for {isWindows ? "Windows" : "macOS"}
+              </span>
+              {!!downloads && <DownloadCount value={downloads} />}
             </a>
-            <a
-              href="#watch"
-              onClick={() => track("watch_demo_click", { location: "hero" })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-2.5 font-medium text-text-soft transition-all hover:border-border-strong hover:text-text"
-            >
-              <Play className="h-4 w-4" />
-              Watch the demo
-            </a>
-            {downloads !== null && <DownloadCounter value={downloads} />}
             {/* Model strip, icons only (names in tooltips). Our own ecosystem
                 tools get their own section further down. */}
             <div
@@ -798,30 +761,6 @@ function OwnLines({ n, w, h, className }: { n: number; w: number; h: number; cla
   );
 }
 
-// One OS-detected download button; every other way to install lives on /download.
-function QuickDownload() {
-  const isWindows = useIsWindows();
-  const dmg = useDmgDownload();
-  const exe = useExeDownload();
-  const build = isWindows ? exe : dmg;
-  return (
-    <div className="mt-8 flex flex-col items-center gap-2.5">
-      <a
-        href={build.url}
-        download={build.name}
-        onClick={() => track("download_click", { location: "own", platform: isWindows ? "win" : "mac" })}
-        className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-colors hover:bg-accent-bright"
-      >
-        <Download className="h-4 w-4" />
-        {isWindows ? "Download for Windows" : "Download for macOS"}
-      </a>
-      <a href="/download" className="text-xs text-text-mute hover:text-text-soft">
-        Other ways to install
-      </a>
-    </div>
-  );
-}
-
 function OwnLayer() {
   return (
     <section className="panel border-t border-border-soft bg-surface-0 py-16 md:py-20">
@@ -876,7 +815,9 @@ function OwnLayer() {
         </div>
       </FadeIn>
       <FadeIn delay={0.15}>
-        <QuickDownload />
+        <p className="mt-8 text-center">
+          <a href="/download" className="text-sm text-text-mute underline-offset-2 hover:text-text-soft hover:underline">Ways to install</a>
+        </p>
       </FadeIn>
     </div>
     </section>
@@ -1288,7 +1229,6 @@ function Pillars() {
             </FadeIn>
           ))}
         </div>
-        <Momentum />
       </div>
     </section>
   );
@@ -1301,21 +1241,6 @@ function Pillars() {
 // (This replaces the old illustrative rating + generated avatars, which cost
 // more trust than they bought.)
 
-function Momentum() {
-  return (
-    <div className="mt-10 lg:mt-8">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-6 sm:flex-row sm:gap-6">
-        <GitHubStarButton size="lg" />
-        <a
-          href="/changelog"
-          className="inline-flex items-center gap-1.5 text-sm text-text-soft underline-offset-2 hover:text-text hover:underline"
-        >
-          Full changelog &amp; roadmap <ArrowRight className="h-3.5 w-3.5" />
-        </a>
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FRAMEWORKS — how Prevail SHAPES the answer (BLUF, WIN, SCQA, ...)
@@ -1688,6 +1613,7 @@ function Footer() {
             <span className="text-sm font-semibold"><Brand /></span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-text-soft">
+            <a href="https://docs.prevail.sh" target="_blank" rel="noreferrer" className="hover:text-text">Docs</a>
             <a href="/changelog" className="hover:text-text">Changelog</a>
             <a href="/faq" className="hover:text-text">FAQ</a>
             <a
@@ -1727,168 +1653,55 @@ function Footer() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root
 
-// A one-minute screen recording of the app in use, captured against the same
-// invented demo vault as the stills. Loads nothing until it scrolls into view,
-// then plays muted on a loop (never on its own under reduced motion).
-function DemoVideo() {
-  const reduce = useReducedMotion();
-  const ref = useRef<HTMLVideoElement>(null);
-  const seen = useInView(ref, { margin: "200px" });
-  useEffect(() => {
-    const v = ref.current;
-    if (!v || !seen) return;
-    if (v.preload !== "auto") { v.preload = "auto"; v.load(); }
-    if (!reduce) v.play().catch(() => {});
-  }, [seen, reduce]);
-  return (
-    <section id="watch" className="panel border-t border-border-soft py-16 text-center lg:py-8">
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold text-text md:text-3xl">
-        <Play className="h-6 w-6 text-accent" />
-        See it in action
-      </h2>
-      <p className="mx-auto mt-3 max-w-2xl truncate text-base text-text-soft">
-        One minute, from a question to your briefing.
-      </p>
-      <div className="video-fit mx-auto mt-6 overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
-        <video
-          ref={ref}
-          poster="/prevail-tour-poster.jpg"
-          width={1440}
-          height={900}
-          muted
-          loop
-          playsInline
-          controls
-          preload="none"
-          aria-label="Screen recording of Prevail: a group chat answer, the Compass, a project, the Inbox briefing and an entity page"
-          className="block aspect-[16/10] w-full"
-        >
-          <source src="/prevail-tour.webm" type="video/webm" />
-          <source src="/prevail-tour.mp4" type="video/mp4" />
-        </video>
-      </div>
-    </div>
-    </section>
-  );
-}
+// Short feature clips recorded from the current app against an invented demo
+// vault (no real person's data), scripted offline replies, 1440x810, H.264
+// MP4 and WebM with a poster frame. They play one after another.
+type Clip = { id: string; title: string; icon: typeof Users; line: string; alt: string };
 
-// Product stills, captured from the current app against an invented demo
-// vault (no real person's data), light and dark at 2880x1620 WebP. The page
-// theme picks the variant in CSS; both load lazily, so a hidden one never downloads.
-type Shot = { shot: string; title: string; icon: typeof Users; line: string; alt: string };
-
-function ThemedShot({ shot, alt, eager = false }: { shot: string; alt: string; eager?: boolean }) {
-  return (
-    <>
-      {(["dark", "light"] as const).map((t) => (
-        <img
-          key={t}
-          src={`/shots/shot-${shot}-${t}.webp`}
-          alt={alt}
-          width={2880}
-          height={1620}
-          loading={eager ? "eager" : "lazy"}
-          decoding="async"
-          className={`shot-${t} block aspect-video w-full object-cover object-left-top`}
-        />
-      ))}
-    </>
-  );
-}
-
-// The tour: one still per part of the app, each with what you are looking at
-// and why it matters, advancing on a timer and looping.
-const DEMO_SLIDES: Shot[] = [
-  {
-    shot: "group",
-    title: "A chief of staff with specialists",
-    icon: MessagesSquare,
-    line: "Answers first, then an Analyst and a Skeptic weigh in.",
-    alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
-  },
-  {
-    shot: "council",
-    title: "Convene a council",
-    icon: Scale,
-    line: "Three models weigh a decision; a chair writes the verdict.",
-    alt: "A council verdict in the Wealth domain from Opus, GPT and Gemini on paying down a mortgage or investing",
-  },
-  {
-    shot: "compass",
-    title: "Your Compass",
-    icon: Compass,
-    line: "Purpose and values that every suggestion is checked against.",
-    alt: "The Compass page with a purpose, four ranked values, a mission statement and a vision",
-  },
-  {
-    shot: "specialists",
-    title: "A team of specialists",
-    icon: Users,
-    line: "Pick who helps and how far each may go before it asks.",
-    alt: "The Specialists page with the chief of staff, spending and time limits, and specialists grouped by what they do",
-  },
-  {
-    shot: "entities",
-    title: "Entities",
-    icon: Boxes,
-    line: "People, places and things keep their own memory.",
-    alt: "An entity page for a heat pump with purchase date, warranty, maker, location, service history and the chats that mention it",
-  },
-  {
-    shot: "activities",
-    title: "Activities",
-    icon: CalendarDays,
-    line: "Events and milestones, linked to who and where.",
-    alt: "The Activities page with upcoming events and milestones, and an install day linked to a place, a person and a project",
-  },
-  {
-    shot: "projects",
-    title: "Projects",
-    icon: FolderKanban,
-    line: "A goal becomes dated milestones, with a specialist on it.",
-    alt: "A project page for replacing a heating system with its owner domain, a specialist, and milestones with dates",
-  },
-  {
-    shot: "inbox",
-    title: "Your morning briefing",
-    icon: Inbox,
-    line: "Today's three priorities and the goals behind them.",
-    alt: "The Inbox briefing for today listing three priorities with their due dates and the goals behind them",
-  },
-  {
-    shot: "knowledge",
-    title: "Knowledge sources",
-    icon: BookOpen,
-    line: "The websites and folders Prevail reads, chosen by you.",
-    alt: "Knowledge sources settings listing two websites and a local folder that Prevail reads",
-  },
+const DEMO_SLIDES: Clip[] = [
+  { id: "chat", title: "Agents that work together", icon: MessagesSquare, line: "Your chief of staff answers, then specialists weigh in.", alt: "A chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate" },
+  { id: "council", title: "Convene a council", icon: Scale, line: "Several models weigh a decision; a chair writes the verdict.", alt: "A council verdict in the Wealth domain on paying down a mortgage or investing" },
+  { id: "compass", title: "Your Compass", icon: Compass, line: "Purpose and values that every suggestion is checked against.", alt: "The Compass page with a purpose, ranked values, a mission and a vision" },
+  { id: "domain", title: "Domains with memory", icon: Layers, line: "Each area of life keeps its own context and memory.", alt: "A life domain with its chats, then its details and memory" },
+  { id: "entities", title: "Entities and projects", icon: Boxes, line: "People, things, events and projects, all linked.", alt: "An entity page for a heat pump, an install day event and a project with milestones" },
+  { id: "arena", title: "Arena benchmarks", icon: Swords, line: "Score models on your own questions before you trust them.", alt: "The Arena leaderboard comparing four models on quality, speed and cost" },
+  { id: "settings", title: "Your sources, your team", icon: Users, line: "Choose what Prevail reads and how each specialist works.", alt: "Knowledge sources settings, then the Specialists page and one specialist's settings" },
 ];
-
-const SHOT_SECONDS = 7;
 
 function ShotCarousel() {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
-  // Reduced motion starts paused; the play button still lets people opt in.
+  // Reduced motion starts paused on the poster; the play button opts in.
   const [paused, setPaused] = useState(!!reduce);
-  const [hover, setHover] = useState(false);
+  const vid = useRef<HTMLVideoElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
-  const running = !paused && !hover;
+  useEffect(() => {
+    const v = vid.current;
+    if (!v) return;
+    if (paused) v.pause(); else v.play().catch(() => {});
+  }, [paused, idx]);
+  // The bar under the caption follows the clip; rAF keeps it smooth.
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const v = vid.current, b = bar.current;
+      if (v && b && v.duration) b.style.width = `${(v.currentTime / v.duration) * 100}%`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
   const btn =
     "flex h-8 w-8 lg:h-7 lg:w-7 items-center justify-center rounded-full border border-border-soft text-text-soft transition hover:bg-surface-1 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
   return (
     <div className="mx-auto mt-4 max-w-[1600px] px-4 text-left sm:px-6 lg:px-8">
-      {/* The still, in a quiet window frame, sized by viewport height on
-          desktop (.shot-fit) so the whole frame and the caption bar under it
-          show without scrolling. Hovering either holds the timer. */}
-      <div
-        className="shot-fit group relative mx-auto min-w-0"
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
+      {/* The clip, in a quiet window frame, sized by viewport height on
+          desktop (.shot-fit) so the frame and the caption bar under it show
+          without scrolling. */}
+      <div className="shot-fit relative mx-auto min-w-0">
         <div className="overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
           <div className="flex items-center gap-1.5 border-b border-border-soft px-3 py-2" aria-hidden>
             <span className="h-2.5 w-2.5 rounded-full bg-border" />
@@ -1896,93 +1709,70 @@ function ShotCarousel() {
             <span className="h-2.5 w-2.5 rounded-full bg-border" />
             <span className="ml-2 truncate text-xs text-text-mute">Prevail · {slide.title}</span>
           </div>
-          <ThemedShot key={slide.shot} shot={slide.shot} alt={slide.alt} eager={idx === 0} />
+          <video
+            ref={vid}
+            key={slide.id}
+            poster={`/demos/${slide.id}.webp`}
+            width={1440}
+            height={810}
+            muted
+            playsInline
+            autoPlay={!paused}
+            preload="auto"
+            aria-label={slide.alt}
+            onEnded={() => go(1)}
+            className="block aspect-video w-full bg-surface-0"
+          >
+            <source src={`/demos/${slide.id}.webm`} type="video/webm" />
+            <source src={`/demos/${slide.id}.mp4`} type="video/mp4" />
+          </video>
         </div>
-        <button
-          onClick={() => go(-1)}
-          aria-label="Previous screenshot"
-          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/80 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button
-          onClick={() => go(1)}
-          aria-label="Next screenshot"
-          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/80 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
 
-      {/* Only the current slide: what you see and why it matters. Below the
-          image, never on it: a stacked block on phones, one slim bar the
-          width of the frame on desktop (title and line left, controls right,
-          the timer along its bottom edge). */}
+      {/* The caption bar: one line of title and line, controls on the right,
+          the progress along its bottom edge. Phones stack title over line,
+          each still one line. */}
       <div className="relative mt-6 min-w-0 lg:mt-2 lg:flex lg:items-center lg:gap-4 lg:pb-2">
-        {/* Every slide sits in the same grid cell, so the block is as tall as
-            the longest one and the controls never jump; only the current one shows. */}
-        <div className="grid lg:min-w-0 lg:flex-1" aria-hidden>
-          {DEMO_SLIDES.map((s, i) => {
-            const I = s.icon;
-            const on = i === idx;
-            return (
-              <div
-                key={s.shot}
-                className={`col-start-1 row-start-1 transition duration-300 ease-out motion-reduce:transition-none ${on ? "visible translate-y-0 opacity-100" : "invisible translate-y-2 opacity-0"}`}
-              >
-                <div className="lg:flex lg:items-center lg:gap-3">
-                  <h3 className="flex min-w-0 items-center gap-3 whitespace-nowrap text-xl font-semibold text-text lg:shrink-0 lg:gap-2.5 lg:text-base">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
-                      <I className="h-6 w-6 lg:h-4 lg:w-4" />
-                    </span>
-                    <span className="truncate">{s.title}</span>
-                  </h3>
-                  <p title={s.line} className="mt-2 truncate text-sm text-text-soft lg:mt-0 lg:min-w-0 lg:leading-snug">{s.line}</p>
-                </div>
-              </div>
-            );
-          })}
+        <div className="min-w-0 lg:flex lg:flex-1 lg:items-center lg:gap-3" aria-hidden>
+          <h3 className="flex min-w-0 items-center gap-3 whitespace-nowrap text-xl font-semibold text-text lg:shrink-0 lg:gap-2.5 lg:text-base">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent lg:h-8 lg:w-8 lg:rounded-lg">
+              <slide.icon className="h-6 w-6 lg:h-4 lg:w-4" />
+            </span>
+            <span className="truncate">{slide.title}</span>
+          </h3>
+          <p title={slide.line} className="mt-2 truncate text-sm text-text-soft lg:mt-0 lg:min-w-0 lg:leading-snug">{slide.line}</p>
         </div>
         <p aria-live="polite" className="sr-only">
-          Slide {idx + 1} of {n}: {slide.title}. {slide.line}
+          Clip {idx + 1} of {n}: {slide.title}. {slide.line}
         </p>
-
-        {/* Compact controls; arrow keys work while any of them has focus. */}
         <div
           role="group"
-          aria-label="Screenshot tour controls"
+          aria-label="Demo clip controls"
           className="mt-5 flex items-center gap-2 lg:mt-0 lg:shrink-0"
           onKeyDown={(e) => {
             if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
             if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
           }}
         >
-          <button onClick={() => go(-1)} aria-label="Previous slide" className={btn}>
+          <button onClick={() => go(-1)} aria-label="Previous clip" className={btn}>
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => setPaused((p) => !p)}
-            aria-label={paused ? "Play slideshow" : "Pause slideshow"}
+            aria-label={paused ? "Play clips" : "Pause clips"}
             aria-pressed={paused}
             className={btn}
           >
             {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
           </button>
-          <button onClick={() => go(1)} aria-label="Next slide" className={btn}>
+          <button onClick={() => go(1)} aria-label="Next clip" className={btn}>
             <ChevronRight className="h-4 w-4" />
           </button>
-          <span className="ml-2 text-sm tabular-nums text-text-mute">
+          <span className="ml-2 whitespace-nowrap text-sm tabular-nums text-text-mute">
             {idx + 1} / {n}
           </span>
         </div>
-        {/* The bar is the timer: when its fill finishes, the next slide shows.
-            Pausing freezes it in place, so resuming picks up where it stopped. */}
         <div className="mt-3 h-0.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-border-soft lg:absolute lg:inset-x-0 lg:bottom-0 lg:mt-0 lg:max-w-none" aria-hidden>
-          <div
-            key={idx}
-            className="shot-progress h-full bg-accent"
-            style={{ animationDuration: `${SHOT_SECONDS}s`, animationPlayState: running ? "running" : "paused" }}
-            onAnimationEnd={() => go(1)}
-          />
+          <div ref={bar} className="h-full w-0 bg-accent" />
         </div>
       </div>
       </div>
@@ -2817,7 +2607,6 @@ function LandingMain() {
     <main className="snap-page pt-14">
       <Hero />
       <OwnLayer />
-      <DemoVideo />
       <Pillars />
     </main>
   );
