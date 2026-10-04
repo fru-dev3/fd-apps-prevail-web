@@ -283,89 +283,6 @@ function formatStars(n: number): string {
 // rolls every digit into place inside its own split-flap tile, plus a live
 // pulse and a link straight to the source of the number. Rightmost digits
 // spin through more revolutions, like a real odometer.
-function OdometerDigit({ digit, index }: { digit: number; index: number }) {
-  const reduce = useReducedMotion();
-  const spins = index + 1;
-  const strip: number[] = [];
-  for (let k = 0; k <= spins * 10 + digit; k++) strip.push(k % 10);
-  return (
-    <span className="relative inline-block h-[1.3em] w-[0.78em] overflow-hidden rounded-lg border border-border-soft bg-bg">
-      {reduce ? (
-        <span className="flex h-[1.3em] items-center justify-center leading-none">{digit}</span>
-      ) : (
-        <motion.span
-          className="block"
-          initial={{ y: 0 }}
-          animate={{ y: `-${((strip.length - 1) * 1.3).toFixed(2)}em` }}
-          transition={{ duration: 1 + index * 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
-        >
-          {strip.map((d, k) => (
-            <span key={k} className="flex h-[1.3em] items-center justify-center leading-none">
-              {d}
-            </span>
-          ))}
-        </motion.span>
-      )}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-b from-bg/70 via-transparent to-bg/70"
-      />
-    </span>
-  );
-}
-
-function DownloadCounter({ value }: { value: number }) {
-  const formatted = value.toLocaleString("en-US");
-  let digitIndex = -1;
-  return (
-    <div className="mt-2 flex flex-col items-center gap-2">
-      <div
-        role="img"
-        aria-label={`${formatted} downloads, counted live from GitHub releases`}
-        className="flex items-center gap-4 rounded-2xl border border-accent-border bg-surface-1 py-3 pl-5 pr-6"
-        style={{ boxShadow: "0 10px 48px rgba(63, 163, 77, 0.22)" }}
-      >
-        <span className="flex items-center gap-1.5">
-          <span className="relative flex h-2 w-2">
-            <motion.span
-              className="absolute inset-0 rounded-full bg-accent"
-              animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-            />
-            <span className="relative h-2 w-2 rounded-full bg-accent" />
-          </span>
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">Live</span>
-        </span>
-        <span aria-hidden className="flex items-center gap-[3px] font-mono text-3xl font-semibold tabular-nums text-accent md:text-4xl">
-          {formatted.split("").map((c, i) => {
-            if (/\d/.test(c)) {
-              digitIndex += 1;
-              return <OdometerDigit key={i} digit={Number(c)} index={digitIndex} />;
-            }
-            return (
-              <span key={i} className="px-0.5 pb-[0.15em] text-accent/60">
-                {c}
-              </span>
-            );
-          })}
-        </span>
-        <span className="flex flex-col items-start text-left leading-tight">
-          <span className="text-sm font-medium text-text">downloads</span>
-          <span className="text-[11px] text-text-mute">and counting</span>
-        </span>
-      </div>
-      <a
-        href={`${GITHUB_DESKTOP}/releases`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-[10px] uppercase tracking-[0.18em] text-text-mute underline-offset-2 transition-colors hover:text-text-soft hover:underline"
-      >
-        Counted live from GitHub releases
-      </a>
-    </div>
-  );
-}
-
 // Total installer downloads, summed from GitHub's own release data. We use
 // api.github.com (which the site already calls for stars + the latest version)
 // rather than a shields.io badge, because privacy-minded visitors often run
@@ -375,52 +292,6 @@ function DownloadCounter({ value }: { value: number }) {
 // updater tarball lives in the desktop repo, so the cli-only .tar.gz rule
 // never counts auto-updates. Cached at module scope so the hero and the
 // momentum strip share a single fetch (kind to the rate limit).
-const DOWNLOAD_SOURCES: { repo: string; asset: RegExp }[] = [
-  { repo: "fru-dev3/prevail-desktop", asset: /\.(dmg|exe)$/ },
-  { repo: "fru-dev3/prevail-cli", asset: /\.tar\.gz$/ },
-];
-let _downloadTotal: Promise<number | null> | null = null;
-function fetchDownloadTotal(): Promise<number | null> {
-  if (_downloadTotal) return _downloadTotal;
-  _downloadTotal = (async () => {
-    try {
-      let total = 0;
-      for (const src of DOWNLOAD_SOURCES) {
-        for (let page = 1; page <= 3; page++) {
-          const r = await fetch(
-            `https://api.github.com/repos/${src.repo}/releases?per_page=100&page=${page}`,
-          );
-          if (!r.ok) break;
-          const rels = (await r.json()) as { assets?: { name?: string; download_count?: number }[] }[];
-          if (!Array.isArray(rels) || rels.length === 0) break;
-          for (const rel of rels)
-            for (const a of rel.assets ?? [])
-              if (typeof a.name === "string" && src.asset.test(a.name) && typeof a.download_count === "number")
-                total += a.download_count;
-          if (rels.length < 100) break;
-        }
-      }
-      return total;
-    } catch {
-      return null;
-    }
-  })();
-  return _downloadTotal;
-}
-function useDownloadTotal(): number | null {
-  const [n, setN] = useState<number | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    fetchDownloadTotal().then((v) => {
-      if (!cancelled) setN(v);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  return n;
-}
-
 // Live, verifiable social proof: real installer downloads + the live star count.
 // Both fail silently to "-" so the strip never breaks the page.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -587,17 +458,6 @@ function Logo({ size = 24, animated = false }: { size?: number; animated?: boole
 // ─────────────────────────────────────────────────────────────────────────────
 // HEADLINE — one line, always (clamp is sized so the nowrap never overflows
 // the max-w-5xl container): a challenge, then the brand as the answer.
-function Headline() {
-  return (
-    <h1 className="whitespace-nowrap text-center font-semibold tracking-[-0.02em] leading-[1.08] text-[clamp(1.55rem,5vw,3.4rem)]">
-      <span className="text-text">Don&rsquo;t just keep up with AI.</span>{" "}
-      <span className="font-serif italic text-accent [text-shadow:0_2px_28px_rgba(63, 163, 77,0.35)]">
-        Prevail.
-      </span>
-    </h1>
-  );
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // HERO
 
@@ -638,10 +498,6 @@ function HeroGlow() {
 }
 
 function Hero() {
-  const dmg = useDmgDownload();
-  const exe = useExeDownload();
-  const isWindows = useIsWindows();
-  const downloads = useDownloadTotal();
   return (
     <section id="demo" className="relative isolate overflow-hidden pt-4 pb-10 grain md:pt-5">
       <div className="glow-accent absolute inset-0 -z-10" />
