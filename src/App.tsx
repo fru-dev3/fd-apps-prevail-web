@@ -739,13 +739,72 @@ function OwnLines({ n, w, h, className, outward = false }: { n: number; w: numbe
   );
 }
 
+// The Prevail node in "Every AI": the logo inside a learning ring. Four kinds
+// of memory sit on the diagonals and small memories light up around the ring
+// as it turns, so the one diagram also says "it learns as you go".
+function LearningCore() {
+  const reduce = useReducedMotion();
+  const C = 56; // half of the 112px square
+  const R = 51; // ring radius
+  const dots = Array.from({ length: 8 }, (_, i) => (i * 360) / 8 + 22.5);
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative h-28 w-28" aria-hidden>
+        <span className="absolute inset-0 rounded-full border border-dashed border-accent/30" />
+        <span className="absolute inset-[18px] rounded-full border border-accent/15" />
+        <motion.div
+          className="absolute inset-0"
+          animate={reduce ? undefined : { rotate: 360 }}
+          transition={{ duration: 28, ease: "linear", repeat: Infinity }}
+        >
+          {dots.map((a, i) => {
+            const r = (a * Math.PI) / 180;
+            return (
+              <motion.span
+                key={a}
+                className="absolute h-1.5 w-1.5 rounded-full bg-accent"
+                style={{ left: C + R * Math.cos(r) - 3, top: C + R * Math.sin(r) - 3 }}
+                animate={reduce ? { opacity: 0.7 } : { opacity: [0.15, 1, 0.15], scale: [0.8, 1.3, 0.8] }}
+                transition={{ duration: 3.2, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
+              />
+            );
+          })}
+        </motion.div>
+        {MEMORY_KINDS.map(({ label, Icon, ang }) => {
+          const r = (ang * Math.PI) / 180;
+          return (
+            <span
+              key={label}
+              title={label}
+              className="absolute flex h-5 w-5 items-center justify-center rounded-full border border-accent/40 bg-surface-0 text-accent"
+              style={{ left: C + 36 * Math.cos(r) - 10, top: C + 36 * Math.sin(r) - 10 }}
+            >
+              <Icon className="h-2.5 w-2.5" />
+            </span>
+          );
+        })}
+        <span
+          className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-accent/60 bg-surface-0"
+          style={{ boxShadow: "0 0 36px color-mix(in srgb, var(--color-accent) 40%, transparent)" }}
+        >
+          <Logo size={30} animated />
+        </span>
+      </div>
+      <span className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-accent">
+        <Sparkles className="h-3.5 w-3.5" aria-hidden />
+        Learns as You Go
+      </span>
+    </div>
+  );
+}
+
 function OwnLayer() {
   return (
-    <section id="how" className="panel border-t border-border-soft bg-surface-0 py-12 md:py-14">
-    <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
+    <section id="how" className="panel border-t border-border-soft bg-surface-0 py-8 md:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 md:px-6">
       <FadeIn>
         <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
-          Every AI. <span className="text-accent">One you own.</span>
+          Every AI. <span className="text-accent">One You Own.</span>
         </h2>
         <p className="mx-auto mt-3 hidden whitespace-nowrap text-center text-base text-text-soft md:block">
           Prevail sits on top of the AIs you already use, runs on your Mac, and keeps everything in your own files.
@@ -754,9 +813,8 @@ function OwnLayer() {
           On top of every AI. On your Mac. In your files.
         </p>
       </FadeIn>
-      <div className="mt-8 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
       <FadeIn delay={0.1}>
-        <div className="flex flex-col-reverse items-center md:flex-col">
+        <div className="mt-6 flex flex-col-reverse items-center md:flex-col">
           {/* What you keep: lines flow out of Prevail into your own records.
               Phones reverse the column, so this row lands last, under the node. */}
           <ul className="grid w-full max-w-3xl grid-cols-5 gap-x-2">
@@ -771,11 +829,11 @@ function OwnLayer() {
               </li>
             ))}
           </ul>
-          <OwnLines n={KEEP_LAYER.length} w={768} h={64} outward className="hidden h-16 w-full max-w-3xl -scale-y-100 md:block" />
+          <OwnLines n={KEEP_LAYER.length} w={768} h={48} outward className="hidden h-12 w-full max-w-3xl -scale-y-100 md:block" />
           <OwnLines n={KEEP_LAYER.length} w={360} h={48} outward className="mb-2 block h-12 w-full md:hidden" />
 
           {/* Yours: your Mac + your files around one Prevail node */}
-          <div className="relative flex items-center gap-4 rounded-3xl border border-dashed border-accent/50 bg-accent/5 px-5 py-4 md:gap-8 md:px-8">
+          <div className="relative flex items-center gap-4 rounded-3xl border border-dashed border-accent/50 bg-accent/5 px-5 py-3 md:gap-8 md:px-8">
             <span className="absolute -right-3 -top-3 flex h-9 w-9 items-center justify-center rounded-full border border-accent/50 bg-surface-0 text-accent shadow">
               <UserRound className="h-5 w-5" aria-label="You" />
             </span>
@@ -783,12 +841,7 @@ function OwnLayer() {
               <Laptop className="h-7 w-7" aria-hidden />
               <span className="text-xs">Your Mac</span>
             </div>
-            <span
-              className="flex h-20 w-20 items-center justify-center rounded-2xl border border-accent/60 bg-surface-0"
-              style={{ boxShadow: "0 0 36px color-mix(in srgb, var(--color-accent) 40%, transparent)" }}
-            >
-              <Logo size={44} animated />
-            </span>
+            <LearningCore />
             <div className="flex flex-col items-center gap-1.5 text-text-soft">
               <FolderLock className="h-7 w-7" aria-hidden />
               <span className="text-xs">Your files</span>
@@ -815,19 +868,8 @@ function OwnLayer() {
           </div>
         </div>
       </FadeIn>
-      {/* It learns and adapts: the memory graph that fills in as you go. */}
-      <FadeIn delay={0.15}>
-        <figure className="mx-auto w-full max-w-[300px]">
-          <LearnGraph />
-          <figcaption className="mt-2 flex items-center justify-center gap-2 whitespace-nowrap text-sm text-text-soft">
-            <Sparkles className="h-4 w-4 text-accent" aria-hidden />
-            It learns and adapts as you go
-          </figcaption>
-        </figure>
-      </FadeIn>
-      </div>
       <FadeIn delay={0.2}>
-        <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
           {OWN_POINTS.map(({ label, Icon }) => (
             <li key={label} className="flex items-center gap-2 whitespace-nowrap text-sm text-text">
               <Icon className="h-4 w-4 text-accent" aria-hidden />
@@ -1211,7 +1253,7 @@ function DownloadSection() {
             Ask a council. Prevail.
           </p>
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-            Get it <span className="font-serif italic text-text-soft">in a click.</span>
+            Get It <span className="font-serif italic text-text-soft">in a Click.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-xl truncate text-center text-base text-text-soft sm:text-lg">
             Mac, Windows, terminal or your agent.<span className="hidden sm:inline"> Pick a tab and go.</span>
@@ -1270,7 +1312,7 @@ function FAQSection() {
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">FAQ</p>
           <h2 className="mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
-<span className="font-serif italic text-text-soft">Quick</span> answers.
+<span className="font-serif italic text-text-soft">Quick</span> Answers.
           </h2>
         </FadeIn>
         <div className="mt-8 space-y-2 lg:mt-6">
@@ -1324,11 +1366,7 @@ function Footer() {
         {/* The fru.dev family: same four projects, same order, on every site. */}
         <div>
           <h2 className="text-center text-2xl font-semibold tracking-tight">
-            A{" "}
-            <a href="https://fru.dev" className="text-accent hover:underline">
-              fru.dev
-            </a>{" "}
-            Project
+            Other Projects
           </h2>
           <div className="mx-auto mt-6 grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-4">
             {FAMILY.map((f) => {
@@ -1409,13 +1447,13 @@ function Footer() {
 type Clip = { id: string; title: string; icon: typeof Users; line: string; alt: string };
 
 const DEMO_SLIDES: Clip[] = [
-  { id: "chat", title: "Agents that work together", icon: MessagesSquare, line: "Your chief of staff answers, then specialists weigh in.", alt: "A chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate" },
-  { id: "council", title: "Convene a council", icon: Scale, line: "Several models weigh a decision; a chair writes the verdict.", alt: "A council verdict in the Wealth domain on paying down a mortgage or investing" },
+  { id: "chat", title: "Agents That Work Together", icon: MessagesSquare, line: "Your chief of staff answers, then specialists weigh in.", alt: "A chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate" },
+  { id: "council", title: "Convene a Council", icon: Scale, line: "Several models weigh a decision; a chair writes the verdict.", alt: "A council verdict in the Wealth domain on paying down a mortgage or investing" },
   { id: "compass", title: "Your Compass", icon: Compass, line: "Purpose and values that every suggestion is checked against.", alt: "The Compass page with a purpose, ranked values, a mission and a vision" },
-  { id: "domain", title: "Domains with memory", icon: Layers, line: "Each area of life keeps its own context and memory.", alt: "A life domain with its chats, then its details and memory" },
-  { id: "entities", title: "Entities and projects", icon: Boxes, line: "People, things, events and projects, all linked.", alt: "An entity page for a heat pump, an install day event and a project with milestones" },
-  { id: "arena", title: "Arena benchmarks", icon: Swords, line: "Score models on your own questions before you trust them.", alt: "The Arena leaderboard comparing four models on quality, speed and cost" },
-  { id: "settings", title: "Your sources, your team", icon: Users, line: "Choose what Prevail reads and how each specialist works.", alt: "Knowledge sources settings, then the Specialists page and one specialist's settings" },
+  { id: "domain", title: "Domains with Memory", icon: Layers, line: "Each area of life keeps its own context and memory.", alt: "A life domain with its chats, then its details and memory" },
+  { id: "entities", title: "Entities and Projects", icon: Boxes, line: "People, things, events and projects, all linked.", alt: "An entity page for a heat pump, an install day event and a project with milestones" },
+  { id: "arena", title: "Arena Benchmarks", icon: Swords, line: "Score models on your own questions before you trust them.", alt: "The Arena leaderboard comparing four models on quality, speed and cost" },
+  { id: "settings", title: "Your Sources, Your Team", icon: Users, line: "Choose what Prevail reads and how each specialist works.", alt: "Knowledge sources settings, then the Specialists page and one specialist's settings" },
 ];
 
 function ShotCarousel() {
@@ -1550,23 +1588,23 @@ function ShotCarousel() {
 
 const THESES = [
   {
-    title: "AI for your life will matter more than AI for your work.",
+    title: "AI for Your Life Will Matter More Than AI for Your Work.",
     body: "Everyone is racing to build AI for code, email, and the office. The bigger prize is the AI that helps with the decisions that actually shape a life: money, health, family, career. The hard calls you only get to make once.",
   },
   {
-    title: "Context compounds.",
+    title: "Context Compounds.",
     body: "An AI that knows your whole life gets more useful the longer you use it. Most assistants start from zero every session. Prevail keeps a durable record of who you are and what you've decided, and feeds it forward, so every answer is sharper than the last.",
   },
   {
-    title: "Everyone deserves a council of advisors.",
+    title: "Everyone Deserves a Council of Advisors.",
     body: "The wealthy keep lawyers, accountants, doctors, and wealth managers on call. AI can give everyone that same caliber of counsel, in private, for the cost of the electricity. A panel of the best models, not a single guess.",
   },
   {
-    title: "Your context is the most valuable thing you own.",
+    title: "Your Context Is the Most Valuable Thing You Own.",
     body: "The industry default is \"send us everything.\" We think ownership should come first: your vault lives in plain files on your machine, and you decide what any model sees, question by question. Frontier cloud models when you want horsepower, local models when you want privacy. Your data, your call.",
   },
   {
-    title: "Your life deserves the same rigor as your code.",
+    title: "Your Life Deserves the Same Rigor as Your Code.",
     body: "We version, test, and peer-review our software. Our biggest personal decisions get a gut feeling at 11pm. That asymmetry is absurd. Prevail brings structure, a second opinion, and a durable record to the choices that matter most.",
   },
 ];
@@ -1581,8 +1619,8 @@ function ThesisPage() {
           <FadeIn>
             <p className="text-xs uppercase tracking-[0.2em] text-accent">Why <Brand /> exists</p>
             <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-[-0.02em] md:text-6xl">
-              A private intelligence for every person,{" "}
-              <span className="font-serif italic text-text-soft">that compounds for a lifetime.</span>
+              A Private Intelligence for Every Person,{" "}
+              <span className="font-serif italic text-text-soft">That Compounds for a Lifetime.</span>
             </h1>
             <p className="mx-auto mt-7 max-w-xl text-lg text-text-soft">
               Prevail is a bet on a simple idea: the most important AI you ever use
@@ -1616,7 +1654,7 @@ function ThesisPage() {
         <div className="mx-auto max-w-2xl px-6 text-center">
           <FadeIn>
             <h2 className="text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
-              Start your vault. <span className="font-serif italic text-text-soft">It only compounds from here.</span>
+              Start Your Vault. <span className="font-serif italic text-text-soft">It Only Compounds from Here.</span>
             </h2>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <a
@@ -1990,7 +2028,7 @@ const SHIPPED = [
     date: "Oct 2026",
     tag: "0.4.8 · Breaking",
     Icon: Compass,
-    title: "Your Compass, a team of specialists, and two clear groups",
+    title: "Your Compass, a Team of Specialists, and Two Clear Groups",
     body: "One page for what you live by, in your own words, from Purpose down to the tasks it serves. A chief of staff you name staffs specialists who answer in your chats as themselves, inside limits enforced in code. Everything sits in Entities (people, places, products, things) and Activities (events, projects), each with a chat of its own. Start a project by describing it, and add Knowledge sources (sites, feeds, folders) Prevail reads when it briefs you. Breaking: loops are now playbooks, missions are called projects, and household and packs were removed.",
     // Points at the tag once v0.4.8 is published (blocked on notarization).
     href: RELEASES_URL,
@@ -1999,7 +2037,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "0.4.4",
     Icon: Target,
-    title: "Projects, and a structure that grows with you",
+    title: "Projects, and a Structure That Grows with You",
     body: "Projects are their own thing: status, what done looks like, a target date, their domains and goals, and a chat of their own. When a topic with no home keeps coming up, Prevail offers a new domain and fills it in; you accept, snooze or say never. Apps read reliably inside Claude Code, say plainly when they need you to sign in again, and work across several Google accounts.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.4`,
   },
@@ -2007,7 +2045,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "0.4.3",
     Icon: Layers,
-    title: "What you say reaches everywhere it belongs",
+    title: "What You Say Reaches Everywhere It Belongs",
     body: "Mention an insurance claim while chatting in another domain and Prevail notes it in Insurance too, and on the thing it concerns, with a line under the reply showing where it landed. Every domain and every one of your things gets an Across your life section, folded into its state once a day. Your own people, places and things are kept apart from names that only come up in a reply.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.3`,
   },
@@ -2015,7 +2053,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "0.4.1",
     Icon: Plug,
-    title: "Chat with your apps, and your own data as a source",
+    title: "Chat with Your Apps, and Your Own Data as a Source",
     body: "Pick an app like Gmail and chat with it, or type @ in any conversation to bring in an app, a person or a domain. Every call an app gets is logged, with anything sensitive left out. Add your own data sites as trusted sources: an MCP address, a site or links. Named councils, a simpler Arena, entity pictures and duplicate merging, and a much faster app: clicks no longer freeze the window.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.1`,
   },
@@ -2023,7 +2061,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "0.4.0 · Breaking",
     Icon: Target,
-    title: "A focus release",
+    title: "A Focus Release",
     body: "Prevail does fewer things, and every page works the same way: tabs, a column of items, and the one you pick in full. Spark, Automations, Calendar, Notes and the Work board are removed from the app (your loops keep running and your notes stay in your vault). Settings is down to 11 entries.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
   },
@@ -2031,7 +2069,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "Entities",
     Icon: Users,
-    title: "Chat with anything",
+    title: "Chat with Anything",
     body: "Every person, place, company and thing gets its own conversation that builds over time, with what you know about it in front of the model on every turn. Save any reply to its notes in one click.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
   },
@@ -2039,7 +2077,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "Goals",
     Icon: Crown,
-    title: "Mission, vision and goals, with history",
+    title: "Mission, Vision and Goals, with History",
     body: "Your mission and vision sit alongside the goals you add over time. Click any part of your mission to rewrite it; every save keeps the earlier text, and any version can be restored.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.4.0`,
   },
@@ -2047,7 +2085,7 @@ const SHIPPED = [
     date: "Sep 2026",
     tag: "Approvals",
     Icon: ShieldCheck,
-    title: "Approve right in the conversation",
+    title: "Approve Right in the Conversation",
     body: "When an agent needs your OK, a card appears under its reply: Allow once, Always for low-risk edits, or Deny. Anything that sends, spends, deletes or touches a password always asks. Schedule a conversation to run on its own.",
     href: `${GITHUB_DESKTOP}/releases/tag/v0.3.131`,
   },
@@ -2055,7 +2093,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Palette",
     Icon: Terminal,
-    title: "Command palette",
+    title: "Command Palette",
     body: "Press Cmd+K to jump anywhere or do anything: new chat, tasks, notes, every setting, and every domain, all from one search.",
     href: RELEASES_LATEST,
   },
@@ -2063,7 +2101,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Autonomy",
     Icon: ShieldCheck,
-    title: "A graduated autonomy brake",
+    title: "A Graduated Autonomy Brake",
     body: "Every action is now graded: safe reads run, reversible ones run sandboxed, and only consequential actions stop for your approval. See exactly what each will do before it happens.",
     href: RELEASES_LATEST,
   },
@@ -2071,7 +2109,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Budgets",
     Icon: Wallet,
-    title: "Spend budgets with real numbers",
+    title: "Spend Budgets with Real Numbers",
     body: "Set a monthly spend cap and watch actual month-to-date spend against it, so autonomous actions never surprise your wallet.",
     href: RELEASES_LATEST,
   },
@@ -2079,7 +2117,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Proactive",
     Icon: Activity,
-    title: "Prevail reaches out",
+    title: "Prevail Reaches Out",
     body: "During your active hours, it nudges you with a desktop notification when an approval or overdue task needs you, instead of waiting to be opened.",
     href: RELEASES_LATEST,
   },
@@ -2087,7 +2125,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Capture",
     Icon: Paperclip,
-    title: "Turn any reply into action",
+    title: "Turn Any Reply Into Action",
     body: "Make a reply a task, note, skill, or automation, pin it to memory, or paste a screenshot, all without leaving the conversation. Voice capture works from anywhere with a global hotkey.",
     href: RELEASES_LATEST,
   },
@@ -2095,7 +2133,7 @@ const SHIPPED = [
     date: "Jul 2026",
     tag: "Security",
     Icon: Star,
-    title: "Never locked out",
+    title: "Never Locked Out",
     body: "Forgot the passcode on an encrypted vault? Your one-time recovery code now unlocks it and sets a new passcode, so your data is never stranded.",
     href: RELEASES_LATEST,
   },
@@ -2111,7 +2149,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Loops",
     Icon: RefreshCw,
-    title: "Self-driving Domain Loops",
+    title: "Self-Driving Domain Loops",
     body: "Each domain runs on persistent loops that learn from their history, create tracked tasks, ask permission for anything irreversible, and act through your connectors.",
     href: RELEASES_LATEST,
   },
@@ -2119,7 +2157,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Board",
     Icon: LayoutGrid,
-    title: "A board for your work",
+    title: "A Board for Your Work",
     body: "A Kanban board to plan and track the tasks Prevail surfaces across every domain, in one view.",
     href: RELEASES_LATEST,
   },
@@ -2127,7 +2165,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Incognito",
     Icon: EyeOff,
-    title: "Incognito mode",
+    title: "Incognito Mode",
     body: "Convene a council that leaves no trace. An ephemeral session with nothing written to your vault.",
     href: RELEASES_LATEST,
   },
@@ -2135,7 +2173,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Benchmark",
     Icon: BarChart3,
-    title: "Benchmark against your life",
+    title: "Benchmark Against Your Life",
     body: "Per-domain leaderboards graded two ways, scheduled runs, richer scenarios (recency, bias, brevity, tax traps), and drill-down into every question.",
     href: RELEASES_URL,
   },
@@ -2143,7 +2181,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Recommendations",
     Icon: Sparkles,
-    title: "Proactive recommendations and self-connecting apps",
+    title: "Proactive Recommendations and Self-Connecting Apps",
     body: "A feed that watches how you work and proposes the next moves. Connect a tool just by describing the goal and an agent sets it up.",
     href: RELEASES_URL,
   },
@@ -2151,7 +2189,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Desktop",
     Icon: ShieldCheck,
-    title: "Native app, signed and hardened",
+    title: "Native App, Signed and Hardened",
     body: "A native macOS app, signed and notarized by Apple, with demo-first onboarding, an embedded vault, and on-device encryption.",
     href: RELEASES_URL,
   },
@@ -2159,7 +2197,7 @@ const SHIPPED = [
     date: "Jun 2026",
     tag: "Council",
     Icon: Scale,
-    title: "The council",
+    title: "The Council",
     body: "One question fans out to every model you have. A chair you choose writes a single verdict with a panel showing where they disagreed.",
     href: RELEASES_URL,
   },
@@ -2167,7 +2205,7 @@ const SHIPPED = [
     date: "May 2026",
     tag: "Engine",
     Icon: Terminal,
-    title: "The first release",
+    title: "The First Release",
     body: "The Prevail engine: your life as plain markdown folders an AI can reason over. Local-first from line one.",
     href: RELEASES_URL,
   },
@@ -2176,32 +2214,32 @@ const SHIPPED = [
 const ROADMAP = [
   {
     Icon: Landmark,
-    title: "Life connectors and ecosystem",
+    title: "Life Connectors and Ecosystem",
     body: "First-class connectors for the parts of life that matter most: banking, finance, wealth, insurance, and health, all flowing into your vault.",
   },
   {
     Icon: Send,
-    title: "More surfaces",
+    title: "More Surfaces",
     body: "Reach the council where you already are: Telegram, WhatsApp, and more.",
   },
   {
     Icon: Boxes,
-    title: "Open-source models",
+    title: "Open-Source Models",
     body: "Broader, first-class support for local and open models, not just the frontier.",
   },
   {
     Icon: Plug,
-    title: "MCP and the agent ecosystem",
+    title: "MCP and the Agent Ecosystem",
     body: "Robust MCP interop with tools like OpenClaw, Paperclip, and the Hermes agent.",
   },
   {
     Icon: Wallet,
-    title: "Budgets and cost control",
+    title: "Budgets and Cost Control",
     body: "Better management of AI spend and telemetry, by model and by domain.",
   },
   {
     Icon: Activity,
-    title: "Telemetry and insights",
+    title: "Telemetry and Insights",
     body: "Opt-in, in-app collection that surfaces how your council performs over time.",
   },
 ];
@@ -2215,8 +2253,8 @@ function ChangelogPage() {
           <FadeIn>
             <p className="text-xs uppercase tracking-[0.2em] text-accent">Changelog &amp; roadmap</p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
-              <span className="whitespace-nowrap">What's shipped,</span>{" "}<br className="sm:hidden" />
-              <span className="whitespace-nowrap font-serif italic text-text-soft">what's next.</span>
+              <span className="whitespace-nowrap">What's Shipped,</span>{" "}<br className="sm:hidden" />
+              <span className="whitespace-nowrap font-serif italic text-text-soft">What's Next.</span>
             </h1>
             <p className="mt-5 max-w-xl truncate text-base text-text-soft sm:text-lg">
               Milestones so far, and where it's heading.
@@ -2506,14 +2544,14 @@ function Pillars() {
             How <Brand /> works
           </p>
           <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-            <span className="whitespace-nowrap">Three ideas.</span> <br className="sm:hidden" /><span className="whitespace-nowrap font-serif italic text-text-soft">That's the whole app.</span>
+            <span className="whitespace-nowrap">Three Ideas.</span> <br className="sm:hidden" /><span className="whitespace-nowrap font-serif italic text-text-soft">That's the Whole App.</span>
           </h2>
         </FadeIn>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {[
             {
               icon: Layers,
-              title: "For life's biggest decisions",
+              title: "For Life's Biggest Decisions",
               color: "#3FA34D",
               visual: (
                 // The life-domains radial, relocated from the hero — it
@@ -2530,7 +2568,7 @@ function Pillars() {
             },
             {
               icon: Scale,
-              title: "A council of models",
+              title: "A Council of Models",
               color: "#3FA34D",
               visual: (
                 <div className="flex flex-col items-center">
@@ -2585,7 +2623,7 @@ function Pillars() {
             },
             {
               icon: Sparkles,
-              title: "It learns and adapts",
+              title: "It Learns and Adapts",
               color: "#3FA34D",
               visual: (
                 <div className="mx-auto w-full max-w-[300px]">
@@ -2650,9 +2688,9 @@ const COMPARE_ROWS: { label: string; has: string[] }[] = [
 ];
 
 const WHY_IT_MATTERS = [
-  { title: "Your life stays yours", line: "Files on your Mac, not in their account.", Icon: FolderLock },
-  { title: "No lock-in", line: "Switch models; your memory stays put.", Icon: Shuffle },
-  { title: "Judgment, not errands", line: "Models debate; your Compass checks.", Icon: Scale },
+  { title: "Your Life Stays Yours", line: "Files on your Mac, not in their account.", Icon: FolderLock },
+  { title: "No Lock-In", line: "Switch models; your memory stays put.", Icon: Shuffle },
+  { title: "Judgment, Not Errands", line: "Models debate; your Compass checks.", Icon: Scale },
 ];
 
 function CompareMark({ on }: { on: boolean }) {
@@ -2669,7 +2707,7 @@ function CompareSection() {
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
         <FadeIn>
           <h2 className="text-center text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
-            How <Brand /> <span className="text-accent">compares</span>
+            How <Brand /> <span className="text-accent">Compares</span>
           </h2>
           <p className="mx-auto mt-3 hidden whitespace-nowrap text-center text-base text-text-soft md:block">
             The new agents run errands in someone else's cloud, or ask you to build one. Prevail is ready on your Mac.
