@@ -189,6 +189,24 @@ function useTheme(): [Theme, () => void] {
   return [theme, () => setTheme((t) => (t === "dark" ? "light" : "dark"))];
 }
 
+// Follows the theme useTheme writes to <html data-theme>, so a component
+// away from the toggle (the clip carousel) switches along with it.
+function useDocTheme(): Theme {
+  const read = (): Theme => {
+    if (typeof window === "undefined") return "dark";
+    const t = document.documentElement.getAttribute("data-theme") ?? localStorage.getItem(LS_THEME);
+    return t === "light" ? "light" : "dark";
+  };
+  const [theme, setTheme] = useState<Theme>(read);
+  useEffect(() => {
+    const o = new MutationObserver(() => setTheme(read()));
+    o.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    setTheme(read());
+    return () => o.disconnect();
+  }, []);
+  return theme;
+}
+
 // Wraps a Simple Icons SVG path into a sized React SVG. Used for brand
 // logos (Telegram). Lucide icons handle generic glyphs.
 function SimpleIcon({
@@ -1466,11 +1484,13 @@ function ShotCarousel() {
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
+  // Light theme plays the clips recorded in the app's light theme.
+  const src = `/demos/${slide.id}${useDocTheme() === "light" ? "-light" : ""}`;
   useEffect(() => {
     const v = vid.current;
     if (!v) return;
     if (paused) v.pause(); else v.play().catch(() => {});
-  }, [paused, idx]);
+  }, [paused, src]);
   // The bar under the caption follows the clip; rAF keeps it smooth.
   useEffect(() => {
     let raf = 0;
@@ -1499,8 +1519,8 @@ function ShotCarousel() {
           </div>
           <video
             ref={vid}
-            key={slide.id}
-            poster={`/demos/${slide.id}.webp`}
+            key={src}
+            poster={`${src}.webp`}
             width={1440}
             height={810}
             muted
@@ -1511,8 +1531,8 @@ function ShotCarousel() {
             onEnded={() => go(1)}
             className="block aspect-video w-full bg-surface-0"
           >
-            <source src={`/demos/${slide.id}.webm`} type="video/webm" />
-            <source src={`/demos/${slide.id}.mp4`} type="video/mp4" />
+            <source src={`${src}.webm`} type="video/webm" />
+            <source src={`${src}.mp4`} type="video/mp4" />
           </video>
         </div>
 
