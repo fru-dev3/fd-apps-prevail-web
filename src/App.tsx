@@ -741,7 +741,7 @@ function Hero() {
   const downloads = useDownloadTotal();
   // Primary download follows the detected OS; every other build lives in
   // the Install section below.
-  const heroSlide = DEMO_SLIDES[0];
+  const heroSlide = HERO_SHOT;
   return (
     <section className="relative isolate overflow-hidden pt-14 pb-16 grain md:pt-20">
       <div className="glow-accent absolute inset-0 -z-10" />
@@ -806,22 +806,12 @@ function Hero() {
           </div>
         </FadeIn>
 
-        {/* The product itself, above the fold. The council demo autoplays
-            muted; the full three-clip carousel lives one section down. */}
+        {/* The product itself, above the fold: the current app, in the
+            page's theme. The full tour lives one section down. */}
         <FadeIn delay={0.22} y={24}>
           <div className="mt-12 w-full max-w-4xl">
             <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
-              <video
-                src={heroSlide.src}
-                poster={heroSlide.poster}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                onPlay={() => track("demo_play", { location: "hero", title: heroSlide.title })}
-                className="block aspect-video w-full bg-black"
-              />
+              <ThemedShot shot={heroSlide.shot} alt={heroSlide.alt} />
             </div>
             <p className="mt-3 text-sm text-text-mute">
               <span className="font-medium text-text-soft">{heroSlide.title}.</span> {heroSlide.blurb}
@@ -1682,18 +1672,90 @@ function Footer() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root
 
-// Demo video — a compact, self-hosted MP4 (1.3 MB, poster + preload=metadata
-// so it only fully downloads on play). Hosting the binary DMG here is what blew
-// the bandwidth budget; a tiny lazy video is fine.
-// Demo carousel — widescreen product videos. The active clip autoplays muted
-// and, when it ends, advances to the next (looping the set). Users can also jump
-// with the arrows or dots. Caption updates per slide.
-const DEMO_SLIDES = [
+// Product stills, captured from the current app against an invented demo
+// vault (no real person's data), light and dark at 2880x1620 WebP. The page
+// theme picks the variant in CSS; both load lazily, so a hidden one never downloads.
+type Shot = { shot: string; title: string; blurb: string; alt: string };
+type Clip = { src: string; poster: string; title: string; blurb: string };
+type Slide = Shot | Clip;
+
+function ThemedShot({ shot, alt }: { shot: string; alt: string }) {
+  return (
+    <>
+      {(["dark", "light"] as const).map((t) => (
+        <img
+          key={t}
+          src={`/shots/shot-${shot}-${t}.webp`}
+          alt={alt}
+          width={2880}
+          height={1620}
+          loading="lazy"
+          decoding="async"
+          className={`shot-${t} block aspect-video w-full object-cover`}
+        />
+      ))}
+    </>
+  );
+}
+
+const HERO_SHOT: Shot = {
+  shot: "group",
+  title: "Your chief of staff brings in specialists",
+  blurb: "Ask once. Your chief of staff answers, pulls in an Analyst and a Skeptic when it helps, and each replies as themselves.",
+  alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
+};
+
+// Demo carousel: stills of each part of the app, then the widescreen videos.
+// A still advances after a few seconds, a clip when it ends, looping the set.
+// Users can also jump with the arrows or dots. Caption updates per slide.
+const DEMO_SLIDES: Slide[] = [
   {
-    src: "/prevail-demo2.mp4",
-    poster: "/prevail-demo2-poster.jpg",
+    shot: "council",
     title: "Convene a council",
-    blurb: "One question, every model deliberating, and a single verdict saved as markdown you own.",
+    blurb: "One question, several models deliberating, and a single verdict that says where they disagree.",
+    alt: "A council verdict in the Wealth domain from Opus, GPT and Gemini on paying down a mortgage or investing",
+  },
+  {
+    shot: "compass",
+    title: "Your Compass",
+    blurb: "What you live by, in your own words: purpose, values, vision, goals and roles. Every chat carries it.",
+    alt: "The Compass page with a purpose, four ranked values, a mission statement and a vision",
+  },
+  {
+    shot: "specialists",
+    title: "A team of specialists",
+    blurb: "Name your chief of staff, set what a job may spend, and let them staff it with specialists inside those limits.",
+    alt: "The Specialists page with the chief of staff, spending and time limits, and specialists grouped by what they do",
+  },
+  {
+    shot: "entities",
+    title: "Entities",
+    blurb: "People, places, products and things, each with its details, its history and a chat of its own.",
+    alt: "An entity page for a heat pump with purchase date, warranty, maker, location, service history and the chats that mention it",
+  },
+  {
+    shot: "activities",
+    title: "Activities",
+    blurb: "Events and project milestones on one calendar, each linked to the people, places and projects it involves.",
+    alt: "The Activities page with upcoming events and milestones, and an install day linked to a place, a person and a project",
+  },
+  {
+    shot: "projects",
+    title: "Projects",
+    blurb: "Start a project by describing it. Milestones, tasks, a budget and a chat, tied to the domains it touches.",
+    alt: "A project page for replacing a heating system with its owner domain, a specialist, and milestones with dates",
+  },
+  {
+    shot: "inbox",
+    title: "Your morning briefing",
+    blurb: "The Inbox picks the three things that matter today, each traced back to the goal it serves.",
+    alt: "The Inbox briefing for today listing three priorities with their due dates and the goals behind them",
+  },
+  {
+    shot: "knowledge",
+    title: "Knowledge sources",
+    blurb: "Sites, feeds, folders and databases Prevail reads when it briefs you. Read-only, and you choose each one.",
+    alt: "Knowledge sources settings listing two websites and a local folder that Prevail reads",
   },
   {
     src: "/prevail-benchmark.mp4",
@@ -1707,15 +1769,28 @@ const DEMO_SLIDES = [
     title: "Connect every model you have",
     blurb: "Prevail auto-detects the AI CLIs you're already logged into and convenes them.",
   },
+  {
+    src: "/prevail-demo2.mp4",
+    poster: "/prevail-demo2-poster.jpg",
+    title: "A council in motion",
+    blurb: "Watch one question go out to every model and come back as one verdict.",
+  },
 ];
 
+const SHOT_SECONDS = 6;
+
 function DemoVideo() {
-  // Starts on the second clip: the hero already plays the council demo, so
-  // the carousel leads with something the visitor hasn't seen yet.
-  const [idx, setIdx] = useState(1);
+  const [idx, setIdx] = useState(0);
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
+  // A still has no end event, so it advances on a timer.
+  useEffect(() => {
+    if (!("shot" in slide)) return;
+    const t = window.setTimeout(() => go(1), SHOT_SECONDS * 1000);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx]);
   return (
     <section id="demo" className="border-t border-border-soft py-20 md:py-28 grain">
       <div className="relative mx-auto max-w-[1700px] px-4 sm:px-6">
@@ -1726,7 +1801,7 @@ function DemoVideo() {
               See it in action
             </p>
             <h2 className="mx-auto mt-4 text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
-              Watch it <span className="font-serif italic text-text-soft">work.</span>
+              See it <span className="font-serif italic text-text-soft">work.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm text-text-soft md:text-base">
               <span className="font-medium text-text">{slide.title}.</span> {slide.blurb}
@@ -1736,6 +1811,9 @@ function DemoVideo() {
         <FadeIn delay={0.15}>
           <div className="group relative mt-8">
             <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
+              {"shot" in slide ? (
+                <ThemedShot key={slide.shot} shot={slide.shot} alt={slide.alt} />
+              ) : (
               <video
                 key={slide.src}
                 src={slide.src}
@@ -1752,6 +1830,7 @@ function DemoVideo() {
                 }}
                 className="block aspect-video w-full bg-black"
               />
+              )}
             </div>
 
             {/* Prev / next arrows */}
@@ -1773,10 +1852,10 @@ function DemoVideo() {
         </FadeIn>
 
         {/* Numbered indicators */}
-        <div className="mt-6 flex items-center justify-center gap-2.5">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
           {DEMO_SLIDES.map((s, i) => (
             <button
-              key={s.src}
+              key={s.title}
               onClick={() => setIdx(i)}
               aria-label={`Show demo ${i + 1}: ${s.title}`}
               aria-current={i === idx}

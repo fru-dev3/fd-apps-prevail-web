@@ -147,3 +147,8 @@
   50% { transform: translateY(-4px); }
 }
 .drift { animation: drift 6s ease-in-out infinite; }
+
+/* Product stills come in a dark and a light variant; show the one that
+   matches the page theme (dark is the default). */
+:root:not([data-theme="light"]) .shot-light,
+[data-theme="light"] .shot-dark { display: none; }
