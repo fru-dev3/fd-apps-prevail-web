@@ -152,3 +152,27 @@
    matches the page theme (dark is the default). */
 :root:not([data-theme="light"]) .shot-light,
 [data-theme="light"] .shot-dark { display: none; }
+
+/* Flip cards (home "Three ideas"). Both faces share one grid cell so the card
+   is as tall as the taller face and flipping never shifts layout. */
+.flip { perspective: 1200px; }
+.flip-inner {
+  display: grid;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.flip-inner > * {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back { transform: rotateY(180deg); }
+.flip[data-flipped="true"] .flip-inner { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner, .flip[data-flipped="true"] .flip-inner { transform: none; transition: none; }
+  .flip-inner > * { backface-visibility: visible; transition: opacity 0.3s ease; }
+  .flip-back { transform: none; opacity: 0; }
+  .flip[data-flipped="true"] .flip-front { opacity: 0; }
+  .flip[data-flipped="true"] .flip-back { opacity: 1; }
+}

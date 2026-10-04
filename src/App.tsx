@@ -11,6 +11,7 @@ import {
   Monitor,
   Plug,
   RefreshCw,
+  RotateCw,
   Send,
   Wallet,
   Briefcase,
@@ -797,6 +798,181 @@ function DomainRadial() {
 // ─────────────────────────────────────────────────────────────────────────────
 // PILLARS — three small cards
 
+// "It learns and adapts": a memory graph that fills in over time. The mind
+// sits at the center, four kinds of memory around it, and small memories
+// accrete on the outer ring with links back to their kind (and sometimes to
+// each other), then the cycle starts over. Same language as DomainRadial.
+const MEMORY_KINDS = [
+  { label: "Notes", Icon: FileText, ang: -135 },
+  { label: "Decisions", Icon: Scale, ang: -45 },
+  { label: "Habits", Icon: RefreshCw, ang: 45 },
+  { label: "People", Icon: Users, ang: 135 },
+];
+
+function LearnGraph() {
+  const reduce = useReducedMotion();
+  const pt = (ang: number, r: number) => {
+    const a = (ang * Math.PI) / 180;
+    return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) };
+  };
+  const kinds = MEMORY_KINDS.map((k) => ({ ...k, ...pt(k.ang, 27) }));
+  // Three memories per kind on the outer ring, in the order they get learned.
+  const order = [0, 4, 8, 1, 6, 10, 3, 9, 2, 7, 11, 5];
+  const memories = kinds.flatMap((k, ki) =>
+    [-22, 0, 22].map((d, j) => ({ ki, ...pt(k.ang + d, j === 1 ? 45 : 41) })),
+  );
+  const step = (i: number) => order.indexOf(i) / memories.length;
+  // Cross-links: a memory of one kind tied to a memory of another.
+  const links: [number, number][] = [[2, 3], [5, 6], [8, 9], [11, 0], [1, 7]];
+  const CYCLE = 10;
+  const appear = (t: number) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0 },
+          animate: { opacity: [0, 0, 1, 1, 0] },
+          transition: { duration: CYCLE, times: [0, 0.05 + t * 0.7, 0.1 + t * 0.7, 0.92, 1], repeat: Infinity, ease: "easeOut" as const },
+        };
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-[680px]">
+      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
+        <circle cx="50" cy="50" r="27" fill="none" stroke="currentColor" strokeWidth="0.2" strokeDasharray="0.9 0.9" className="text-border" />
+        <circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" strokeWidth="0.15" className="text-border-soft" />
+        {kinds.map((k) => (
+          <line key={k.label} x1="50" y1="50" x2={k.x} y2={k.y} stroke="currentColor" strokeWidth="0.25" strokeDasharray="0.9 0.9" className="text-accent/50" />
+        ))}
+        {memories.map((m, i) => (
+          <motion.line key={`l${i}`} x1={kinds[m.ki].x} y1={kinds[m.ki].y} x2={m.x} y2={m.y} stroke="currentColor" strokeWidth="0.2" className="text-accent/45" {...appear(step(i))} />
+        ))}
+        {links.map(([a, b]) => (
+          <motion.line key={`x${a}-${b}`} x1={memories[a].x} y1={memories[a].y} x2={memories[b].x} y2={memories[b].y} stroke="currentColor" strokeWidth="0.18" strokeDasharray="0.6 0.8" className="text-accent/40" {...appear(Math.max(step(a), step(b)) + 0.03)} />
+        ))}
+        {memories.map((m, i) => (
+          <motion.circle key={`m${i}`} cx={m.x} cy={m.y} r={i % 3 === 1 ? 1.7 : 1.3} className="fill-accent" {...appear(step(i))} />
+        ))}
+        {!reduce &&
+          kinds.map((k, i) => (
+            <motion.circle
+              key={`p${k.label}`}
+              r="0.7"
+              className="fill-accent"
+              initial={{ cx: k.x, cy: k.y, opacity: 0 }}
+              animate={{ cx: 50, cy: 50, opacity: [0, 0.9, 0] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: "easeIn", delay: i * 0.55 }}
+            />
+          ))}
+      </svg>
+      {!reduce && (
+        <motion.span
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ width: "34%", height: "34%", background: "radial-gradient(circle, rgba(63, 163, 77,0.28), transparent 70%)" }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.25, 0.6] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden
+        />
+      )}
+      <div className="absolute left-1/2 top-1/2 z-10 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-border bg-surface-1 text-accent shadow-lg">
+        <Sparkles className="h-6 w-6" />
+        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em]">Memory</span>
+      </div>
+      {kinds.map((k) => {
+        const Icon = k.Icon;
+        return (
+          <div
+            key={k.label}
+            className={`absolute z-10 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 ${k.y < 50 ? "flex-col-reverse" : "flex-col"}`}
+            style={{ left: `${k.x}%`, top: `${k.y}%` }}
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border-soft bg-surface-0 text-text-soft">
+              <Icon className="h-5 w-5" />
+            </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-mute">{k.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// One "Three ideas" card. Front: title + picture. Back: what the idea means.
+// Mouse hover flips it; touch taps toggle; Enter/Space toggle from the keyboard.
+function PillarCard({
+  icon: Icon,
+  title,
+  color,
+  visual,
+  details,
+}: {
+  icon: typeof Layers;
+  title: string;
+  color: string;
+  visual: ReactNode;
+  details: string[];
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const lastPointer = useRef("mouse");
+  const backId = `pillar-${title.replace(/\W+/g, "-").toLowerCase()}`;
+  const header = (
+    <div className="flex items-center gap-3">
+      <div
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ backgroundColor: `${color}15`, color }}
+      >
+        <Icon className="h-[18px] w-[18px]" />
+      </div>
+      <h3 className="whitespace-nowrap text-lg font-semibold tracking-[-0.01em]">{title}</h3>
+      {/* Flip hint, mostly for touch, where there is no hover to discover it */}
+      <RotateCw className="ml-auto h-3.5 w-3.5 shrink-0 text-text-mute opacity-60" aria-hidden />
+    </div>
+  );
+  const face = "flex h-full flex-col rounded-xl border p-5 transition-[border-color,box-shadow,background-color] duration-300";
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={`${title}. Show details`}
+      aria-describedby={backId}
+      data-flipped={flipped}
+      className="flip group h-full cursor-pointer rounded-xl outline-none transition-transform duration-300 ease-out hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+      onPointerDown={(e) => (lastPointer.current = e.pointerType)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setFlipped(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setFlipped(false)}
+      onClick={() => lastPointer.current !== "mouse" && setFlipped((f) => !f)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
+    >
+      <div className="flip-inner">
+        <div className={`flip-front ${face} border-border-soft bg-surface-0 group-hover:border-accent-border group-hover:shadow-[0_12px_40px_-16px_rgba(63,163,77,0.45)]`} aria-hidden>
+          {header}
+          {/* The picture, scaled down so the three cards stay short and even. */}
+          <div className="mt-4 flex h-60 items-center justify-center overflow-hidden">
+            <div className="w-full origin-center scale-[0.68] transition-transform duration-500 group-hover:scale-[0.72]">{visual}</div>
+          </div>
+        </div>
+        <div
+          id={backId}
+          className={`flip-back ${face} border-accent-border bg-surface-1 shadow-[0_12px_40px_-16px_rgba(63,163,77,0.45)]`}
+        >
+          <div aria-hidden>{header}</div>
+          <ul className="mt-4 flex flex-1 flex-col justify-center gap-5 px-1">
+            {details.map((d) => (
+              <li key={d} className="flex gap-3 text-base leading-snug text-text-soft">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden />
+                <span>{d}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Pillars() {
   return (
     <section id="how" className="scroll-mt-20 border-t border-border-soft py-16 md:py-20">
@@ -823,6 +999,10 @@ function Pillars() {
                   <DomainRadial />
                 </div>
               ),
+              details: [
+                "Money, health, home, work and family each get a domain with its own memory.",
+                "Ask once. Prevail pulls context from every domain the question touches.",
+              ],
             },
             {
               icon: Scale,
@@ -873,60 +1053,32 @@ function Pillars() {
                   </div>
                 </div>
               ),
+              details: [
+                "Several models answer the same question.",
+                "One verdict shows where they agree and where they differ.",
+                "You pick the models. Local ones stay on your Mac.",
+              ],
             },
             {
               icon: Sparkles,
               title: "It learns and adapts",
               color: "#3FA34D",
               visual: (
-                <div className="flex flex-col items-center">
-                  {/* A mind that keeps thinking: ripples radiate out, memories accrete */}
-                  <div className="relative mx-auto flex h-28 w-full items-center justify-center">
-                    <span className="absolute h-24 w-24 rounded-full border border-[#3FA34D]/15" aria-hidden />
-                    <span className="absolute h-16 w-16 rounded-full border border-[#3FA34D]/30" aria-hidden />
-                    <motion.span
-                      className="absolute h-12 w-12 rounded-full border border-[#3FA34D]/50"
-                      animate={{ scale: [1, 2.1], opacity: [0.5, 0] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
-                      aria-hidden
-                    />
-                    <span
-                      className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-[#3FA34D]/50 bg-surface-0 text-[#3FA34D]"
-                      style={{ boxShadow: "0 0 26px rgba(63, 163, 77,0.4)" }}
-                    >
-                      <Sparkles className="h-5 w-5" />
-                    </span>
-                    {/* memories accumulating around the mind */}
-                    <span className="absolute h-2 w-2 rounded-full bg-[#3FA34D]" style={{ left: "78%", top: "24%" }} aria-hidden />
-                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#3FA34D]/70" style={{ left: "20%", top: "64%" }} aria-hidden />
-                    <span className="absolute h-1.5 w-1.5 rounded-full bg-[#3FA34D]/60" style={{ left: "70%", top: "76%" }} aria-hidden />
-                    <span className="absolute h-1 w-1 rounded-full bg-[#3FA34D]/50" style={{ left: "28%", top: "26%" }} aria-hidden />
-                  </div>
+                <div className="mx-auto w-full max-w-[300px]">
+                  <LearnGraph />
                 </div>
               ),
+              details: [
+                "Every chat files what matters into the right domain.",
+                "Decisions, people and habits are remembered.",
+                "So tomorrow's answer knows today's.",
+              ],
             },
-          ].map((p, i) => {
-            const Icon = p.icon;
-            return (
-              <FadeIn key={p.title} delay={i * 0.06}>
-                <div className="group flex h-full flex-col rounded-xl border border-border-soft bg-surface-0 p-5 transition-all hover:border-border hover:bg-surface-1">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: `${p.color}15`, color: p.color }}
-                    >
-                      <Icon className="h-[18px] w-[18px]" />
-                    </div>
-                    <h3 className="whitespace-nowrap text-lg font-semibold tracking-[-0.01em]">{p.title}</h3>
-                  </div>
-                  {/* The picture, scaled down so the three cards stay short and even. */}
-                  <div className="mt-4 flex h-60 items-center justify-center overflow-hidden">
-                    <div className="w-full origin-center scale-[0.68]">{p.visual}</div>
-                  </div>
-                </div>
-              </FadeIn>
-            );
-          })}
+          ].map((p, i) => (
+            <FadeIn key={p.title} delay={i * 0.06} className="h-full">
+              <PillarCard {...p} />
+            </FadeIn>
+          ))}
         </div>
 
       </div>
