@@ -176,3 +176,7 @@
   .flip[data-flipped="true"] .flip-front { opacity: 0; }
   .flip[data-flipped="true"] .flip-back { opacity: 1; }
 }
+
+/* Showcase: the active slide's timer bar. */
+@keyframes shot-progress { from { width: 0; } to { width: 100%; } }
+.shot-progress { animation-name: shot-progress; animation-timing-function: linear; animation-fill-mode: forwards; }

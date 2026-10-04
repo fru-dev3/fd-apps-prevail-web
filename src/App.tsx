@@ -42,6 +42,11 @@ import {
   TrendingUp,
   Users,
   X,
+  MessagesSquare,
+  CalendarDays,
+  FolderKanban,
+  Inbox,
+  BookOpen,
 } from "lucide-react";
 import {
   siApple,
@@ -671,6 +676,7 @@ function Hero() {
       <FadeIn delay={0.2} y={24}>
         <ShotCarousel />
       </FadeIn>
+      <DemoVideo />
     </section>
   );
 }
@@ -1519,10 +1525,54 @@ function Footer() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Root
 
+// A one-minute screen recording of the app in use, captured against the same
+// invented demo vault as the stills. Loads nothing until it scrolls into view,
+// then plays muted on a loop (never on its own under reduced motion).
+function DemoVideo() {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLVideoElement>(null);
+  const seen = useInView(ref, { margin: "200px" });
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || !seen) return;
+    if (v.preload !== "auto") { v.preload = "auto"; v.load(); }
+    if (!reduce) v.play().catch(() => {});
+  }, [seen, reduce]);
+  return (
+    <div className="mx-auto mt-16 max-w-6xl px-4 text-center sm:px-6">
+      <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold text-text md:text-3xl">
+        <Play className="h-6 w-6 text-accent" />
+        See it in action
+      </h2>
+      <p className="mx-auto mt-3 max-w-2xl text-base text-text-soft">
+        One minute: a question to your chief of staff and two specialists, then the Compass, a project, the morning briefing and an entity.
+      </p>
+      <div className="mt-6 overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
+        <video
+          ref={ref}
+          poster="/prevail-tour-poster.jpg"
+          width={1440}
+          height={900}
+          muted
+          loop
+          playsInline
+          controls
+          preload="none"
+          aria-label="Screen recording of Prevail: a group chat answer, the Compass, a project, the Inbox briefing and an entity page"
+          className="block aspect-[16/10] w-full"
+        >
+          <source src="/prevail-tour.webm" type="video/webm" />
+          <source src="/prevail-tour.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+  );
+}
+
 // Product stills, captured from the current app against an invented demo
 // vault (no real person's data), light and dark at 2880x1620 WebP. The page
 // theme picks the variant in CSS; both load lazily, so a hidden one never downloads.
-type Shot = { shot: string; title: string; alt: string };
+type Shot = { shot: string; title: string; icon: typeof Users; line: string; alt: string };
 
 function ThemedShot({ shot, alt, eager = false }: { shot: string; alt: string; eager?: boolean }) {
   return (
@@ -1536,101 +1586,170 @@ function ThemedShot({ shot, alt, eager = false }: { shot: string; alt: string; e
           height={1620}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          className={`shot-${t} block aspect-video w-full object-cover`}
+          className={`shot-${t} block aspect-video w-full object-cover object-left-top`}
         />
       ))}
     </>
   );
 }
 
-// Hero carousel: one still per part of the app, advancing on a timer and
-// looping. Arrows and dots jump; the caption is the slide title only.
+// The tour: one still per part of the app, each with what you are looking at
+// and why it matters, advancing on a timer and looping.
 const DEMO_SLIDES: Shot[] = [
   {
     shot: "group",
-    title: "Your chief of staff brings in specialists",
+    title: "A chief of staff with specialists",
+    icon: MessagesSquare,
+    line: "The chief of staff answers, then an Analyst and a Skeptic add the numbers and the catch.",
     alt: "Prevail chat where the chief of staff, an Analyst and a Skeptic answer one question about a heat pump rebate, with the colorful sidebar open",
   },
   {
     shot: "council",
     title: "Convene a council",
+    icon: Scale,
+    line: "Three models weigh one decision and a chair writes the verdict, so you see where they split.",
     alt: "A council verdict in the Wealth domain from Opus, GPT and Gemini on paying down a mortgage or investing",
   },
   {
     shot: "compass",
     title: "Your Compass",
+    icon: Compass,
+    line: "Your purpose, values and vision. Every suggestion is checked against them.",
     alt: "The Compass page with a purpose, four ranked values, a mission statement and a vision",
   },
   {
     shot: "specialists",
     title: "A team of specialists",
+    icon: Users,
+    line: "Pick who helps you and set how far each one may go before it asks.",
     alt: "The Specialists page with the chief of staff, spending and time limits, and specialists grouped by what they do",
   },
   {
     shot: "entities",
     title: "Entities",
+    icon: Boxes,
+    line: "People, places and things keep their own memory, so you never repeat yourself.",
     alt: "An entity page for a heat pump with purchase date, warranty, maker, location, service history and the chats that mention it",
   },
   {
     shot: "activities",
     title: "Activities",
+    icon: CalendarDays,
+    line: "Events and milestones, each linked to the place, person and project it belongs to.",
     alt: "The Activities page with upcoming events and milestones, and an install day linked to a place, a person and a project",
   },
   {
     shot: "projects",
     title: "Projects",
+    icon: FolderKanban,
+    line: "A goal becomes dated milestones, with a specialist on the case.",
     alt: "A project page for replacing a heating system with its owner domain, a specialist, and milestones with dates",
   },
   {
     shot: "inbox",
     title: "Your morning briefing",
+    icon: Inbox,
+    line: "Today's three priorities and the goals behind them, ready when you start.",
     alt: "The Inbox briefing for today listing three priorities with their due dates and the goals behind them",
   },
   {
     shot: "knowledge",
     title: "Knowledge sources",
+    icon: BookOpen,
+    line: "The websites and folders Prevail reads when it answers, chosen by you.",
     alt: "Knowledge sources settings listing two websites and a local folder that Prevail reads",
   },
 ];
 
-const SHOT_SECONDS = 6;
+const SHOT_SECONDS = 7;
 
 function ShotCarousel() {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
   const n = DEMO_SLIDES.length;
   const go = (d: number) => setIdx((i) => (i + d + n) % n);
   const slide = DEMO_SLIDES[idx];
+  const Icon = slide.icon;
+  const auto = !reduce && !paused;
   useEffect(() => {
-    if (reduce) return;
+    if (!auto) return;
     const t = window.setTimeout(() => go(1), SHOT_SECONDS * 1000);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, reduce]);
+  }, [idx, auto]);
   return (
-    <div className="mx-auto mt-8 max-w-[1600px] px-3 sm:px-6">
-      <div className="group relative">
-        <div className="overflow-hidden rounded-2xl border border-accent-border bg-black shadow-2xl">
+    <div
+      className="mx-auto mt-10 grid max-w-[1600px] items-start gap-6 px-4 text-left sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)] lg:items-center lg:gap-8 lg:px-8"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      {/* The still, in a quiet window frame. */}
+      <div className="group relative min-w-0">
+        <div className="overflow-hidden rounded-xl border border-border-soft bg-surface-0 shadow-2xl">
+          <div className="flex items-center gap-1.5 border-b border-border-soft px-3 py-2" aria-hidden>
+            <span className="h-2.5 w-2.5 rounded-full bg-border" />
+            <span className="h-2.5 w-2.5 rounded-full bg-border" />
+            <span className="h-2.5 w-2.5 rounded-full bg-border" />
+            <span className="ml-2 truncate text-xs text-text-mute">Prevail · {slide.title}</span>
+          </div>
           <ThemedShot key={slide.shot} shot={slide.shot} alt={slide.alt} eager={idx === 0} />
         </div>
         <button
           onClick={() => go(-1)}
           aria-label="Previous screenshot"
-          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
+          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/80 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => go(1)}
           aria-label="Next screenshot"
-          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/70 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
+          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border-soft bg-bg/80 p-2 text-text-soft opacity-0 backdrop-blur transition hover:bg-bg hover:text-text focus:opacity-100 group-hover:opacity-100"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
-      <div className="mt-4 flex flex-col items-center gap-3">
-        <p className="text-sm font-medium text-text-soft md:text-base" aria-live="polite">{slide.title}</p>
-        <div className="flex items-center gap-2">
+
+      {/* What you see and why it matters, then the list to jump around. */}
+      <div className="min-w-0">
+        <div aria-live="polite">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+              <Icon className="h-5 w-5" />
+            </span>
+            <h3 className="text-xl font-semibold text-text">{slide.title}</h3>
+          </div>
+          <p className="mt-3 text-base leading-relaxed text-text-soft">{slide.line}</p>
+        </div>
+        <ol className="mt-5 hidden gap-0.5 lg:grid">
+          {DEMO_SLIDES.map((s, i) => {
+            const I = s.icon;
+            const on = i === idx;
+            return (
+              <li key={s.shot}>
+                <button
+                  onClick={() => setIdx(i)}
+                  aria-current={on}
+                  className={`relative flex w-full items-center gap-2.5 overflow-hidden rounded-md px-2.5 py-1.5 text-left text-[13px] transition ${on ? "bg-accent/10 font-medium text-text" : "text-text-soft hover:bg-surface-1 hover:text-text"}`}
+                >
+                  <I className={`h-3.5 w-3.5 shrink-0 ${on ? "text-accent" : ""}`} />
+                  {s.title}
+                  {on && auto && (
+                    <span
+                      key={idx}
+                      className="shot-progress absolute bottom-0 left-0 h-0.5 bg-accent"
+                      style={{ animationDuration: `${SHOT_SECONDS}s` }}
+                    />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+        <div className="mt-5 flex items-center gap-2 lg:hidden">
           {DEMO_SLIDES.map((s, i) => (
             <button
               key={s.shot}
