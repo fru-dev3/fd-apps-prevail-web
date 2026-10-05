@@ -1370,49 +1370,13 @@ function FAQSection() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Footer
 
-const FAMILY = [
-  { name: "Prevail", role: "Agent Harness", href: "https://prevail.sh", tile: "/brand/prevail-tile.svg", tagline: "A private AI harness for your life, not your job." },
-  { name: "Glyph", role: "Agent Rig", href: "https://glyph.fru.dev", tile: "/brand/glyph-tile.svg", tagline: "Gives every coding agent session a name you can recognise." },
-  { name: "Ibis", role: "Agent Context", href: "https://context.fru.dev", tile: "/brand/ibis-tile.svg", tagline: "Live data on AI, data and tech, each source kept current by its own agent." },
-  { name: "Memosa", role: "Context Capture", href: "https://memosa.dev", tile: "/brand/memosa-tile.svg", tagline: "Context capture for agents." },
-];
-
 function Footer() {
   return (
     <footer className="border-t border-border-soft bg-surface-0">
-      <div className="mx-auto max-w-6xl px-6 pb-5 pt-10">
-        {/* The fru.dev family: same four projects, same order, on every site. */}
-        <div>
-          <h2 className="text-center text-2xl font-semibold tracking-tight">
-            Other Projects
-          </h2>
-          <div className="mx-auto mt-6 grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-4">
-            {FAMILY.map((f) => {
-              const here = f.name === "Prevail";
-              const inner = (
-                <div
-                  className={`flex h-full items-start gap-3 rounded-xl border p-3.5 transition-colors ${
-                    here ? "border-accent-border/60 bg-surface-1" : "border-border-soft hover:border-border hover:bg-surface-1"
-                  }`}
-                >
-                  <img src={f.tile} alt="" className="h-9 w-9 shrink-0 rounded-lg" />
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold">{f.name} <span className="font-normal text-text-mute">{f.role}</span></div>
-                    <div className="mt-0.5 line-clamp-2 text-xs leading-snug text-text-soft" title={f.tagline}>{f.tagline}</div>
-                  </div>
-                </div>
-              );
-              return here ? (
-                <div key={f.name} aria-current="page">{inner}</div>
-              ) : (
-                <a key={f.name} href={f.href} target="_blank" rel="noreferrer">{inner}</a>
-              );
-            })}
-          </div>
-        </div>
+      <div className="mx-auto max-w-6xl px-6 py-5">
         {/* One closing row on desktop: mark + name, the links, Star, (c).
             Wraps to two short rows on phones. */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-border-soft pt-5 text-xs lg:flex-nowrap lg:justify-between">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs lg:flex-nowrap lg:justify-between">
           <div className="flex items-center gap-2">
             <Logo size={18} />
             <span className="text-sm font-semibold"><Brand /></span>
