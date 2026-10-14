@@ -24,9 +24,10 @@ cp -R .vercel/project.json .vercel/output "$STAGE/.vercel/"
 (cd "$STAGE" && vercel deploy --prebuilt --prod --scope fru-dev3 >/dev/null)
 
 echo "checking the live site"
-for path in / /install /og-image.png /favicon.ico; do
+for path in / /faq /how-it-works /download /install /og-image.png /favicon.ico /robots.txt /sitemap.xml /llms.txt; do
   code=$(curl -s -o /dev/null -w '%{http_code}' "https://prevail.sh$path")
   [ "$code" = 200 ] || { echo "https://prevail.sh$path answered $code"; exit 1; }
 done
-curl -s https://prevail.sh/ | grep -q '<title>Prevail | Agent Harness</title>' || { echo "live title is not the new one"; exit 1; }
+curl -s https://prevail.sh/ | grep -q '<title>Prevail | Private AI Agent Harness for Your Life</title>' || { echo "live title is not the new one"; exit 1; }
+curl -s https://prevail.sh/faq | grep -q '<link rel="canonical" href="https://prevail.sh/faq"' || { echo "/faq does not carry its own canonical"; exit 1; }
 echo "live at https://prevail.sh"

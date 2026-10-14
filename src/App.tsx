@@ -640,13 +640,15 @@ function Hero() {
           line, then every action and proof point on one row. */}
       <div className="mx-auto flex max-w-6xl flex-col items-center px-6 text-center">
         <FadeIn delay={0.1}>
-          <p className="mx-auto hidden max-w-3xl text-base leading-snug text-text-soft sm:block md:text-lg">
-            Your <span className="text-text">adaptive intelligence</span> for everything you
-            manage, build, decide, and <span className="font-medium text-accent">become</span>.
-          </p>
-          <p className="mx-auto whitespace-nowrap text-base text-text-soft sm:hidden">
-            <span className="text-text">Adaptive intelligence</span> for your whole <span className="font-medium text-accent">life</span>.
-          </p>
+          <h1>
+            <span className="mx-auto hidden max-w-3xl text-base leading-snug text-text-soft sm:block md:text-lg">
+              Your <span className="text-text">adaptive intelligence</span> for everything you
+              manage, build, decide, and <span className="font-medium text-accent">become</span>.
+            </span>
+            <span className="mx-auto block whitespace-nowrap text-base text-text-soft sm:hidden">
+              <span className="text-text">Adaptive intelligence</span> for your whole <span className="font-medium text-accent">life</span>.
+            </span>
+          </h1>
         </FadeIn>
 
         <FadeIn delay={0.16}>
@@ -1270,9 +1272,9 @@ function DownloadSection() {
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             Ask a council. Prevail.
           </p>
-          <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
+          <h1 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
             Get It <span className="font-serif italic text-text-soft">in a Click.</span>
-          </h2>
+          </h1>
           <p className="mx-auto mt-5 max-w-xl truncate text-center text-base text-text-soft sm:text-lg">
             Mac, Windows, terminal or your agent.<span className="hidden sm:inline"> Pick a tab and go.</span>
           </p>
@@ -1329,9 +1331,9 @@ function FAQSection() {
       <div className="mx-auto w-full max-w-3xl px-6">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">FAQ</p>
-          <h2 className="mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
+          <h1 className="mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl">
 <span className="font-serif italic text-text-soft">Quick</span> Answers.
-          </h2>
+          </h1>
         </FadeIn>
         <div className="mt-8 space-y-2 lg:mt-6">
           {FAQ.map((item, i) => {
@@ -2526,9 +2528,9 @@ function Pillars() {
           <p className="text-center text-xs uppercase tracking-[0.2em] text-accent">
             How <Brand /> works
           </p>
-          <h2 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
+          <h1 className="mx-auto mt-4 text-center text-4xl font-semibold tracking-[-0.02em] md:text-5xl text-balance">
             <span className="whitespace-nowrap">Three Ideas.</span> <br className="sm:hidden" /><span className="whitespace-nowrap font-serif italic text-text-soft">That's the Whole App.</span>
-          </h2>
+          </h1>
         </FadeIn>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {[

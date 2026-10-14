@@ -14,9 +14,9 @@ Prevail is not a chatbot and not a coding harness; it is a "life harness." The w
 
 ## Core concepts
 
-- [The council](https://prevail.sh/#council): One question is fanned out to every installed CLI; they answer in parallel; a chair model you choose synthesizes one verdict and surfaces a disagreement panel. Any model can be the chair.
-- [The benchmark](https://prevail.sh/#benchmark): A starter set of ~21 canonical questions across 8 capability dimensions (binary decisions, document analysis, recency, cultural nuance, bias, brevity, complex tax traps, and refusal-to-recommend). Scored two ways (keyword match and LLM-as-judge), with a separate leaderboard per life domain. Add your own questions drawn from real decisions; the leaderboard reflects *your* life, not a generic benchmark.
-- [The vault](https://prevail.sh/#how): No database, just folders. Every domain is a folder; every verdict is dated markdown. Sync it however you like (git, iCloud, Tailscale) or not at all.
+- [The council](https://prevail.sh/how-it-works): One question is fanned out to every installed CLI; they answer in parallel; a chair model you choose synthesizes one verdict and surfaces a disagreement panel. Any model can be the chair.
+- [The benchmark](https://prevail.sh/how-it-works): A starter set of ~21 canonical questions across 8 capability dimensions (binary decisions, document analysis, recency, cultural nuance, bias, brevity, complex tax traps, and refusal-to-recommend). Scored two ways (keyword match and LLM-as-judge), with a separate leaderboard per life domain. Add your own questions drawn from real decisions; the leaderboard reflects *your* life, not a generic benchmark.
+- [The vault](https://prevail.sh/how-it-works): No database, just folders. Every domain is a folder; every verdict is dated markdown. Sync it however you like (git, iCloud, Tailscale) or not at all.
 
 ## Life domains
 
@@ -49,7 +49,7 @@ Prevail organizes life into domains, each a folder the council can reason over. 
 
 - The app collects no telemetry by default and sends nothing unless you explicitly opt in. Opt-in telemetry is anonymous (a random local ID; never your name, email, files, or chats) and limited to a small fixed set of events you can inspect and disable.
 - The marketing site (prevail.sh) uses Google Analytics. Ratings and user counts shown on the site are illustrative.
-- See the [Terms of Service & Privacy Policy](https://prevail.sh/tos).
+- See the [Terms of Service & Privacy Policy](https://prevail.sh/terms).
 
 ## Notes for agents
 

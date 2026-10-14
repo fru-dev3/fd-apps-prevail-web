@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Prevail | Agent Harness</title>
-    <meta name="description" content="A private AI harness for your life, not your job. Any model, Mac and Windows." />
+    <title>Prevail | Private AI Agent Harness for Your Life</title>
+    <meta name="description" content="Free, open-source AI agent harness for your life. Use Claude, ChatGPT, Gemini or local models on Mac or Windows, with memory in plain files you own." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="author" content="fru.dev" />
     <meta name="theme-color" content="#0b1210" />
@@ -31,8 +31,8 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="fru.dev" />
-    <meta property="og:title" content="Prevail | Agent Harness" />
-    <meta property="og:description" content="A private AI harness for your life, not your job. Any model, Mac and Windows." />
+    <meta property="og:title" content="Prevail | Private AI Agent Harness for Your Life" />
+    <meta property="og:description" content="Free, open-source AI agent harness for your life. Use Claude, ChatGPT, Gemini or local models on Mac or Windows, with memory in plain files you own." />
     <meta property="og:url" content="https://prevail.sh/" />
     <meta property="og:image" content="https://prevail.sh/og-image.png?v=5" />
     <meta property="og:image:width" content="1200" />
@@ -43,8 +43,8 @@
     <!-- Twitter / X card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@fru" />
-    <meta name="twitter:title" content="Prevail | Agent Harness" />
-    <meta name="twitter:description" content="A private AI harness for your life, not your job. Any model, Mac and Windows." />
+    <meta name="twitter:title" content="Prevail | Private AI Agent Harness for Your Life" />
+    <meta name="twitter:description" content="Free, open-source AI agent harness for your life. Use Claude, ChatGPT, Gemini or local models on Mac or Windows, with memory in plain files you own." />
     <meta name="twitter:image" content="https://prevail.sh/og-image.png?v=5" />
     <meta name="twitter:image:alt" content="Prevail | Agent Harness: the green Prevail chevron mark beside the name, on a dark background." />
 
@@ -67,8 +67,9 @@
             "@type": "WebSite",
             "@id": "https://prevail.sh/#website",
             "url": "https://prevail.sh/",
-            "name": "Prevail | Agent Harness",
-            "description": "A private AI harness for your life, not your job. Any model, Mac and Windows.",
+            "name": "Prevail",
+            "alternateName": "Prevail | Agent Harness",
+            "description": "Free, open-source AI agent harness for your life. Use Claude, ChatGPT, Gemini or local models on Mac or Windows, with memory in plain files you own.",
             "inLanguage": "en-US",
             "publisher": {
               "@id": "https://fru.dev/#org"
@@ -79,10 +80,15 @@
             "@id": "https://prevail.sh/#app",
             "name": "Prevail",
             "alternateName": "Prevail | Agent Harness",
-            "description": "A private AI harness for your life, not your job. Any model, Mac and Windows.",
+            "description": "Free, open-source AI agent harness for your life. Use Claude, ChatGPT, Gemini or local models on Mac or Windows, with memory in plain files you own.",
             "url": "https://prevail.sh/",
             "applicationCategory": "ProductivityApplication",
             "operatingSystem": "macOS, Windows, Linux (CLI)",
+            "downloadUrl": "https://github.com/fru-dev3/prevail-desktop/releases/latest",
+            "installUrl": "https://prevail.sh/download",
+            "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+            "isAccessibleForFree": true,
+            "keywords": "AI agent harness, personal AI, local-first AI, private AI, AI memory, multi-model AI council, open source",
             "image": "https://prevail.sh/icon-512.png",
             "screenshot": "https://prevail.sh/og-image.png",
             "offers": {
@@ -114,13 +120,6 @@
   <body>
     <div id="root"></div>
 
-    <!-- Netlify form for "notify me when desktop ships" email capture. Hidden
-         so Netlify's build can detect it. The form on the page submits to
-         the same endpoint. -->
-    <form name="notify" data-netlify="true" netlify-honeypot="bot-field" hidden>
-      <input type="email" name="email" />
-      <input type="text" name="bot-field" />
-    </form>
 
     <script type="module" src="/src/main.tsx"></script>
   </body>
