@@ -332,3 +332,5 @@ html:has(.snap-page) { scroll-padding-top: 3.5rem; }
 .ph-proof p a:hover{color:var(--green)}
 .ph-proof b{color:var(--ink);font-weight:800}
 .ph-bar a.ph-home img{display:block}
+.ph-bar .ph-built .ph-heart-i{display:inline-block;vertical-align:-2px;margin:0 1px;width:14px;height:14px;color:#e0465b}
+@media (max-width:380px){.ph-built .ph-bw{display:none}}

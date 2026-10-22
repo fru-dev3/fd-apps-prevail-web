@@ -3201,9 +3201,12 @@ function Home() {
             <a className="ph-opt" href="/privacy">Privacy</a>
           </nav>
           <a className="ph-built" href={GITHUB_DESKTOP} target="_blank" rel="noreferrer">
-            <Sparkles />
             <span>
-              Built with AI<span className="ph-opt">, easy to make your own on GitHub</span>
+              <span className="ph-bw">Built with </span>
+              <svg className="ph-heart-i" width="14" height="14" viewBox="0 0 24 24" fill="#E0465B" aria-label="love">
+                <path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 2.3 4.5 6.2 4.5c2.4 0 4 1.4 5.8 3.5 1.8-2.1 3.4-3.5 5.8-3.5 3.9 0 5.8 3.9 4.2 7.2C19.5 16.4 12 21 12 21z" />
+              </svg>{" "}
+              + AI<span className="ph-opt"> · easy to make your own on GitHub</span>
             </span>
           </a>
         </div>
