@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion, useInView, useReducedMotion, MotionConfig } from "framer-motion";
 import {
   ArrowRight,
@@ -263,35 +263,7 @@ function GitHubStarButton({
   size?: "sm" | "lg";
   className?: string;
 }) {
-  // Last known count first (build snapshot or this browser's last live
-  // answer); the number is hidden rather than shown as "-" if neither exists.
-  const [stars, setStars] = useState<number | null>(() => {
-    let saved = 0;
-    try {
-      saved = Number(localStorage.getItem(LS_STARS)) || 0;
-    } catch {
-      /* storage blocked */
-    }
-    return Math.max(downloadSnapshot.stars || 0, saved) || null;
-  });
-  useEffect(() => {
-    let cancelled = false;
-    fetch("https://api.github.com/repos/fru-dev3/prevail-desktop")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (cancelled || !j || typeof j.stargazers_count !== "number") return;
-        setStars(j.stargazers_count);
-        try {
-          localStorage.setItem(LS_STARS, String(j.stargazers_count));
-        } catch {
-          /* storage blocked */
-        }
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const stars = useHomeStars();
   const isLg = size === "lg";
   return (
     <a
@@ -384,6 +356,7 @@ const DOWNLOAD_SOURCES: { repo: string; asset: RegExp }[] = [
   { repo: "fru-dev3/prevail-cli", asset: /\.tar\.gz$/ },
 ];
 const LS_DOWNLOADS = "prevail-download-total";
+const LS_DOWNLOADS_AT = "prevail-download-total-at";
 // Written by scripts/fetch-downloads.mjs before every build.
 const BUILD_DOWNLOAD_TOTAL: number = downloadSnapshot.total || 0;
 let _downloadTotal: Promise<number | null> | null = null;
@@ -391,6 +364,12 @@ function fetchDownloadTotal(): Promise<number | null> {
   if (_downloadTotal) return _downloadTotal;
   _downloadTotal = (async () => {
     try {
+      // A rate-limited network answers 403 (a red console error) to every call, so
+      // look first: this browser's count from the last 6 hours, then GitHub's
+      // rate_limit endpoint, which never counts against the limit.
+      if (Date.now() - (Number(localStorage.getItem(LS_DOWNLOADS_AT)) || 0) < 6 * 3600e3) return null;
+      const lim = await fetch("https://api.github.com/rate_limit").then((r) => (r.ok ? r.json() : null));
+      if (!lim || (lim.resources?.core?.remaining ?? 0) < 8) return null;
       let total = 0;
       for (const src of DOWNLOAD_SOURCES) {
         for (let page = 1; page <= 3; page++) {
@@ -411,6 +390,7 @@ function fetchDownloadTotal(): Promise<number | null> {
       if (!total) return null;
       try {
         localStorage.setItem(LS_DOWNLOADS, String(total));
+        localStorage.setItem(LS_DOWNLOADS_AT, String(Date.now()));
       } catch {
         /* storage blocked */
       }
@@ -2897,6 +2877,34 @@ function useHomeStars(): number | null {
 function HomeHeadline() {
   const reduce = useReducedMotion();
   const [text, setText] = useState(HOME_LINES[0]);
+  const h1 = useRef<HTMLHeadingElement>(null);
+  // The CSS size is the largest; shrink it when the widest line of the whole loop
+  // (plus the caret) would run past the Download + Star row.
+  useLayoutEffect(() => {
+    const el = h1.current;
+    if (!el) return;
+    const fit = () => {
+      el.style.fontSize = "";
+      const row = document.querySelector(".ph-cta")?.getBoundingClientRect().width ?? 0;
+      if (!row) return;
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      const probe = document.createElement("span");
+      probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;left:0;top:0";
+      el.appendChild(probe);
+      let widest = 0;
+      for (const t of ["Every AI.", ...HOME_LINES]) {
+        probe.textContent = t;
+        widest = Math.max(widest, probe.getBoundingClientRect().width);
+      }
+      probe.remove();
+      const need = widest + base * 0.16 + 2;
+      if (need > row) el.style.fontSize = `${Math.floor((base * row * 10) / need) / 10}px`;
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    addEventListener("resize", fit);
+    return () => removeEventListener("resize", fit);
+  }, []);
   useEffect(() => {
     if (reduce) return;
     let alive = true;
@@ -2921,7 +2929,7 @@ function HomeHeadline() {
     };
   }, [reduce]);
   return (
-    <h1 className="ph-h1">
+    <h1 className="ph-h1" ref={h1}>
       Every AI.
       <em>
         {text}
@@ -2931,15 +2939,41 @@ function HomeHeadline() {
   );
 }
 
+// Where each light clip starts (past its loading frames; the posters are these frames), and
+// spans to skip inside a clip (a loading spinner mid-way through Settings).
+const CLIP_START: Record<string, number> = { council: 0.8, compass: 1, entities: 1, arena: 1, settings: 1 };
+const CLIP_SKIP: Record<string, [number, number][]> = { entities: [[12.3, 12.8]], settings: [[6.4, 7.0]] };
+
 function HomeClips() {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
   const video = useRef<HTMLVideoElement>(null);
   const clip = DEMO_SLIDES[idx];
   useEffect(() => {
-    video.current?.load();
-    if (!reduce) video.current?.play().catch(() => {});
-  }, [idx, reduce]);
+    const v = video.current;
+    if (!v) return;
+    v.load();
+    const start = () => {
+      v.currentTime = CLIP_START[clip.id] ?? 0.3;
+      if (!reduce) v.play().catch(() => {});
+    };
+    v.addEventListener("loadedmetadata", start, { once: true });
+    const skips = CLIP_SKIP[clip.id];
+    let frame = 0;
+    const watch = () => {
+      for (const [a, b] of skips ?? []) if (v.currentTime >= a && v.currentTime < b) v.currentTime = b;
+      frame = v.requestVideoFrameCallback ? v.requestVideoFrameCallback(watch) : 0;
+    };
+    if (skips) {
+      if (v.requestVideoFrameCallback) frame = v.requestVideoFrameCallback(watch);
+      else v.addEventListener("timeupdate", watch);
+    }
+    return () => {
+      v.removeEventListener("loadedmetadata", start);
+      v.removeEventListener("timeupdate", watch);
+      if (frame && v.cancelVideoFrameCallback) v.cancelVideoFrameCallback(frame);
+    };
+  }, [idx, reduce, clip.id]);
   const Icon = clip.icon;
   return (
     <div className="ph-right">
@@ -2971,7 +3005,7 @@ function HomeClips() {
           playsInline
           autoPlay={!reduce}
           preload="metadata"
-          poster={`/demos/${clip.id}-light.webp`}
+          poster={`/demos/${clip.id}-light-start.webp`}
           aria-label={clip.alt}
           onEnded={() => setIdx((i) => (i + 1) % DEMO_SLIDES.length)}
         >

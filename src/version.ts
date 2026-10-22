@@ -16,11 +16,13 @@ export function useLiveVersion(): string | null {
   const [version, setVersion] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    fetch("https://api.github.com/repos/fru-dev3/prevail-desktop/releases/latest")
+    // shields.io caches GitHub's answer, so a rate-limited network never sees a 403.
+    fetch("https://img.shields.io/github/v/release/fru-dev3/prevail-desktop.json")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        if (cancelled || !j || typeof j.tag_name !== "string") return;
-        setVersion(j.tag_name.replace(/^v/, ""));
+        const v = typeof j?.value === "string" ? j.value.replace(/^v/, "") : "";
+        if (cancelled || !/^\d+\.\d+\.\d+$/.test(v)) return;
+        setVersion(v);
       })
       .catch(() => {});
     return () => {
