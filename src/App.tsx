@@ -2995,7 +2995,7 @@ function HomeClips({ stars, downloads }: { stars: number | null; downloads: numb
         </div>
         <p>
           {stars !== null && (
-            <a href={`${GITHUB_DESKTOP}/stargazers`} target="_blank" rel="noreferrer">
+            <a href={GITHUB_DESKTOP} target="_blank" rel="noreferrer">
               Starred by <b>{stars}</b> developers
             </a>
           )}
