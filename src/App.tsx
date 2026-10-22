@@ -2798,6 +2798,8 @@ function HowItWorksPage() {
   return (
     <main className="pt-14">
       <Pillars />
+      <OwnLayer />
+      <CompareSection />
     </main>
   );
 }
@@ -2824,6 +2826,338 @@ function FAQPage() {
     <main className="pt-14">
       <FAQSection />
     </main>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Home: one bright screen, no scroll (the fru.dev app-page layout, like
+// jot.fru.dev). Left: name, a headline that types itself, the models strip,
+// one Download with the real count inside, the Star with a hand-drawn arrow.
+// Right: the app's own clips. Features sit behind the footer link.
+
+const HOME_LINES = ["One you own.", "It's free.", "In your files."];
+const HOME_FEATURES: { name: string; text: string }[] = [
+  { name: "Agents that work together", text: "Your chief of staff answers first, then specialists weigh in on the same question." },
+  { name: "Convene a council", text: "Several models answer one decision at once; a chair model reads them all and writes the verdict, with where they disagreed." },
+  { name: "Your compass", text: "Your purpose and values, written once. Every suggestion is checked against them." },
+  { name: "Domains with memory", text: "Health, money, work, home: each area of your life keeps its own context and memory." },
+  { name: "People, things and projects", text: "Entities, events and projects, all linked, so the agents know what you mean." },
+  { name: "Arena benchmarks", text: "Score models on your own questions before you trust them with a decision." },
+  { name: "Every AI, switch anytime", text: "Claude, ChatGPT, Gemini, or local models through Ollama. Your memory stays put when you switch." },
+  { name: "Bunker or cloud", text: "Bunker Mode runs entirely on local models, so nothing leaves your machine. Cloud Mode brings in the frontier models you pick." },
+  { name: "Plain files you own", text: "Your vault is a folder of plain files on your machine. Open it, back it up, take it anywhere." },
+  { name: "Mac, Windows or the terminal", text: "A desktop app for Mac and Windows, and a CLI for macOS, Linux and WSL, on the same vault." },
+  { name: "No telemetry by default", text: "Prevail sends nothing unless you turn it on, and you can see exactly what is sent." },
+  { name: "Open source", text: "GPL-3.0. Read every line on GitHub." },
+];
+
+function useHomeStars(): number | null {
+  const [n, setN] = useState<number | null>(() => {
+    let saved = 0;
+    try {
+      saved = Number(localStorage.getItem(LS_STARS)) || 0;
+    } catch {
+      /* storage blocked */
+    }
+    return Math.max(downloadSnapshot.stars || 0, saved) || null;
+  });
+  useEffect(() => {
+    let cancelled = false;
+    const keep = (v: number) => {
+      if (cancelled || !(v > 0)) return;
+      setN(v);
+      try {
+        localStorage.setItem(LS_STARS, String(v));
+      } catch {
+        /* storage blocked */
+      }
+    };
+    // shields.io first (cached on their side, so visitors never hit GitHub's 60 an hour
+    // per network); GitHub's own API if that fails or an ad-blocker drops it.
+    fetch("https://img.shields.io/github/stars/fru-dev3/prevail-desktop.json")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => {
+        const v = parseInt(d.value, 10);
+        if (!(v > 0)) throw 0;
+        keep(v);
+      })
+      .catch(() =>
+        fetch("https://api.github.com/repos/fru-dev3/prevail-desktop")
+          .then((r) => (r.ok ? r.json() : null))
+          .then((j) => j && keep(j.stargazers_count))
+          .catch(() => {}),
+      );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return n;
+}
+
+function HomeHeadline() {
+  const reduce = useReducedMotion();
+  const [text, setText] = useState(HOME_LINES[0]);
+  useEffect(() => {
+    if (reduce) return;
+    let alive = true;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    (async () => {
+      for (let n = 0; alive; n = (n + 1) % HOME_LINES.length) {
+        const line = HOME_LINES[n];
+        for (let k = 1; k <= line.length && alive; k++) {
+          setText(line.slice(0, k));
+          await wait(90);
+        }
+        await wait(2400);
+        for (let k = line.length; k >= 0 && alive; k--) {
+          setText(line.slice(0, k));
+          await wait(26);
+        }
+        await wait(250);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [reduce]);
+  return (
+    <h1 className="ph-h1">
+      Every AI.
+      <em>
+        {text}
+        <i className="ph-caret" aria-hidden />
+      </em>
+    </h1>
+  );
+}
+
+function HomeClips() {
+  const reduce = useReducedMotion();
+  const [idx, setIdx] = useState(0);
+  const video = useRef<HTMLVideoElement>(null);
+  const clip = DEMO_SLIDES[idx];
+  useEffect(() => {
+    video.current?.load();
+    if (!reduce) video.current?.play().catch(() => {});
+  }, [idx, reduce]);
+  const Icon = clip.icon;
+  return (
+    <div className="ph-right">
+      <div className="ph-chips" role="tablist" aria-label="What Prevail does">
+        {DEMO_SLIDES.map((c, i) => {
+          const I = c.icon;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={i === idx}
+              title={c.title}
+              aria-label={c.title}
+              onClick={() => {
+                setIdx(i);
+                track("home_clip", { clip: c.id });
+              }}
+            >
+              <I />
+            </button>
+          );
+        })}
+      </div>
+      <div className="ph-frame">
+        <video
+          ref={video}
+          muted
+          playsInline
+          autoPlay={!reduce}
+          preload="metadata"
+          poster={`/demos/${clip.id}-light.webp`}
+          aria-label={clip.alt}
+          onEnded={() => setIdx((i) => (i + 1) % DEMO_SLIDES.length)}
+        >
+          <source src={`/demos/${clip.id}-light.webm`} type="video/webm" />
+          <source src={`/demos/${clip.id}-light.mp4`} type="video/mp4" />
+        </video>
+      </div>
+      <div className="ph-pill" aria-live="polite">
+        <Icon />
+        <b>{clip.title}</b>
+        <span>
+          {idx + 1}/{DEMO_SLIDES.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Home() {
+  const dmg = useDmgDownload();
+  const exe = useExeDownload();
+  const isWindows = useIsWindows();
+  const downloads = useDownloadTotal();
+  const stars = useHomeStars();
+  const sheet = useRef<HTMLDialogElement>(null);
+  const openFeatures = () => {
+    if (sheet.current && !sheet.current.open) {
+      sheet.current.showModal();
+      track("features_open");
+    }
+  };
+  useEffect(() => {
+    if (location.hash === "#features") openFeatures();
+  }, []);
+  return (
+    <div className="ph">
+      <main className="ph-main">
+        <div className="ph-left">
+          <div className="ph-brand">
+            <img src="/icon-512.png" width="72" height="72" alt="" />
+            <div>
+              <b>Prevail</b>
+              <span>Free AI harness for your life</span>
+            </div>
+          </div>
+          <HomeHeadline />
+          <div className="ph-alt" aria-label="Claude, ChatGPT, Gemini or local models, with one memory in your own files">
+            <div className="ph-models">
+              {[
+                { name: "Claude", node: <SimpleIcon icon={siClaude} className="ph-mi" />, color: "#D97757" },
+                { name: "ChatGPT", node: <OpenAIMark className="ph-mi" />, color: "#0B0F0C" },
+                { name: "Gemini", node: <SimpleIcon icon={siGooglegemini} className="ph-mi" />, color: "#4285F4" },
+                { name: "Ollama", node: <SimpleIcon icon={siOllama} className="ph-mi" />, color: "#0B0F0C" },
+              ].map((m) => (
+                <figure key={m.name} title={m.name} style={{ color: m.color }}>
+                  {m.node}
+                  <figcaption>{m.name}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <ArrowRight className="ph-to" aria-hidden />
+            <div className="ph-yours">
+              <img src="/icon-512.png" width="48" height="48" alt="" />
+              <div>
+                <b>One memory</b>
+                <small>in your own files</small>
+              </div>
+            </div>
+          </div>
+          <div className="ph-cta">
+            <a
+              className="ph-go"
+              href={isWindows ? exe.url : dmg.url}
+              download={isWindows ? exe.name : dmg.name}
+              onClick={() => track("download_click", { location: "home", platform: isWindows ? "windows" : "mac" })}
+              aria-label={`Download for ${isWindows ? "Windows" : "Mac"}${downloads ? `, ${downloads.toLocaleString("en-US")} downloads so far` : ""}`}
+              title={downloads ? `${downloads.toLocaleString("en-US")} downloads` : undefined}
+            >
+              <Download />
+              <span>
+                Download<span className="ph-for"> for {isWindows ? "Windows" : "Mac"}</span>
+              </span>
+              {!!downloads && (
+                <span className="ph-count">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M12 5v12m0 0l-5-5m5 5l5-5" />
+                  </svg>
+                  {downloads.toLocaleString("en-US")}
+                </span>
+              )}
+            </a>
+            <a
+              className="ph-star"
+              href={GITHUB_DESKTOP}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => track("github_star_click", { location: "home" })}
+              aria-label="Star Prevail on GitHub"
+            >
+              <Star className="ph-star-i" fill="currentColor" />
+              <span className="ph-star-lbl">Star</span>
+              {stars !== null && <span className="ph-num">{formatStars(stars)}</span>}
+              <span className="ph-love" aria-hidden>
+                <svg className="ph-arrow" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M52 6C51 28 32 44 8 54" />
+                  <path d="M44 14l8-10 7 10" />
+                </svg>
+                <span className="ph-say">
+                  show some love
+                  <svg className="ph-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 2.3 4.5 6.2 4.5c2.4 0 4 1.4 5.8 3.5 1.8-2.1 3.4-3.5 5.8-3.5 3.9 0 5.8 3.9 4.2 7.2C19.5 16.4 12 21 12 21z" />
+                  </svg>
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul className="ph-badges">
+            <li><Laptop />Mac and Windows</li>
+            <li><FolderLock />Your files</li>
+            <li><FileText />Open source</li>
+          </ul>
+          <p className="ph-note">Model names and logos belong to their owners. Prevail is not affiliated with them.</p>
+        </div>
+        <HomeClips />
+      </main>
+
+      <dialog
+        ref={sheet}
+        className="ph-sheet"
+        aria-labelledby="ph-feat-h"
+        onClick={(e) => {
+          if (e.target === sheet.current || (e.target as Element).closest(".ph-close")) sheet.current?.close();
+        }}
+        onClose={() => {
+          (document.activeElement as HTMLElement | null)?.blur();
+          if (location.hash === "#features") history.replaceState(null, "", location.pathname);
+        }}
+      >
+        <div className="ph-sheet-head">
+          <img src="/icon-512.png" width="40" height="40" alt="" />
+          <h2 id="ph-feat-h">Everything Prevail does</h2>
+          <button type="button" className="ph-close" aria-label="Close">
+            <X />
+          </button>
+        </div>
+        <div className="ph-list">
+          {HOME_FEATURES.map((f) => (
+            <div key={f.name} className="ph-fq">
+              <h3>{f.name}</h3>
+              <p>{f.text}</p>
+            </div>
+          ))}
+        </div>
+      </dialog>
+
+      <footer className="ph-foot">
+        <div className="ph-bar">
+          <nav aria-label="Footer">
+            <a className="ph-home" href="https://fru.dev">fru.dev</a>
+            <a
+              className="ph-feat"
+              href="#features"
+              onClick={(e) => {
+                e.preventDefault();
+                openFeatures();
+                history.replaceState(null, "", "#features");
+              }}
+            >
+              <LayoutGrid />
+              Features
+            </a>
+            <a className="ph-opt" href="/how-it-works">How it works</a>
+            <a className="ph-opt" href="https://docs.prevail.sh" target="_blank" rel="noreferrer">Docs</a>
+            <a className="ph-opt" href="/changelog">Changelog</a>
+            <a href="/faq">FAQ</a>
+            <a className="ph-opt" href="/privacy">Privacy</a>
+          </nav>
+          <a className="ph-built" href={GITHUB_DESKTOP} target="_blank" rel="noreferrer">
+            <Sparkles />
+            <span>
+              Built with AI<span className="ph-opt">, easy to make your own on GitHub</span>
+            </span>
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 }
 
@@ -2865,6 +3199,8 @@ export default function App() {
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
   }, []);
+
+  if (path === "") return <Home />;
 
   return (
     <div className="min-h-screen bg-bg">
