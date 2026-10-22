@@ -253,6 +253,15 @@ function OpenAIMark({ className = "" }: { className?: string }) {
   );
 }
 
+// Grok's mark, the white path of Wikimedia Commons' Grok-icon.svg, without its black tile.
+function GrokMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="56 56 400 398" className={className} fill="currentColor">
+      <path d="M213.235 306.019l178.976-180.002v.169l51.695-51.763c-.924 1.32-1.86 2.605-2.785 3.89-39.281 54.164-58.46 80.649-43.07 146.922l-.09-.101c10.61 45.11-.744 95.137-37.398 131.836-46.216 46.306-120.167 56.611-181.063 14.928l42.462-19.675c38.863 15.278 81.392 8.57 111.947-22.03 30.566-30.6 37.432-75.159 22.065-112.252-2.92-7.025-11.67-8.795-17.792-4.263l-124.947 92.341zm-25.786 22.437l-.033.034L68.094 435.217c7.565-10.429 16.957-20.294 26.327-30.149 26.428-27.803 52.653-55.359 36.654-94.302-21.422-52.112-8.952-113.177 30.724-152.898 41.243-41.254 101.98-51.661 152.706-30.758 11.23 4.172 21.016 10.114 28.638 15.639l-42.359 19.584c-39.44-16.563-84.629-5.299-112.207 22.313-37.298 37.308-44.84 102.003-1.128 143.81z" />
+    </svg>
+  );
+}
+
 // "Star on GitHub" pill — single rounded shape, no internal divider.
 // Modeled after the Linear / Vercel / shadcn-ui pattern: cream pill on
 // dark, dark pill on light. Star icon → "Star" → live count.
@@ -3069,13 +3078,16 @@ function Home() {
             </div>
           </div>
           <HomeHeadline />
-          <div className="ph-alt" aria-label="Claude, ChatGPT, Gemini or local models, with one memory in your own files">
+          <div className="ph-alt" aria-label="Claude, ChatGPT, Gemini, Grok, Muse or OpenClaw, with one memory in your own files">
             <div className="ph-models">
               {[
                 { name: "Claude", node: <SimpleIcon icon={siClaude} className="ph-mi" />, color: "#D97757" },
                 { name: "ChatGPT", node: <OpenAIMark className="ph-mi" />, color: "#0B0F0C" },
                 { name: "Gemini", node: <SimpleIcon icon={siGooglegemini} className="ph-mi" />, color: "#4285F4" },
-                { name: "Ollama", node: <SimpleIcon icon={siOllama} className="ph-mi" />, color: "#0B0F0C" },
+                // Fru, 2026-10-22: more than Claude, the frontier and the always-on agents; no Ollama here.
+                { name: "Grok", node: <GrokMark className="ph-mi" />, color: "#0B0F0C" },
+                { name: "Muse", node: <SimpleIcon icon={siMeta} className="ph-mi" />, color: "#0866FF" },
+                { name: "OpenClaw", node: <img src="/logo-openclaw.svg" alt="" className="ph-mi" />, color: "#0B0F0C" },
               ].map((m) => (
                 <figure key={m.name} title={m.name} style={{ color: m.color }}>
                   {m.node}

@@ -238,7 +238,7 @@ html:has(.snap-page) { scroll-padding-top: 3.5rem; }
 .ph-alt{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:22px;padding:12px 16px}
 .ph-models{display:flex;gap:clamp(6px,1vw,12px)}
 .ph-models figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:5px}
-.ph-models figure>svg{box-sizing:content-box;width:clamp(22px,3.2vh,30px);height:clamp(22px,3.2vh,30px);padding:clamp(8px,1.1vh,11px);background:#fff;border-radius:24%;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.ph-models figure>svg,.ph-models figure>img{box-sizing:content-box;width:clamp(22px,3.2vh,30px);height:clamp(22px,3.2vh,30px);padding:clamp(8px,1.1vh,11px);background:#fff;border-radius:24%;box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .ph-models figcaption{font-size:12px;font-weight:600;color:var(--dim)}
 .ph-to{width:22px;height:22px;color:var(--dim);flex:none}
 .ph-yours{display:flex;align-items:center;gap:10px;text-align:left}
@@ -296,7 +296,7 @@ html:has(.snap-page) { scroll-padding-top: 3.5rem; }
 .ph-built:hover{color:var(--green)}
 .ph-bar a:focus:not(:focus-visible){outline:none}
 @media not ((min-width:960px) and (min-height:560px)){.ph .ph-bar .ph-opt{display:none}.ph-arrow{width:54px}.ph-say{font-size:22px;margin-right:22px}}
-@media not ((min-width:960px) and (min-height:560px)){.ph-alt{padding:10px 12px;gap:6px}.ph-models{gap:5px}.ph-models figure>svg{width:18px;height:18px;padding:7px}.ph-to{width:16px;height:16px}.ph-yours{gap:7px}.ph-yours img{width:32px}.ph-yours b{font-size:16px}}
+@media not ((min-width:960px) and (min-height:560px)){.ph-alt{padding:10px 12px;gap:6px}.ph-models{gap:5px}.ph-models figure>svg,.ph-models figure>img{width:18px;height:18px;padding:7px}.ph-to{width:16px;height:16px}.ph-yours{gap:7px}.ph-yours img{width:32px}.ph-yours b{font-size:16px}}
 @media (max-width:480px){.ph-star-lbl,.ph-for{display:none}}
 @media (max-width:400px){.ph-star{padding:0 14px}.ph-bar nav a{padding:6px 5px}.ph-bar a.ph-feat svg{display:none}}
 @media (min-width:960px) and (min-height:560px){
@@ -314,7 +314,7 @@ html:has(.snap-page) { scroll-padding-top: 3.5rem; }
   .ph-bar{padding:0 clamp(32px,5vw,96px)}
 }
 
-@media (max-width:380px),(min-width:960px) and (max-width:1180px) and (min-height:560px){.ph-alt{padding:10px;gap:4px}.ph-models{gap:4px}.ph-models figure>svg{width:16px;height:16px;padding:6px}.ph-to{width:14px;height:14px}.ph-yours{gap:6px}.ph-yours img{width:30px}.ph-yours b{font-size:15px}.ph-yours small{font-size:12px}}
+@media (max-width:380px),(min-width:960px) and (max-width:1180px) and (min-height:560px){.ph-alt{padding:10px;gap:4px}.ph-models{gap:4px}.ph-models figure>svg,.ph-models figure>img{width:16px;height:16px;padding:6px}.ph-to{width:14px;height:14px}.ph-yours{gap:6px}.ph-yours img{width:30px}.ph-yours b{font-size:15px}.ph-yours small{font-size:12px}}
 @media (max-width:400px){.ph-models figcaption{display:none}}
 @media (prefers-reduced-motion:reduce){.ph *{animation:none!important}}
 
@@ -334,3 +334,7 @@ html:has(.snap-page) { scroll-padding-top: 3.5rem; }
 .ph-bar a.ph-home img{display:block}
 .ph-bar .ph-built .ph-heart-i{display:inline-block;vertical-align:-2px;margin:0 1px;width:14px;height:14px;color:#e0465b}
 @media (max-width:380px){.ph-built .ph-bw{display:none}}
+/* Six AIs since 2026-10-22 (Fru: Grok, Muse, OpenClaw): the logos take the full first line, "One memory" the second. */
+.ph-alt{flex-wrap:wrap;justify-content:center;row-gap:10px}
+.ph-models{flex:1 1 100%;justify-content:space-between}
+.ph-to{display:none}
