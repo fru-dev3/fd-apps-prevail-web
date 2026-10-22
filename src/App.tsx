@@ -63,6 +63,7 @@ import {
 } from "simple-icons";
 import { APP_VERSION, useLatestVersion, useLiveVersion } from "./version";
 import downloadSnapshot from "./download-total.json";
+import stargazers from "./stargazers.json";
 
 const GITHUB_DESKTOP = "https://github.com/fru-dev3/prevail-desktop";
 const PRODUCT_HUNT_URL = "https://www.producthunt.com/products/prevail-2?launch=prevail";
@@ -2852,21 +2853,28 @@ function useHomeStars(): number | null {
         /* storage blocked */
       }
     };
-    // shields.io first (cached on their side, so visitors never hit GitHub's 60 an hour
-    // per network); GitHub's own API if that fails or an ad-blocker drops it.
-    fetch("https://img.shields.io/github/stars/fru-dev3/prevail-desktop.json")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => {
-        const v = parseInt(d.value, 10);
-        if (!(v > 0)) throw 0;
-        keep(v);
-      })
-      .catch(() =>
-        fetch("https://api.github.com/repos/fru-dev3/prevail-desktop")
-          .then((r) => (r.ok ? r.json() : null))
-          .then((j) => j && keep(j.stargazers_count))
-          .catch(() => {}),
-      );
+    // shields.io, at most once an hour per browser (it caches GitHub, so visitors never meet
+    // GitHub's 60 an hour); the build-time snapshot covers any failure, quietly.
+    let fresh = false;
+    try {
+      fresh = Date.now() - (Number(localStorage.getItem(LS_STARS + "-at")) || 0) < 3600e3;
+    } catch {
+      /* storage blocked */
+    }
+    if (!fresh)
+      fetch("https://img.shields.io/github/stars/fru-dev3/prevail-desktop.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          const v = parseInt(d?.value, 10);
+          if (!(v > 0)) return;
+          keep(v);
+          try {
+            localStorage.setItem(LS_STARS + "-at", String(Date.now()));
+          } catch {
+            /* storage blocked */
+          }
+        })
+        .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -2944,7 +2952,7 @@ function HomeHeadline() {
 const CLIP_START: Record<string, number> = { council: 0.8, compass: 1, entities: 1, arena: 1, settings: 1 };
 const CLIP_SKIP: Record<string, [number, number][]> = { entities: [[12.3, 12.8]], settings: [[6.4, 7.0]] };
 
-function HomeClips() {
+function HomeClips({ stars, downloads }: { stars: number | null; downloads: number | null }) {
   const reduce = useReducedMotion();
   const [idx, setIdx] = useState(0);
   const video = useRef<HTMLVideoElement>(null);
@@ -2977,26 +2985,27 @@ function HomeClips() {
   const Icon = clip.icon;
   return (
     <div className="ph-right">
-      <div className="ph-chips" role="tablist" aria-label="What Prevail does">
-        {DEMO_SLIDES.map((c, i) => {
-          const I = c.icon;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={i === idx}
-              title={c.title}
-              aria-label={c.title}
-              onClick={() => {
-                setIdx(i);
-                track("home_clip", { clip: c.id });
-              }}
-            >
-              <I />
-            </button>
-          );
-        })}
+      <div className="ph-proof">
+        <div className="ph-faces">
+          {stargazers.map((login) => (
+            <a key={login} href={`https://github.com/${login}`} target="_blank" rel="noreferrer" title={login}>
+              <img src={`/stargazers/${login}.png`} width="40" height="40" alt={login} loading="lazy" />
+            </a>
+          ))}
+        </div>
+        <p>
+          {stars !== null && (
+            <a href={`${GITHUB_DESKTOP}/stargazers`} target="_blank" rel="noreferrer">
+              Starred by <b>{stars}</b> developers
+            </a>
+          )}
+          {stars !== null && !!downloads && <span aria-hidden> · </span>}
+          {!!downloads && (
+            <span>
+              <b>{downloads.toLocaleString("en-US")}</b> downloads
+            </span>
+          )}
+        </p>
       </div>
       <div className="ph-frame">
         <video
@@ -3013,12 +3022,20 @@ function HomeClips() {
           <source src={`/demos/${clip.id}-light.mp4`} type="video/mp4" />
         </video>
       </div>
-      <div className="ph-pill" aria-live="polite">
-        <Icon />
-        <b>{clip.title}</b>
-        <span>
-          {idx + 1}/{DEMO_SLIDES.length}
+      <div className="ph-pill">
+        <button type="button" aria-label="Previous demo" onClick={() => setIdx((i) => (i + DEMO_SLIDES.length - 1) % DEMO_SLIDES.length)}>
+          <ChevronLeft />
+        </button>
+        <span className="ph-cap" aria-live="polite">
+          <Icon />
+          <b>{clip.title}</b>
+          <span>
+            {idx + 1}/{DEMO_SLIDES.length}
+          </span>
         </span>
+        <button type="button" aria-label="Next demo" onClick={() => setIdx((i) => (i + 1) % DEMO_SLIDES.length)}>
+          <ChevronRight />
+        </button>
       </div>
     </div>
   );
@@ -3129,7 +3146,7 @@ function Home() {
           </ul>
           <p className="ph-note">Model names and logos belong to their owners. Prevail is not affiliated with them.</p>
         </div>
-        <HomeClips />
+        <HomeClips stars={stars} downloads={downloads} />
       </main>
 
       <dialog
@@ -3164,7 +3181,7 @@ function Home() {
       <footer className="ph-foot">
         <div className="ph-bar">
           <nav aria-label="Footer">
-            <a className="ph-home" href="https://fru.dev">fru.dev</a>
+            <a className="ph-home" href="https://fru.dev"><img src="/fru-dev.png" width="16" height="16" alt="" style={{ borderRadius: 4 }} />fru.dev</a>
             <a
               className="ph-feat"
               href="#features"
