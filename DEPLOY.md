@@ -1,7 +1,7 @@
 # Prevail site: deploy reference
 
-Marketing site for Prevail | Agent Harness, live at https://prevail.sh (www.prevail.sh and
-prevail.fru.dev redirect to it). Vite + React + Tailwind v4.
+Retired marketing site for Prevail (now Glyph Studio). Since 2026-10-25 every page of https://prevail.sh
+301s to https://glyph.fru.dev/studio; only `/install` and `/install-mac` are still served here, and `/download` and `/Prevail-*.dmg` go to the GitHub release. The redirects live in `vercel.json`. Vite + React + Tailwind v4.
 
 ## Hosting
 
