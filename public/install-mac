@@ -1,45 +1,77 @@
 #!/usr/bin/env bash
-# Prevail — macOS desktop app installer.
+# Glyph Studio (formerly Prevail): macOS desktop app installer.
 #
 # Usage:
 #   curl -fsSL https://prevail.sh/install-mac | bash
 #
-# Downloads the latest signed + notarized DMG, installs Prevail.app into
-# /Applications, clears the download quarantine, and launches it.
+# Downloads the latest signed + notarized DMG, quits a running copy politely,
+# installs the app into /Applications under the name the DMG carries
+# ("Glyph Studio.app" from 0.4.9 on, "Prevail.app" before), clears the
+# download quarantine, and launches it. An older /Applications/Prevail.app is
+# moved to the Trash once Glyph Studio.app is in place, so there is one copy.
 #
 # Source: https://github.com/fru-dev3/prevail-web/blob/main/public/install-mac
 # The .dmg is served from GitHub Releases (unlimited bandwidth).
 
 set -euo pipefail
 
-DMG_URL="https://github.com/fru-dev3/prevail-desktop/releases/latest/download/Prevail-mac-arm64.dmg"
+DMG_URL="https://github.com/fru-dev3/glyph-studio/releases/latest/download/Prevail-mac-arm64.dmg"
+BUNDLE_ID="sh.prevail.desktop"
 
-gold=$'\033[38;5;179m'; green=$'\033[38;5;77m'; red=$'\033[38;5;203m'; dim=$'\033[2m'; reset=$'\033[0m'
-step() { printf "${gold}◆${reset} %s\n" "$*"; }
+brand=$'\033[38;5;71m'; green=$'\033[38;5;77m'; red=$'\033[38;5;203m'; dim=$'\033[2m'; reset=$'\033[0m'
+step() { printf "${brand}◆${reset} %s\n" "$*"; }
 ok()   { printf "${green}✓${reset} %s\n" "$*"; }
 die()  { printf "${red}✗ %s${reset}\n" "$*" >&2; exit 1; }
 
-[ "$(uname -s)" = "Darwin" ] || die "Prevail desktop is macOS-only. (For the CLI: curl -fsSL https://prevail.sh/install | bash)"
+[ "$(uname -s)" = "Darwin" ] || die "Glyph Studio is macOS-only. (For the engine: curl -fsSL https://prevail.sh/install | bash)"
 
 VOL=""
 tmp="$(mktemp -d)"
 cleanup() { [ -n "$VOL" ] && hdiutil detach "$VOL" >/dev/null 2>&1 || true; rm -rf "${tmp:-}"; }
 trap cleanup EXIT
 
-step "downloading Prevail"
-curl -fSL --progress-bar "$DMG_URL" -o "$tmp/Prevail.dmg" || die "download failed — check https://github.com/fru-dev3/prevail-desktop/releases"
-ok "downloaded $(du -h "$tmp/Prevail.dmg" | awk '{print $1}')"
+step "downloading Glyph Studio"
+curl -fSL --progress-bar "$DMG_URL" -o "$tmp/app.dmg" || die "download failed: check https://github.com/fru-dev3/glyph-studio/releases"
+ok "downloaded $(du -h "$tmp/app.dmg" | awk '{print $1}')"
+
+VOL="$(hdiutil attach -nobrowse -noautoopen "$tmp/app.dmg" | grep -o '/Volumes/.*' | head -1)"
+[ -n "$VOL" ] || die "could not mount the DMG"
+APP=""
+for name in "Glyph Studio.app" "Prevail.app"; do
+  if [ -d "$VOL/$name" ]; then APP="$name"; break; fi
+done
+[ -n "$APP" ] || die "no app found in the DMG"
+NAME="${APP%.app}"
+
+# Quit a running copy (either name, same bundle id) and give it time to close.
+if pgrep -f "/Contents/MacOS/prevail-desktop" >/dev/null 2>&1; then
+  step "quitting the running app"
+  osascript -e "tell application id \"$BUNDLE_ID\" to quit" >/dev/null 2>&1 || true
+  for _ in $(seq 1 20); do
+    pgrep -f "/Contents/MacOS/prevail-desktop" >/dev/null 2>&1 || break
+    sleep 1
+  done
+  pgrep -f "/Contents/MacOS/prevail-desktop" >/dev/null 2>&1 && die "the app is still running: quit it from its menu and run this again"
+fi
 
 step "installing to /Applications"
-VOL="$(hdiutil attach -nobrowse -noautoopen "$tmp/Prevail.dmg" | grep -o '/Volumes/.*' | head -1)"
-[ -n "$VOL" ] && [ -d "$VOL/Prevail.app" ] || die "could not mount the DMG"
-rm -rf "/Applications/Prevail.app"
-cp -R "$VOL/Prevail.app" /Applications/
+rm -rf "/Applications/$APP"
+cp -R "$VOL/$APP" /Applications/
 hdiutil detach "$VOL" >/dev/null; VOL=""
-xattr -dr com.apple.quarantine /Applications/Prevail.app 2>/dev/null || true
-ok "installed → /Applications/Prevail.app"
+xattr -dr com.apple.quarantine "/Applications/$APP" 2>/dev/null || true
+ok "installed → /Applications/$APP"
+
+# The old name, now replaced: move it to the Trash (recoverable), not delete it.
+if [ "$APP" != "Prevail.app" ] && [ -d "/Applications/Prevail.app" ]; then
+  trash="$HOME/.Trash/Prevail $(date +%Y-%m-%d-%H%M%S).app"
+  if mv "/Applications/Prevail.app" "$trash" 2>/dev/null; then
+    ok "moved the old Prevail.app to the Trash"
+  else
+    printf "${dim}  the old /Applications/Prevail.app is still there; you can remove it${reset}\n"
+  fi
+fi
 
 step "launching"
-open -a Prevail || true
+open "/Applications/$APP" || true
 
-printf "\n${green}◆${reset} ${gold}Prevail is installed.${reset} ${dim}Find it in /Applications or Spotlight.${reset}\n\n"
+printf "\n${green}◆${reset} ${brand}%s is installed.${reset} ${dim}Find it in /Applications or Spotlight.${reset}\n\n" "$NAME"

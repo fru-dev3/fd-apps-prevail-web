@@ -2002,6 +2002,14 @@ const RELEASES_LATEST = `${GITHUB_DESKTOP}/releases/latest`;
 const SHIPPED = [
   {
     date: "Oct 2026",
+    tag: "0.4.9",
+    Icon: Sparkles,
+    title: "Prevail Is Now Glyph Studio",
+    body: "Same private AI harness for your life, under a new name and a new icon, as part of the Glyph family. Nothing moves: your vault, chats, settings and connections stay where they are, the prevail command still works, and the update installs over Prevail in place.",
+    href: "https://github.com/fru-dev3/glyph-studio/releases/tag/v0.4.9",
+  },
+  {
+    date: "Oct 2026",
     tag: "0.4.8 · Breaking",
     Icon: Compass,
     title: "Your Compass, a Team of Specialists, and Two Clear Groups",
