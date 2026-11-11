@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 vercel build --prod --yes
 
 SECSCAN=../../fd-libs/fd-libs-sitecheck/bin/secscan.mjs
-[ -f "$SECSCAN" ] || SECSCAN="$HOME/Documents/fru/fd-libs/fd-libs-sitecheck/bin/secscan.mjs"
+[ -f "$SECSCAN" ] || SECSCAN="${FD_LIBS:-}/fd-libs-sitecheck/bin/secscan.mjs"
 [ -f "$SECSCAN" ] || { echo "security scan not found (fd-libs/fd-libs-sitecheck): not deploying"; exit 1; }
 node "$SECSCAN" . || { echo "security scan failed (see above): not deploying"; exit 1; }
 

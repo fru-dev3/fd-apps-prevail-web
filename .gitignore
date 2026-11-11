@@ -35,3 +35,7 @@ public/*.dmg
 # Vercel
 .vercel
 .env*
+
+# private notes, vault-linked, never public
+.soul/
+.workmux.yaml

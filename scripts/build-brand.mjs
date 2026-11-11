@@ -9,7 +9,6 @@
 //
 //   node scripts/build-brand.mjs
 import { copyFileSync, readFileSync, writeFileSync, existsSync } from "node:fs";
-import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -20,7 +19,7 @@ const SRC = pub("brand/prevail-tile.svg");
 const pw = [
   process.env.PLAYWRIGHT_CORE,
   join(root, "../../fd-libs/fd-libs-sitecheck/node_modules/playwright-core"),
-  join(homedir(), "Documents/fru/fd-libs/fd-libs-sitecheck/node_modules/playwright-core"),
+  process.env.FD_LIBS && join(process.env.FD_LIBS, "fd-libs-sitecheck/node_modules/playwright-core"),
 ].find((p) => p && existsSync(join(p, "index.mjs")));
 if (!pw) throw new Error("playwright-core not found; set PLAYWRIGHT_CORE");
 const { chromium } = await import(pathToFileURL(join(pw, "index.mjs")).href);
