@@ -24,7 +24,7 @@ cp -R .vercel/project.json .vercel/output "$STAGE/.vercel/"
 (cd "$STAGE" && vercel deploy --prebuilt --prod --scope fru-dev3 >/dev/null)
 
 echo "checking the live site"
-# prevail.sh is retired: every page 301s to Glyph Studio, the installer scripts stay served here.
+# prevail.sh is retired: every page 301s to Glyph, the installer scripts stay served here.
 for path in /install /install-mac; do
   code=$(curl -s -o /dev/null -w '%{http_code}' "https://prevail.sh$path")
   [ "$code" = 200 ] || { echo "https://prevail.sh$path answered $code"; exit 1; }
@@ -32,8 +32,8 @@ done
 curl -s https://prevail.sh/install-mac | head -1 | grep -q '^#!/usr/bin/env bash' || { echo "/install-mac is not the script"; exit 1; }
 for path in / /faq /how-it-works /changelog; do
   r=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "https://prevail.sh$path")
-  [ "$r" = "301 https://glyph.fru.dev/studio" ] || { echo "https://prevail.sh$path answered $r"; exit 1; }
+  [ "$r" = "301 https://glyph.fru.dev/" ] || { echo "https://prevail.sh$path answered $r"; exit 1; }
 done
 code=$(curl -s -o /dev/null -w '%{http_code}' -L "https://prevail.sh/download")
-[ "$code" = 200 ] || { echo "/download does not reach the releases ($code)"; exit 1; }
-echo "live: prevail.sh redirects to https://glyph.fru.dev/studio, installers served"
+[ "$code" = 200 ] || { echo "/download does not reach Glyph Bot ($code)"; exit 1; }
+echo "live: prevail.sh redirects to https://glyph.fru.dev, installers served"

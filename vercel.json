@@ -6,9 +6,9 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/download",
-      "destination": "https://github.com/fru-dev3/glyph-studio/releases/latest",
-      "statusCode": 302
+      "source": "/",
+      "destination": "https://glyph.fru.dev/",
+      "statusCode": 301
     },
     {
       "source": "/:file(Prevail-.*\\.(?:dmg|exe))",
@@ -16,8 +16,18 @@
       "statusCode": 302
     },
     {
+      "source": "/docs/:path*",
+      "destination": "https://glyph.fru.dev/docs",
+      "statusCode": 301
+    },
+    {
+      "source": "/(download|pricing|desktop|app|get|studio)",
+      "destination": "https://glyph.fru.dev/bot",
+      "statusCode": 301
+    },
+    {
       "source": "/((?!install$|install-mac$).*)",
-      "destination": "https://glyph.fru.dev/studio",
+      "destination": "https://glyph.fru.dev/",
       "statusCode": 301
     }
   ],
